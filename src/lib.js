@@ -46,6 +46,48 @@ export function getMeasures(track) {
   return measures
 }
 
+export function getSectionInfo(track) {
+  const sections = []
+  for (const [startMeasure, name] of track.measureRehearsalMap.entries()) {
+    sections.push({ name, startMeasure })
+  }
+  for (let index = 1; index < sections.length; ++index) {
+    sections[index - 1].endMeasure = sections[index].startMeasure - 1
+  }
+  // Last section ends with piece
+  if (sections.length > 0) {
+    const last = sections[sections.length - 1]
+    last.endMeasure = track.measureIndices.length - 1
+  }
+  // Add first empty section when first does not start at measure 0
+  if (sections.length > 0 && sections[0].startMeasure > 0) {
+    const first = {
+      name: '',
+      startMeasure: 0,
+      endMeasure: sections[0].startMeasure - 1
+    }
+    sections.unshift(first)
+  }
+  // Add lengths to each
+  for (const section of sections) {
+    section.length = section.endMeasure - section.startMeasure + 1
+  }
+  return sections
+}
+
+export function getSections(sectionInfo, measures) {
+  // Get notes by measures
+  const indices = sectionInfo.map((d) => d.startMeasure)
+  const notesBySection = []
+  for (let index = 1; index < indices.length + 1; ++index) {
+    const notes = measures
+      .slice(indices[index - 1], indices[index])
+      .flat()
+    notesBySection.push(notes)
+  }
+  return notesBySection
+}
+
 /**
  * Calculates the pairwise distances between all elements of noteCollections
  * @param {Note[][]} noteCollections Note[][]

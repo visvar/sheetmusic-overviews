@@ -7,16 +7,19 @@
     import "svelte-material-ui/bare.css";
     import Menu from "./Menu.svelte";
     import OverviewSheet from "./OverviewSheet.svelte";
+    import OverviewTree from "./OverviewTree.svelte";
     import {
         getColorsFrom1DPoints,
         getDistanceMatrix,
         getDRPointsFromDistances,
         getMeasures,
+        getSectionInfo,
+        getSections,
     } from "./lib.js";
 
     // View
-    let views = ["Tiles", "Bubble", "PCP"];
-    let currentView = "Tiles";
+    let views = ["Overview Sheet", "Tree", "Score"];
+    let currentView = views[0];
 
     // Data
     let musicpiece = null;
@@ -38,6 +41,11 @@
             ? getColorsFrom1DPoints(measurePoints, colormap.map)
             : [];
     $: console.log("app: colors", measureColors);
+
+    $: sectionInfo = track ? getSectionInfo(track) : null;
+    $: console.log("app: secInfo", sectionInfo);
+    $: sections = track ? getSections(sectionInfo, measures) : null;
+    $: console.log("app: secs", sections);
 </script>
 
 <div class="flexy">
@@ -86,16 +94,31 @@
                     bind:selectedColoring={coloring}
                     bind:selectedColormap={colormap}
                 />
-                {#if notes && notes.length > 0}
-                    <OverviewSheet
-                        width={800}
-                        height={800}
-                        {track}
-                        {measures}
-                        {encoding}
-                        colors={measureColors}
-                    />
-                {/if}
+                <div class="views">
+                    {#if notes && notes.length > 0}
+                        <OverviewSheet
+                            width={800}
+                            height={800}
+                            {track}
+                            {measures}
+                            {encoding}
+                            mode={"Measures"}
+                            colors={measureColors}
+                        />
+                    {/if}
+                    {#if sections && sections.length > 0}
+                        <OverviewTree
+                            width={800}
+                            height={600}
+                            {track}
+                            {sectionInfo}
+                            {sections}
+                            {measures}
+                            {measureColors}
+                            {encoding}
+                        />
+                    {/if}
+                </div>
             </main>
         </div>
     </div>

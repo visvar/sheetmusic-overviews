@@ -1,14 +1,12 @@
 <script>
     import { onMount, afterUpdate } from "svelte";
+    import Slider from "@smui/slider";
     import * as d3 from "d3";
     import {
         Canvas,
         Chords,
         Utils,
     } from "../node_modules/musicvis-lib/dist/musicvislib";
-    const getColorLightness = Utils.getColorLightness;
-
-    import Slider from "@smui/slider";
 
     export let width;
     export let height;
@@ -16,11 +14,11 @@
     export let measures;
     export let colors;
     export let encoding;
+    export let mode = "Measures";
 
     let mPerRow = 20;
     let showFrets = true;
     let showStrings = true;
-    let mode = "Measures";
 
     let canvas;
 
@@ -158,7 +156,7 @@
                         context.fillStyle = "#333";
                         if (
                             measureOrSectMode &&
-                            getColorLightness(bgColor) < 50
+                            Utils.getColorLightness(bgColor) < 50
                         ) {
                             context.fillStyle = "#eee";
                         }
@@ -169,7 +167,7 @@
                         // Draw fret numbers
                         if (isTab && showFrets) {
                             context.fillStyle =
-                                getColorLightness(context.fillStyle) > 50
+                                Utils.getColorLightness(context.fillStyle) > 50
                                     ? "black"
                                     : "white";
                             context.fillText(
@@ -192,7 +190,8 @@
                             // Draw fret numbers
                             if (showFrets) {
                                 context.fillStyle =
-                                    getColorLightness(context.fillStyle) > 50
+                                    Utils.getColorLightness(context.fillStyle) >
+                                    50
                                         ? "black"
                                         : "white";
                                 context.fillText(

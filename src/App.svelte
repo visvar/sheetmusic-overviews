@@ -5,54 +5,39 @@
     import { Label } from "@smui/common";
 
     import "svelte-material-ui/bare.css";
-    import Filter from "./Filter.svelte";
-    import TileGrid from "./TileGrid.svelte";
-    import BubbleChart from "./BubbleChart.svelte";
+    import Menu from "./Menu.svelte";
+    import OverviewSheet from "./OverviewSheet.svelte";
+    import {
+        getColorsFrom1DPoints,
+        getDistanceMatrix,
+        getDRPointsFromDistances,
+        getMeasures,
+    } from "./lib.js";
 
     // View
     let views = ["Tiles", "Bubble", "PCP"];
     let currentView = "Tiles";
 
-    // Filter
-    let minYear;
-    let maxYear;
-    let venues;
-    let modalities;
-    const updateFilter = () => {
-        if (!allData) {
-            return;
-        }
-        const venueSet = new Set(venues);
-        data = allData.filter((d) => {
-            return (
-                d.year >= minYear &&
-                d.year <= maxYear &&
-                venueSet.has(d.conference)
-            );
-        });
-        console.log(data);
-    };
-    // Update data when filter variables change
-    $: if (minYear || maxYear || venues || modalities) {
-        updateFilter();
-    }
+    // Data
+    let musicpiece = null;
+    $: console.log("app: musicpiece", musicpiece);
+    let track;
+    $: console.log("app: track", track);
+    let encoding;
+    let coloring;
+    let colormap;
 
-    // Data loading
-    let loading = false;
-    let allData = null;
-    let data = null;
-    const loadData = async () => {
-        loading = true;
-        const response = await fetch("./data.json");
-        data = await response.json();
-        allData = data;
-        if (response.ok) {
-            loading = false;
-        } else {
-            throw new Error(text);
-        }
-    };
-    loadData();
+    $: notes = track ? track.notes : [];
+    $: measures = track ? getMeasures(track) : [];
+    $: console.log(measures);
+    $: measureDists = getDistanceMatrix(measures, "levenshteinPitch");
+    $: measurePoints = getDRPointsFromDistances(measureDists);
+    $: console.log("app: points", measurePoints);
+    $: measureColors =
+        measurePoints.length > 0 && colormap
+            ? getColorsFrom1DPoints(measurePoints, colormap.map)
+            : [];
+    $: console.log("app: colors", measureColors);
 </script>
 
 <div class="flexy">
@@ -69,7 +54,7 @@
             <Row>
                 <Section>
                     <IconButton class="material-icons">menu</IconButton>
-                    <Title>VR/AR Avatar Survey</Title>
+                    <Title>Sheet Music Overviews</Title>
                 </Section>
                 <Section align="center" toolbar>
                     <SegmentedButton
@@ -93,20 +78,23 @@
         </TopAppBar>
         <div class="flexor-content">
             <main>
-                {#if loading === true}
-                    Loading...
-                {:else if data !== null}
-                    <Filter
-                        {data}
-                        bind:minYear
-                        bind:maxYear
-                        bind:selectedVenues={venues}
+                <Menu
+                    on:fileopened={(event) =>
+                        (musicpiece = event.detail.musicpiece)}
+                    bind:selectedTrack={track}
+                    bind:selectedEncoding={encoding}
+                    bind:selectedColoring={coloring}
+                    bind:selectedColormap={colormap}
+                />
+                {#if notes && notes.length > 0}
+                    <OverviewSheet
+                        width={800}
+                        height={800}
+                        {track}
+                        {measures}
+                        {encoding}
+                        colors={measureColors}
                     />
-                    {#if currentView === "Tiles"}
-                        <TileGrid {data} />
-                    {:else if currentView === "Bubble"}
-                        <BubbleChart {data} />
-                    {/if}
                 {/if}
             </main>
         </div>
@@ -119,7 +107,6 @@
         margin: 0 0 0 0;
         overflow: auto;
         display: inline-block;
-        /* border: 1px solid            var(--mdc-theme-text-hint-on-background, rgba(0, 0, 0, 0.1)); */
         background-color: var(--mdc-theme-background, #fff);
     }
 

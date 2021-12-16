@@ -9,7 +9,6 @@
 
     export let width;
     export let height;
-    export let track;
     export let sectionInfo;
     export let sections;
     export let measures;
@@ -86,10 +85,10 @@
             context.fillRect(0, 0, w, h);
 
             // Draw sections
-            sWidth = w / notesBySection.length;
+            sWidth = w / sections.length;
             const sWidthInner = sWidth > 3 ? sWidth - 0.5 : sWidth;
             let rowY = 10;
-            for (const [index, section] of notesBySection.entries()) {
+            for (const [index, section] of sections.entries()) {
                 const col = index;
                 const mX = col * sWidth;
                 // Background

@@ -110,7 +110,6 @@
                         <OverviewTree
                             width={800}
                             height={600}
-                            {track}
                             {sectionInfo}
                             {sections}
                             {measures}

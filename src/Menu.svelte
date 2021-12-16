@@ -88,6 +88,11 @@
             description: "",
             map: (d) => d3.interpolateTurbo(d),
         },
+        {
+            name: "CIELAB",
+            description: "uniform lightness",
+            map: (d) => (d) => d3.lab(75, 40, d * 256 - 128),
+        },
     ];
     export let selectedColormap = colormaps[0];
 </script>

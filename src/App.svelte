@@ -1,13 +1,12 @@
 <script>
+    import "svelte-material-ui/bare.css";
+
+    import * as d3 from "d3";
     import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
     import IconButton from "@smui/icon-button";
     import SegmentedButton, { Segment } from "@smui/segmented-button";
     import { Label } from "@smui/common";
 
-    import "svelte-material-ui/bare.css";
-    import Menu from "./Menu.svelte";
-    import OverviewSheet from "./OverviewSheet.svelte";
-    import OverviewTree from "./OverviewTree.svelte";
     import {
         getColorsFrom1DPoints,
         getDistanceMatrix,
@@ -17,35 +16,50 @@
         getSections,
     } from "./lib.js";
 
+    import Menu from "./Menu.svelte";
+    import OverviewSheet from "./OverviewSheet.svelte";
+    import OverviewTree from "./OverviewTree.svelte";
+    import Score from "./Score.svelte";
+
     // View
     let views = ["Overview Sheet", "Tree", "Score"];
     let currentView = views[0];
 
     // Data
+    let musicxml = null;
     let musicpiece = null;
     $: console.log("app: musicpiece", musicpiece);
-    let track;
-    $: console.log("app: track", track);
+    let trackIndex = 0;
+    $: track = musicpiece ? musicpiece.tracks[trackIndex] : null;
+    $: console.log("app: track", trackIndex, track);
     let encoding;
     let coloring;
     let colormap;
 
     $: notes = track ? track.notes : [];
     $: measures = track ? getMeasures(track) : [];
-    $: console.log(measures);
     $: measureDists = getDistanceMatrix(measures, "levenshteinPitch");
     $: measurePoints = getDRPointsFromDistances(measureDists);
-    $: console.log("app: points", measurePoints);
     $: measureColors =
         measurePoints.length > 0 && colormap
             ? getColorsFrom1DPoints(measurePoints, colormap.map)
             : [];
-    $: console.log("app: colors", measureColors);
+    $: console.log("app: measure colors", measureColors);
 
     $: sectionInfo = track ? getSectionInfo(track) : null;
     $: console.log("app: secInfo", sectionInfo);
-    $: sections = track ? getSections(sectionInfo, measures) : null;
-    $: console.log("app: secs", sections);
+    $: sections = track ? getSections(sectionInfo, measures) : [];
+    $: sectionDists = getDistanceMatrix(sections, "levenshteinPitch");
+    $: sectionPoints = getDRPointsFromDistances(sectionDists);
+    $: sectionColors =
+        sectionPoints.length > 0 && colormap
+            ? getColorsFrom1DPoints(sectionPoints, colormap.map)
+            : [];
+    $: console.log("app: sec colors", sectionColors);
+
+    $: noteColors = colormap
+        ? d3.range(0, 12).map((d) => "" + colormap.map(d / 12))
+        : d3.range(12).fill("white");
 </script>
 
 <div class="flexy">
@@ -87,14 +101,30 @@
         <div class="flexor-content">
             <main>
                 <Menu
-                    on:fileopened={(event) =>
-                        (musicpiece = event.detail.musicpiece)}
-                    bind:selectedTrack={track}
+                    on:fileopened={(event) => {
+                        console.log(event.detail);
+                        musicxml = event.detail.musicxml;
+                        musicpiece = event.detail.musicpiece;
+                    }}
+                    bind:selectedTrack={trackIndex}
                     bind:selectedEncoding={encoding}
                     bind:selectedColoring={coloring}
                     bind:selectedColormap={colormap}
                 />
-                <div class="views">
+                <div class="overviewContainer">
+                    {#if sections && sections.length > 0}
+                        <OverviewTree
+                            width={800}
+                            height={600}
+                            {encoding}
+                            {sectionInfo}
+                            {sections}
+                            {sectionColors}
+                            {measures}
+                            {measureColors}
+                            {noteColors}
+                        />
+                    {/if}
                     {#if notes && notes.length > 0}
                         <OverviewSheet
                             width={800}
@@ -106,15 +136,14 @@
                             colors={measureColors}
                         />
                     {/if}
-                    {#if sections && sections.length > 0}
-                        <OverviewTree
-                            width={800}
-                            height={600}
-                            {sectionInfo}
-                            {sections}
-                            {measures}
+                </div>
+                <div class="scoreContainer">
+                    {#if musicxml && musicpiece && track && measureColors.length > 0}
+                        <Score
+                            {musicxml}
+                            {trackIndex}
+                            {track}
                             {measureColors}
-                            {encoding}
                         />
                     {/if}
                 </div>
@@ -158,6 +187,6 @@
 
     main {
         display: grid;
-        grid-template-columns: 320px auto;
+        grid-template-columns: 320px auto auto;
     }
 </style>

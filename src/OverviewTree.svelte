@@ -9,25 +9,30 @@
 
     export let width;
     export let height;
+    export let encoding;
     export let sectionInfo;
     export let sections;
+    export let sectionColors;
     export let measures;
     export let measureColors;
-    export let encoding;
+    export let harmonyColors = d3.range(10000).fill("white");
+    export let noteColors;
 
-    let showNotesToggle = true;
+    let showNotes = true;
 
     let canvas;
 
     const drawVis = () => {
         // Canvas.setupCanvas(canvas);
         const w = width;
-        // const h = height;
-        const showNotes = showNotesToggle;
-        const rowHeight = 70;
-        const gapHeight = 70;
+        const h = height;
+        const levelHeight = (h - 20) / 7;
+        const rowHeight = levelHeight;
+        const gapHeight = levelHeight;
+        // const rowHeight = 70;
+        // const gapHeight = 70;
+        // const h = 4 * rowHeight + 3 * gapHeight + 20;
 
-        const h = 4 * rowHeight + 3 * gapHeight + 20;
         const context = canvas.getContext("2d");
         context.font = `11px sans-serif`;
         context.lineWidth = 0.25;

@@ -2,6 +2,8 @@ import { StringBased } from '../node_modules/musicvis-lib/dist/musicvislib'
 import * as druid from '@saehrimnir/druidjs/dist/druid.esm'
 import * as d3 from 'd3'
 
+export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
 /**
  * Makes the first character in a string upper case
  * @param {string} string string
@@ -140,4 +142,19 @@ export function getDRPointsFromDistances(distMatrix) {
 export function getColorsFrom1DPoints(points, colormap) {
   const scaleColor = d3.scaleLinear().domain(d3.extent(points)).range([0, 1])
   return points.map((d) => colormap(scaleColor(d)))
+}
+
+
+/**
+ * Allows to wait for a number of seconds with async/await
+ * IMPORTANT: This it not exact, it will at *least* wait for X seconds
+ *
+ * @param {number} seconds number of seconds to wait
+ * @returns {Promise} empty Promise that will resolve after the specified amount
+ *      of seconds
+ */
+export function delay(seconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, seconds * 1000)
+  })
 }

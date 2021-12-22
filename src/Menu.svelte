@@ -6,32 +6,39 @@
     import Select, { Option } from "@smui/select";
 
     const dispatch = createEventDispatcher();
-    const submitFile = (musicpiece) => dispatch("fileopened", { musicpiece });
+    const submitFile = (musicxml, musicpiece) =>
+        dispatch("fileopened", { musicxml, musicpiece });
 
+    export let musicxml = null;
     export let musicpiece = null;
-    export let selectedTrack = null;
+    export let selectedTrack = 0;
     // Parse MusicXML into a MusicPiece
     const handleFileInput = async (event) => {
         const file = event.target.files[0];
         const n = file.name;
-        // MusicXML
         if (n.endsWith(".xml") || n.endsWith(".musicxml")) {
-            musicpiece = MusicPiece.fromMusicXml(n, await file.text());
-        }
-        // Compressed MusicXML
-        if (n.endsWith(".mxl")) {
+            // MusicXML
+            musicxml = await file.text();
+        } else if (n.endsWith(".mxl")) {
+            // Compressed MusicXML
             const compressed = await file.arrayBuffer();
             const extracted = await JSZip.loadAsync(compressed);
             // Get XML file with score from archive
             const scoreFile = Object.keys(extracted.files).filter(
                 (d) => !d.startsWith("META")
             )[0];
-            const xml = await extracted.file(scoreFile).async("string");
-            musicpiece = MusicPiece.fromMusicXml(n, xml);
+            musicxml = await extracted.file(scoreFile).async("string");
+        } else {
+            musicxml = null;
+            musicpiece = null;
+            selectedTrack = 0;
+            alert("Invalid file");
+            return;
         }
-        console.log(musicpiece);
-        // selectedTrack = musicpiece.tracks[0];
-        submitFile(musicpiece);
+        musicpiece = MusicPiece.fromMusicXml(n, musicxml);
+        selectedTrack = 0;
+        console.log("Menu: loaded musicpiece", musicpiece);
+        submitFile(musicxml, musicpiece);
     };
 
     $: tracks = musicpiece?.tracks ?? [];
@@ -100,27 +107,43 @@
 <main>
     <h3>File</h3>
 
-    <input type="file" on:input={handleFileInput} />
+    <input
+        type="file"
+        on:input={handleFileInput}
+        accept=".xml,.musicxml,.mxl"
+    />
 
-    <Select bind:value={selectedTrack} label="Track">
-        {#each tracks as track}
-            <Option value={track}>{track.name}</Option>
+    <Select bind:value={selectedTrack} label="Track" disabled={!musicpiece}>
+        {#each tracks as track, i}
+            <Option value={i}>{i} {track.name}</Option>
         {/each}
     </Select>
 
-    <Select bind:value={selectedEncoding} label="Encoding">
+    <Select
+        bind:value={selectedEncoding}
+        label="Encoding"
+        disabled={!musicpiece}
+    >
         {#each encodings as encoding}
             <Option value={encoding}>{encoding}</Option>
         {/each}
     </Select>
 
-    <Select bind:value={selectedColoring} label="Coloring">
+    <Select
+        bind:value={selectedColoring}
+        label="Coloring"
+        disabled={!musicpiece}
+    >
         {#each colorings as coloring}
             <Option value={coloring}>{coloring}</Option>
         {/each}
     </Select>
 
-    <Select bind:value={selectedColormap} label="Colormap">
+    <Select
+        bind:value={selectedColormap}
+        label="Colormap"
+        disabled={!musicpiece}
+    >
         {#each colormaps as colormap}
             <Option value={colormap}>
                 {colormap.name}

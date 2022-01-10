@@ -55,7 +55,6 @@
     $: console.log("app: sec colors", sectionColors);
 
     // Harmonies
-    let harmonieColors = [];
     $: harmonies = Chords.detectChordsByExactStart(notes);
     $: console.log("app: harm", harmonies);
     $: harmonyDists = getDistanceMatrix(harmonies, "jaccardPitch");
@@ -69,6 +68,10 @@
     // Sizes without nav and menu
     $: contentWidth = window.innerWidth - 340;
     $: contentHeight = window.innerHeight - 80;
+
+    // Interaction
+    let selectedMeasure = null;
+    $: console.log("app: selectedMeasure", selectedMeasure);
 </script>
 
 <div class="flexy">
@@ -130,6 +133,7 @@
                             {sections}
                             {sectionColors}
                             {measures}
+                            {measureDists}
                             {measureColors}
                             {harmonyColors}
                             {noteColors}
@@ -144,6 +148,9 @@
                             {encoding}
                             mode={"Measures"}
                             colors={measureColors}
+                            on:measureselected={(event) => {
+                                selectedMeasure = event.detail.measureIndex;
+                            }}
                         />
                     {/if}
                 </div>

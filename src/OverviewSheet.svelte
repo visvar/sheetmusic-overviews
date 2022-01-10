@@ -2,6 +2,7 @@
     import { onMount, afterUpdate } from "svelte";
     import Slider from "@smui/slider";
     import * as d3 from "d3";
+    import { createEventDispatcher } from "svelte";
     import {
         Canvas,
         Chords,
@@ -12,6 +13,7 @@
     export let height;
     export let track;
     export let measures;
+    export let measureDists;
     export let colors;
     export let encoding;
     export let mode = "Measures";
@@ -21,6 +23,10 @@
     let showStrings = true;
 
     let canvas;
+
+    const dispatch = createEventDispatcher();
+    const selectMeasure = (measureIndex) =>
+        dispatch("measureselected", { measureIndex });
 
     const drawVis = () => {
         // Canvas.setupCanvas(canvas);
@@ -209,29 +215,25 @@
         draw();
 
         // Onclick handler
-        // const canvas = context.canvas;
-        // canvas.value = null;
-        // canvas.dispatchEvent(new CustomEvent("input"));
-        // // CLick to color by distance to selected measure
-        // canvas.onmouseup = (event) => {
-        //     event.preventDefault();
-        //     const row = Math.floor(event.offsetY / rowHeight);
-        //     const col = Math.floor(event.offsetX / mWidth);
-        //     let selectedMeasure = row * mPerRow + col;
-        //     if (selectedMeasure > measures.length - 1) {
-        //         selectedMeasure = null;
-        //     }
-        //     canvas.value = selectedMeasure;
-        //     canvas.dispatchEvent(new CustomEvent("input"));
-        //     draw(selectedMeasure);
-        // };
-        // // Double-click to reset
-        // canvas.ondblclick = (event) => {
-        //     event.preventDefault();
-        //     canvas.value = null;
-        //     canvas.dispatchEvent(new CustomEvent("input"));
-        //     draw();
-        // };
+        // Click to color by distance to selected measure
+        canvas.onmouseup = (event) => {
+            event.preventDefault();
+            const row = Math.floor(event.offsetY / mHeight);
+            const col = Math.floor(event.offsetX / mWidth);
+            let selectedMeasure = row * mPerRow + col;
+            if (selectedMeasure > measures.length - 1) {
+                selectedMeasure = null;
+            }
+            canvas.value = selectedMeasure;
+            draw(selectedMeasure);
+            selectMeasure(selectMeasure);
+        };
+        // Double-click to reset
+        canvas.ondblclick = (event) => {
+            event.preventDefault();
+            draw();
+            selectMeasure(null);
+        };
     };
 
     onMount(drawVis);

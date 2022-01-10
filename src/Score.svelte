@@ -11,8 +11,10 @@
     export let track;
     export let measures;
     export let measureColors;
+    export let selectedMeasure = null;
 
     let container;
+    let osmd;
 
     const drawVis = async () => {
         if (!musicxml || musicxml === "" || measures?.length === 0) {
@@ -28,7 +30,7 @@
             }
             return;
         }
-        const osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(container);
+        osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(container);
         osmd.setOptions({
             autoResize: false,
             backend: "canvas",
@@ -136,6 +138,17 @@
     };
 
     afterUpdate(drawVis);
+
+    const scrollToMeasure = () => {
+        if (selectedMeasure === null) {
+            return;
+        }
+        // TODO: cache this in component state?
+        const measureInfo = getMeasureInfo(osmd);
+        container.scrollTop = measureInfo[selectedMeasure].y;
+    };
+
+    afterUpdate(scrollToMeasure);
 </script>
 
 <main>

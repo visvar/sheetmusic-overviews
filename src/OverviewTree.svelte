@@ -15,17 +15,18 @@
     export let sectionColors;
     export let measures;
     export let measureColors;
-    export let harmonyColors = d3.range(10000).fill("white");
+    export let harmonyColors;
     export let noteColors;
 
     let showNotes = true;
 
     let canvas;
+    // Compensate for slider
+    const h = height - 70;
 
     const drawVis = () => {
         // Canvas.setupCanvas(canvas);
         const w = width;
-        const h = height;
         const levelHeight = (h - 20) / 7;
         const rowHeight = levelHeight;
         const gapHeight = levelHeight;
@@ -311,5 +312,5 @@
 </script>
 
 <main>
-    <canvas {width} {height} bind:this={canvas} />
+    <canvas {width} height={h} bind:this={canvas} />
 </main>

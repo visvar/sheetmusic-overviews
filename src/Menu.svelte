@@ -14,7 +14,15 @@
     export let selectedTrack = 0;
     // Parse MusicXML into a MusicPiece
     const handleFileInput = async (event) => {
+        musicxml = null;
+        musicpiece = null;
+        selectedTrack = 0;
         const file = event.target.files[0];
+        if (!file) {
+            console.log("Menu: emptied musicpiece", musicpiece);
+            submitFile(musicxml, musicpiece);
+            return;
+        }
         const n = file.name;
         if (n.endsWith(".xml") || n.endsWith(".musicxml")) {
             // MusicXML
@@ -29,14 +37,10 @@
             )[0];
             musicxml = await extracted.file(scoreFile).async("string");
         } else {
-            musicxml = null;
-            musicpiece = null;
-            selectedTrack = 0;
             alert("Invalid file");
             return;
         }
         musicpiece = MusicPiece.fromMusicXml(n, musicxml);
-        selectedTrack = 0;
         console.log("Menu: loaded musicpiece", musicpiece);
         submitFile(musicxml, musicpiece);
     };

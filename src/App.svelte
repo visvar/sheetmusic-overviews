@@ -20,6 +20,7 @@
     import OverviewSheet from "./OverviewSheet.svelte";
     import OverviewTree from "./OverviewTree.svelte";
     import Score from "./Score.svelte";
+    import { Chords } from "../node_modules/musicvis-lib/dist/musicvislib";
 
     // View
     let views = ["Overview Sheet", "Tree", "Score"];
@@ -29,37 +30,45 @@
     let musicxml = null;
     let musicpiece = null;
     $: console.log("app: musicpiece", musicpiece);
-    let trackIndex = 0;
+    $: trackIndex = musicpiece ? 0 : 0;
     $: track = musicpiece ? musicpiece.tracks[trackIndex] : null;
     $: console.log("app: track", trackIndex, track);
     let encoding;
     let coloring;
     let colormap;
 
+    // Notes and measures
     $: notes = track ? track.notes : [];
     $: measures = track ? getMeasures(track) : [];
     $: measureDists = getDistanceMatrix(measures, "levenshteinPitch");
     $: measurePoints = getDRPointsFromDistances(measureDists);
-    $: measureColors =
-        measurePoints.length > 0 && colormap
-            ? getColorsFrom1DPoints(measurePoints, colormap.map)
-            : [];
+    $: measureColors = getColorsFrom1DPoints(measurePoints, colormap?.map);
     $: console.log("app: measure colors", measureColors);
 
+    // Sections
     $: sectionInfo = track ? getSectionInfo(track) : null;
     $: console.log("app: secInfo", sectionInfo);
     $: sections = track ? getSections(sectionInfo, measures) : [];
     $: sectionDists = getDistanceMatrix(sections, "levenshteinPitch");
     $: sectionPoints = getDRPointsFromDistances(sectionDists);
-    $: sectionColors =
-        sectionPoints.length > 0 && colormap
-            ? getColorsFrom1DPoints(sectionPoints, colormap.map)
-            : [];
+    $: sectionColors = getColorsFrom1DPoints(sectionPoints, colormap?.map);
     $: console.log("app: sec colors", sectionColors);
+
+    // Harmonies
+    let harmonieColors = [];
+    $: harmonies = Chords.detectChordsByExactStart(notes);
+    $: console.log("app: harm", harmonies);
+    $: harmonyDists = getDistanceMatrix(harmonies, "jaccardPitch");
+    $: harmonyPoints = getDRPointsFromDistances(harmonyDists);
+    $: harmonyColors = getColorsFrom1DPoints(harmonyPoints, colormap?.map);
 
     $: noteColors = colormap
         ? d3.range(0, 12).map((d) => "" + colormap.map(d / 12))
         : d3.range(12).fill("white");
+
+    // Sizes without nav and menu
+    $: contentWidth = window.innerWidth - 340;
+    $: contentHeight = window.innerHeight - 80;
 </script>
 
 <div class="flexy">
@@ -114,7 +123,7 @@
                 <div class="overviewContainer">
                     {#if sections && sections.length > 0}
                         <OverviewTree
-                            width={800}
+                            width={contentWidth / 2}
                             height={600}
                             {encoding}
                             {sectionInfo}
@@ -122,13 +131,14 @@
                             {sectionColors}
                             {measures}
                             {measureColors}
+                            {harmonyColors}
                             {noteColors}
                         />
                     {/if}
                     {#if notes && notes.length > 0}
                         <OverviewSheet
-                            width={800}
-                            height={800}
+                            width={contentWidth / 2}
+                            height={contentHeight - 600}
                             {track}
                             {measures}
                             {encoding}
@@ -140,9 +150,12 @@
                 <div class="scoreContainer">
                     {#if musicxml && musicpiece && track && measureColors.length > 0}
                         <Score
+                            width={contentWidth / 2}
+                            height={contentHeight}
                             {musicxml}
                             {trackIndex}
                             {track}
+                            {measures}
                             {measureColors}
                         />
                     {/if}

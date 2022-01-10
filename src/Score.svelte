@@ -1,21 +1,33 @@
 <script>
-    import { onMount, afterUpdate } from "svelte";
+    import { afterUpdate } from "svelte";
     import * as opensheetmusicdisplay from "opensheetmusicdisplay";
     import * as d3 from "d3";
     import { delay } from "./lib.js";
 
+    export let width;
+    export let height;
     export let musicxml;
     export let trackIndex;
     export let track;
+    export let measures;
     export let measureColors;
 
     let container;
 
     const drawVis = async () => {
-        if (!musicxml || musicxml === "") {
+        if (!musicxml || musicxml === "" || measures?.length === 0) {
+            // TODO: clear canvas
+            try {
+                const canvas = document.getElementById(
+                    "osmdCanvasVexFlowBackendCanvas1"
+                );
+                const ctx = canvas.getContext("2d");
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            } catch (e) {
+                console.log(e);
+            }
             return;
         }
-        // console.log(container);
         const osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(container);
         osmd.setOptions({
             autoResize: false,
@@ -68,26 +80,35 @@
     };
 
     const colorize = async (osmd) => {
+        if (!measureColors?.length > 0) {
+            return;
+        }
         console.log("osmd colorizing");
-        const isTab = d3.some(track.notes, (d) => d.fret !== undefined);
-        console.log("is tab?", isTab);
+        let ctx;
+        // try {
+        ctx = document
+            .getElementById("osmdCanvasVexFlowBackendCanvas1")
+            .getContext("2d");
+        // } catch {
+        //     await delay(0.1);
+        //     colorize(osmd);
+
+        // }
 
         const factor = 10;
         const noteStaffHeight = 4;
+        const isTab = d3.some(track.notes, (d) => d.fret !== undefined);
         const tabStaffHeight = isTab ? 6.6 : 4;
 
-        const ctx = document
-            .getElementById("osmdCanvasVexFlowBackendCanvas1")
-            .getContext("2d");
-
         const measureInfo = getMeasureInfo(osmd);
+        console.log("measureInfo", measureInfo);
         for (const [index, measure] of measureInfo.entries()) {
             const x = measure.x * factor;
             const y = measure.y * factor;
             const w = measure.width * factor;
 
             // Empty measures should be transparent
-            if (notesByMeasure[index].length === 0) {
+            if (measures[index].length === 0) {
                 continue;
             }
             // Add transparency
@@ -114,19 +135,18 @@
         }
     };
 
-    // onMount(drawVis);
     afterUpdate(drawVis);
 </script>
 
 <main>
-    <div bind:this={container} />
+    <div
+        bind:this={container}
+        style="width: {width - 25}px; height: {height}px"
+    />
 </main>
 
 <style>
-    div {
-        width: 800px;
-        max-width: 800px;
-        max-height: calc(1vh -60px);
+    main {
         overflow-y: scroll;
     }
 </style>

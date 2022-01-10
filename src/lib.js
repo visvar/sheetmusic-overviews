@@ -1,4 +1,4 @@
-import { StringBased } from '../node_modules/musicvis-lib/dist/musicvislib'
+import { StringBased, Utils } from '../node_modules/musicvis-lib/dist/musicvislib'
 import * as druid from '@saehrimnir/druidjs/dist/druid.esm'
 import * as d3 from 'd3'
 
@@ -93,7 +93,7 @@ export function getSections(sectionInfo, measures) {
 /**
  * Calculates the pairwise distances between all elements of noteCollections
  * @param {Note[][]} noteCollections Note[][]
- * @param {string} distanceMetric distance metric
+ * @param {'levenshteinPitch'|'levenshteinStringFret'|'jaccardPitch'} distanceMetric distance metric
  * @returns {number[][]} distance matrix
  */
 export function getDistanceMatrix(noteCollections, distanceMetric) {
@@ -102,16 +102,23 @@ export function getDistanceMatrix(noteCollections, distanceMetric) {
     preprocessed = noteCollections.map((m) => m.map((n) => n.pitch))
   } else if (distanceMetric === 'levenshteinStringFret') {
     preprocessed = noteCollections.map((m) => m.map((n) => `${n.string} ${n.fret}`))
+  } else if (distanceMetric === 'jaccardPitch') {
+    preprocessed = noteCollections.map((m) => m.map((n) => n.pitch % 12))
   }
   const n = preprocessed.length
   // Get distance matrix between all measures
   const distMatrix = new Array(n).fill(0).map(() => new Array(n).fill(0))
   for (let index1 = 0; index1 < n; index1++) {
     for (let index2 = index1; index2 < n; index2++) {
-      const distance = StringBased.Levenshtein.levenshtein(
-        preprocessed[index1],
-        preprocessed[index2]
-      )
+      let distance
+      if (distanceMetric === 'jaccardPitch') {
+        distance = Utils.jaccardIndex(preprocessed[index1], preprocessed[index2])
+      } else {
+        distance = StringBased.Levenshtein.levenshtein(
+          preprocessed[index1],
+          preprocessed[index2]
+        )
+      }
       distMatrix[index1][index2] = distance
       distMatrix[index2][index1] = distance
     }
@@ -140,10 +147,12 @@ export function getDRPointsFromDistances(distMatrix) {
  * @returns {string[]} colors
  */
 export function getColorsFrom1DPoints(points, colormap) {
+  if (!points || points.length === 0 || !colormap) {
+    return []
+  }
   const scaleColor = d3.scaleLinear().domain(d3.extent(points)).range([0, 1])
   return points.map((d) => colormap(scaleColor(d)))
 }
-
 
 /**
  * Allows to wait for a number of seconds with async/await

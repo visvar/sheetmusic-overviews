@@ -25,7 +25,7 @@
     const drawVis = () => {
         // Canvas.setupCanvas(canvas);
         const w = width;
-        const h = height;
+        const h = height - 30;
         const isTab = encoding === "Tab";
         const context = canvas.getContext("2d");
 

@@ -5,7 +5,17 @@
     import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
     import IconButton from "@smui/icon-button";
     import SegmentedButton, { Segment } from "@smui/segmented-button";
-    import { Label } from "@smui/common";
+    import MainMenu from "@smui/menu";
+    import { Anchor } from "@smui/menu-surface";
+    import List, {
+        Item,
+        Separator,
+        Text,
+        PrimaryText,
+        SecondaryText,
+    } from "@smui/list";
+    import { Label } from "@smui/button";
+    import { Chords } from "../node_modules/musicvis-lib/dist/musicvislib";
 
     import {
         getColorsFrom1DPoints,
@@ -20,11 +30,17 @@
     import OverviewSheet from "./OverviewSheet.svelte";
     import OverviewTree from "./OverviewTree.svelte";
     import Score from "./Score.svelte";
-    import { Chords } from "../node_modules/musicvis-lib/dist/musicvislib";
+    import Help from "./modals/Help.svelte";
+    import About from "./modals/About.svelte";
+
+    // Main menu
+    let menu;
+    let anchor;
+    let anchorClasses = {};
 
     // View
-    let views = ["Sheet", "Tree", "Score"];
-    let currentViews = ["Sheet", "Tree"];
+    let views = ["Tree", "Sheet", "Score"];
+    let currentViews = ["Tree", "Sheet"];
 
     // Data
     let musicxml = null;
@@ -43,7 +59,7 @@
     $: measureDists = getDistanceMatrix(measures, "levenshteinPitch");
     $: measurePoints = getDRPointsFromDistances(measureDists);
     $: measureColors = getColorsFrom1DPoints(measurePoints, colormap?.map);
-    $: console.log("app: measure colors", measureColors);
+    // $: console.log("app: measure colors", measureColors);
 
     // Sections
     $: sectionInfo = track ? getSectionInfo(track) : null;
@@ -66,12 +82,17 @@
         : d3.range(12).fill("white");
 
     // Sizes without nav and menu
-    $: contentWidth = window.innerWidth - 340;
-    $: contentHeight = window.innerHeight - 80;
+    $: contentWidth = window.innerWidth - 370;
+    $: contentHeight = window.innerHeight - 90;
 
     // Interaction
+    let selectedSection = null;
     let selectedMeasure = null;
-    $: console.log("app: selectedMeasure", selectedMeasure);
+    let menuAction = "";
+
+    // Modals
+    let showHelp = false;
+    let showAbout = false;
 </script>
 
 <div class="flexy">
@@ -87,7 +108,69 @@
         >
             <Row>
                 <Section>
-                    <IconButton class="material-icons">menu</IconButton>
+                    <div
+                        class={Object.keys(anchorClasses).join(" ")}
+                        use:Anchor={{
+                            addClass: (className) => {
+                                if (!anchorClasses[className]) {
+                                    anchorClasses[className] = true;
+                                }
+                            },
+                            removeClass: (className) => {
+                                if (anchorClasses[className]) {
+                                    delete anchorClasses[className];
+                                    anchorClasses = anchorClasses;
+                                }
+                            },
+                        }}
+                        bind:this={anchor}
+                    >
+                        <IconButton
+                            class="material-icons"
+                            on:click={() => menu.setOpen(true)}>menu</IconButton
+                        >
+                        <MainMenu
+                            bind:this={menu}
+                            anchor={false}
+                            bind:anchorElement={anchor}
+                            anchorCorner="BOTTOM_LEFT"
+                        >
+                            <List twoLine>
+                                <Item
+                                    on:SMUI:action={() => (menuAction = "Cut")}
+                                >
+                                    <Text>
+                                        <PrimaryText>Cut</PrimaryText>
+                                        <SecondaryText>
+                                            Copy to clipboard and remove.
+                                        </SecondaryText>
+                                    </Text>
+                                </Item>
+                                <Item
+                                    on:SMUI:action={() => (menuAction = "Copy")}
+                                >
+                                    <Text>
+                                        <PrimaryText>Copy</PrimaryText>
+                                        <SecondaryText>
+                                            Copy to clipboard.
+                                        </SecondaryText>
+                                    </Text>
+                                </Item>
+                                <Separator />
+                                <Item
+                                    on:SMUI:action={() =>
+                                        (menuAction = "Delete")}
+                                >
+                                    <Text>
+                                        <PrimaryText>Delete</PrimaryText>
+                                        <SecondaryText>
+                                            Remove item.
+                                        </SecondaryText>
+                                    </Text>
+                                </Item>
+                            </List>
+                        </MainMenu>
+                    </div>
                     <Title>Sheet Music Overviews</Title>
                 </Section>
                 <Section align="center" toolbar>
@@ -103,25 +186,44 @@
                 </Section>
                 <Section align="end" toolbar>
                     <IconButton
-                        class="material-icons"
-                        aria-label="Bookmark this page">bookmark</IconButton
+                        on:click={() => (showAbout = true)}
+                        class="material-icons">info</IconButton
+                    >
+                    <IconButton
+                        on:click={() => (showHelp = true)}
+                        class="material-icons">help</IconButton
                     >
                 </Section>
             </Row>
         </TopAppBar>
         <div class="flexor-content">
             <main>
-                <Menu
-                    on:fileopened={(event) => {
-                        console.log(event.detail);
-                        musicxml = event.detail.musicxml;
-                        musicpiece = event.detail.musicpiece;
-                    }}
-                    bind:selectedTrack={trackIndex}
-                    bind:selectedEncoding={encoding}
-                    bind:selectedColoring={coloring}
-                    bind:selectedColormap={colormap}
-                />
+                <div class="sideBar">
+                    <Menu
+                        on:fileopened={(event) => {
+                            console.log(event.detail);
+                            musicxml = event.detail.musicxml;
+                            musicpiece = event.detail.musicpiece;
+                        }}
+                        bind:selectedTrack={trackIndex}
+                        bind:selectedEncoding={encoding}
+                        bind:selectedColoring={coloring}
+                        bind:selectedColormap={colormap}
+                    />
+                    <div class="infoBar">
+                        {#if selectedSection !== null}
+                            <div>
+                                Selected section: {selectedSection + 1}
+                                {sectionInfo[selectedSection]?.name}
+                            </div>
+                        {/if}
+                        {#if selectedMeasure !== null}
+                            <div>
+                                Selected measure: {selectedMeasure + 1}
+                            </div>
+                        {/if}
+                    </div>
+                </div>
                 <div class="overviewContainer">
                     {#if currentViews.includes("Tree") && sections && sections.length > 0}
                         <OverviewTree
@@ -131,8 +233,10 @@
                             {sectionInfo}
                             {sections}
                             {sectionColors}
+                            bind:selectedSection
                             {measures}
                             {measureColors}
+                            bind:selectedMeasure
                             {harmonyColors}
                             {noteColors}
                         />
@@ -168,12 +272,14 @@
             </main>
         </div>
     </div>
+    <Help bind:open={showHelp} />
+    <About bind:open={showAbout} />
 </div>
 
 <style>
     .top-app-bar-container {
         width: 100%;
-        margin: 0 0 0 0;
+        margin: 0;
         overflow: auto;
         display: inline-block;
         background-color: var(--mdc-theme-background, #fff);
@@ -199,13 +305,21 @@
         flex-basis: 0;
         flex-grow: 1;
         overflow: auto;
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 20px;
+        margin-bottom: 0;
     }
 
     main {
         display: grid;
-        grid-template-columns: 320px auto auto;
-        gap: 10px;
+        grid-template-columns: 300px auto auto;
+        gap: 25px;
+    }
+
+    .sideBar {
+        padding-left: 15px;
+    }
+
+    .infoBar {
+        margin-top: 20px;
     }
 </style>

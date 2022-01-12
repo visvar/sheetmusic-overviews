@@ -1,5 +1,5 @@
 <script>
-    import { onMount, afterUpdate } from "svelte";
+    import { afterUpdate } from "svelte";
     import * as d3 from "d3";
     import {
         Canvas,
@@ -16,6 +16,7 @@
     export let selectedSection = null;
     export let measures;
     export let measureColors;
+    export let selectedMeasureOfSection = null;
     export let selectedMeasure = null;
     export let harmonyColors;
     export let selectedHarmony = null;
@@ -25,7 +26,35 @@
 
     let canvas;
     // Compensate for slider
-    const h = height - 70;
+    const h = height - 50;
+
+    /**
+     * Determines the section a measure occurs in
+     * @param {object[]} sectionInfo section info objects
+     * @param {number} measureIndex measure index
+     * @returns {number} section index or -1 if not found
+     */
+    const getSectionIndexFromMeasureIndex = (sectionInfo, measureIndex) => {
+        for (const [index, section] of sectionInfo.entries()) {
+            if (
+                measureIndex >= section.startMeasure &&
+                measureIndex <= section.endMeasure
+            ) {
+                return index;
+            }
+        }
+        return -1;
+    };
+
+    // Ensure that if a measure is selected, its section is too
+    $: if (selectedMeasure !== null) {
+        selectedSection = getSectionIndexFromMeasureIndex(
+            sectionInfo,
+            selectedMeasure
+        );
+        const startMeasure = sectionInfo[selectedSection].startMeasure;
+        selectedMeasureOfSection = selectedMeasure - startMeasure;
+    }
 
     const drawVis = () => {
         // Canvas.setupCanvas(canvas);
@@ -33,9 +62,6 @@
         const levelHeight = (h - 20) / 7;
         const rowHeight = levelHeight;
         const gapHeight = levelHeight;
-        // const rowHeight = 70;
-        // const gapHeight = 70;
-        // const h = 4 * rowHeight + 3 * gapHeight + 20;
 
         const context = canvas.getContext("2d");
         context.font = `11px sans-serif`;
@@ -51,18 +77,21 @@
         let nWidth;
 
         // Onclick handler
-        // CLick to select and filter by section, measure, ...
+        // Click to select and filter by section, measure, ...
         canvas.onmouseup = (event) => {
             event.preventDefault();
             const row = Math.floor(event.offsetY / (rowHeight + gapHeight));
             if (row === 0) {
                 // Section selected
                 selectedSection = Math.floor(event.offsetX / sWidth);
+                selectedMeasureOfSection = null;
                 selectedMeasure = null;
                 selectedHarmony = null;
             } else if (row === 1) {
                 // Measure selected
-                selectedMeasure = Math.floor(event.offsetX / mWidth);
+                selectedMeasureOfSection = Math.floor(event.offsetX / mWidth);
+                const startMeasure = sectionInfo[selectedSection].startMeasure;
+                selectedMeasure = startMeasure + selectedMeasureOfSection;
                 selectedHarmony = null;
             } else if (row === 2) {
                 // Harmony selected
@@ -74,6 +103,7 @@
         canvas.ondblclick = (event) => {
             event.preventDefault();
             selectedSection = null;
+            selectedMeasureOfSection = null;
             selectedMeasure = null;
             selectedHarmony = null;
             draw();
@@ -93,7 +123,7 @@
             allHarmonies = Chords.detectChordsByExactStart(currMeasures.flat());
             if (selectedMeasure !== null) {
                 allHarmonies = Chords.detectChordsByExactStart(
-                    currMeasures[selectedMeasure]
+                    currMeasures[selectedMeasureOfSection]
                 );
             }
             notes = allHarmonies.flat();
@@ -190,7 +220,10 @@
                 context.fillStyle =
                     measure.length === 0 ? "#f8f8f8" : measureColors[index];
                 context.fillRect(mX, rowY, mWidthInner, rowHeight);
-                if (selectedMeasure !== null && index !== selectedMeasure) {
+                if (
+                    selectedMeasureOfSection !== null &&
+                    index !== selectedMeasureOfSection
+                ) {
                     // Fade not-selected
                     context.fillStyle = "rgba(255, 255, 255, 0.7)";
                     context.fillRect(mX, rowY, mWidthInner, rowHeight);
@@ -235,12 +268,9 @@
                     Canvas.drawBezierConnectorY(context, x1, y1h, x2, y2h);
                 }
             } else {
-                const harmmoniesOfMeasure = Chords.detectChordsByExactStart(
-                    currMeasures[selectedMeasure]
-                );
-                const x1 = selectedMeasure * mWidth;
+                const x1 = selectedMeasureOfSection * mWidth;
                 Canvas.drawBezierConnectorY(context, x1, y1h, 0, y2h);
-                const x1b = (selectedMeasure + 1) * mWidth;
+                const x1b = (selectedMeasureOfSection + 1) * mWidth;
                 Canvas.drawBezierConnectorY(context, x1b, y1h, w, y2h);
             }
 
@@ -298,7 +328,6 @@
         draw();
     };
 
-    onMount(drawVis);
     afterUpdate(drawVis);
 </script>
 

@@ -1,5 +1,5 @@
 <script>
-    import { onMount, afterUpdate } from "svelte";
+    import { afterUpdate } from "svelte";
     import * as d3 from "d3";
     import {
         Canvas,
@@ -30,7 +30,7 @@
         const isTab = encoding === "Tab";
         const context = canvas.getContext("2d");
 
-        const mWidth = width / mPerRow;
+        const mWidth = (width - 8) / mPerRow;
         const mWidthInner = mWidth - 2;
         const mHeight = Math.floor(
             (h - 10) / Math.ceil(track.measureIndices.length / mPerRow)
@@ -102,13 +102,12 @@
             context.fillRect(0, 0, w, h);
             // Draw measures
             context.strokeStyle = "black";
-            context.strokeWidth = 10;
             context.textBaseline = "middle";
             let currentChord = 0;
             for (const [index, measure] of measures.entries()) {
                 const col = index % mPerRow;
                 const row = Math.floor(index / mPerRow);
-                const mX = col * mWidth;
+                const mX = col * mWidth + 4;
                 const mY = row * mHeight + 10;
                 context.font = `9px sans-serif`;
                 context.fillStyle = "#666";
@@ -121,12 +120,20 @@
                     context.fillText(index + 1, mX, mY - 3.5);
                 }
                 // Distance to selected
-                if (selectedMeasure !== null) {
-                    context.fillText(
-                        dists[index],
-                        mX + mWidthInner - 10,
-                        mY - 3.5
-                    );
+                // if (selectedMeasure !== null) {
+                //     context.fillText(
+                //         dists[index],
+                //         mX + mWidthInner - 10,
+                //         mY - 3.5
+                //     );
+                // }
+                // If selected, draw border
+                if (index === selectedMeasure) {
+                    context.save();
+                    context.strokeStyle = "#333";
+                    context.lineWidth = 4;
+                    context.strokeRect(mX, mY, mWidthInner, mHeightInner);
+                    context.restore();
                 }
                 // Background
                 let bgColor;
@@ -229,7 +236,6 @@
         draw();
     };
 
-    onMount(drawVis);
     afterUpdate(drawVis);
 </script>
 

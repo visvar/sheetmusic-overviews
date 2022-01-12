@@ -4,6 +4,7 @@
     import JSZip from "jszip";
     import { createEventDispatcher } from "svelte";
     import Select, { Option } from "@smui/select";
+    import Button from "@smui/button";
 
     const dispatch = createEventDispatcher();
     const submitFile = (musicxml, musicpiece) =>
@@ -12,8 +13,12 @@
     export let musicxml = null;
     export let musicpiece = null;
     export let selectedTrack = 0;
+
+    let fileName = "";
+
     // Parse MusicXML into a MusicPiece
     const handleFileInput = async (event) => {
+        fileName = "";
         musicxml = null;
         musicpiece = null;
         selectedTrack = 0;
@@ -40,6 +45,7 @@
             alert("Invalid file");
             return;
         }
+        fileName = n;
         musicpiece = MusicPiece.fromMusicXml(n, musicxml);
         console.log("Menu: loaded musicpiece", musicpiece);
         submitFile(musicxml, musicpiece);
@@ -102,22 +108,32 @@
         {
             name: "CIELAB",
             description: "uniform lightness",
-            map: (d) => (d) => d3.lab(75, 40, d * 256 - 128),
+            map: (d) => d3.lab(75, 40, d * 256 - 128),
         },
     ];
     export let selectedColormap = colormaps[0];
+
+    let fileInput;
 </script>
 
 <main>
-    <h3>File</h3>
-
+    <Button on:click={() => fileInput.click()}>Open file</Button>
     <input
         type="file"
         on:input={handleFileInput}
         accept=".xml,.musicxml,.mxl"
+        bind:this={fileInput}
+        style="display: none"
     />
+    <div>
+        {fileName}
+    </div>
 
-    <Select bind:value={selectedTrack} label="Track" disabled={!musicpiece}>
+    <Select
+        bind:value={selectedTrack}
+        label="Track"
+        disabled={!musicpiece || musicpiece.tracks.length < 2}
+    >
         {#each tracks as track, i}
             <Option value={i}>{i} {track.name}</Option>
         {/each}
@@ -149,16 +165,15 @@
         disabled={!musicpiece}
     >
         {#each colormaps as colormap}
-            <Option value={colormap}>
+            <Option value={colormap} title={colormap.description}>
                 {colormap.name}
             </Option>
         {/each}
     </Select>
-    <div>{selectedColormap.description}</div>
 </main>
 
 <style>
     main {
-        padding-left: 10px;
+        width: 280px;
     }
 </style>

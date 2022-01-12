@@ -2,14 +2,14 @@ import { StringBased, Utils } from '../node_modules/musicvis-lib/dist/musicvisli
 import * as druid from '@saehrimnir/druidjs/dist/druid.esm'
 import * as d3 from 'd3'
 
-export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 /**
  * Makes the first character in a string upper case
  * @param {string} string string
  * @returns {string} result
  */
-export function firstLetterUpper(string) {
+export function firstLetterUpper (string) {
   return string.slice(0, 1).toUpperCase() + string.slice(1)
 }
 
@@ -18,7 +18,7 @@ export function firstLetterUpper(string) {
  * @param {string} doi DOI
  * @returns {string} path
  */
-export function getImgSrc(doi) {
+export function getImgSrc (doi) {
   return `./img/${doi.replace('/', '_')}.png`
 }
 
@@ -30,11 +30,11 @@ export function getImgSrc(doi) {
  * @param {Note} b a note to compare
  * @returns {number} negative for smaller, positive for greater, 0 for euqal
  */
-export function sortTimePitchComparator(a, b) {
+export function sortTimePitchComparator (a, b) {
   return a.start !== b.start ? a.start - b.start : a.pitch - b.pitch
 }
 
-export function getMeasures(track) {
+export function getMeasures (track) {
   // Get notes by measures
   const indices = [0, ...track.measureIndices]
   const allNotes = track.notes
@@ -48,7 +48,7 @@ export function getMeasures(track) {
   return measures
 }
 
-export function getSectionInfo(track) {
+export function getSectionInfo (track) {
   const sections = []
   for (const [startMeasure, name] of track.measureRehearsalMap.entries()) {
     sections.push({ name, startMeasure })
@@ -70,6 +70,14 @@ export function getSectionInfo(track) {
     }
     sections.unshift(first)
   }
+  // No sections found? Just create a single one for the entire piece
+  if (sections.length === 0) {
+    sections.push({
+      name: '<No sections>',
+      startMeasure: 0,
+      endMeasure: track.measureIndices.length - 1,
+    })
+  }
   // Add lengths to each
   for (const section of sections) {
     section.length = section.endMeasure - section.startMeasure + 1
@@ -77,7 +85,7 @@ export function getSectionInfo(track) {
   return sections
 }
 
-export function getSections(sectionInfo, measures) {
+export function getSections (sectionInfo, measures) {
   // Get notes by measures
   const indices = sectionInfo.map((d) => d.startMeasure)
   const notesBySection = []
@@ -96,7 +104,7 @@ export function getSections(sectionInfo, measures) {
  * @param {'levenshteinPitch'|'levenshteinStringFret'|'jaccardPitch'} distanceMetric distance metric
  * @returns {number[][]} distance matrix
  */
-export function getDistanceMatrix(noteCollections, distanceMetric) {
+export function getDistanceMatrix (noteCollections, distanceMetric) {
   let preprocessed
   if (distanceMetric === 'levenshteinPitch') {
     preprocessed = noteCollections.map((m) => m.map((n) => n.pitch))
@@ -131,7 +139,7 @@ export function getDistanceMatrix(noteCollections, distanceMetric) {
  * @param {number[][]} distMatrx distance matrix
  * @returns {number[]} 1D DR points
  */
-export function getDRPointsFromDistances(distMatrix) {
+export function getDRPointsFromDistances (distMatrix) {
   if (distMatrix.length === 0) { return [] }
   // DR
   const druidMatrix = druid.Matrix.from(distMatrix)
@@ -146,7 +154,7 @@ export function getDRPointsFromDistances(distMatrix) {
  * @param {function} colormap colormap [0,1]=>string
  * @returns {string[]} colors
  */
-export function getColorsFrom1DPoints(points, colormap) {
+export function getColorsFrom1DPoints (points, colormap) {
   if (!points || points.length === 0 || !colormap) {
     return []
   }
@@ -162,7 +170,7 @@ export function getColorsFrom1DPoints(points, colormap) {
  * @returns {Promise} empty Promise that will resolve after the specified amount
  *      of seconds
  */
-export function delay(seconds) {
+export function delay (seconds) {
   return new Promise(resolve => {
     setTimeout(resolve, seconds * 1000)
   })

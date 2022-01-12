@@ -16,8 +16,8 @@
     let container;
     let osmd;
 
-    const factor = 10;
-    const noteStaffHeight = 4;
+    const osmdScalingFactor = 10;
+    const osmdNoteStaffHeight = 4;
 
     const loadOSMD = async () => {
         if (
@@ -26,16 +26,6 @@
             musicxml === "" ||
             measures?.length === 0
         ) {
-            // TODO: clear canvas
-            // try {
-            //     const canvas = document.getElementById(
-            //         "osmdCanvasVexFlowBackendCanvas1"
-            //     );
-            //     const ctx = canvas.getContext("2d");
-            //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // } catch (e) {
-            //     console.log(e);
-            // }
             return;
         }
         osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(container);
@@ -106,9 +96,9 @@
         const measureInfo = getMeasureInfo(osmd);
         console.log("measureInfo", measureInfo);
         for (const [index, measure] of measureInfo.entries()) {
-            const x = measure.x * factor;
-            const y = measure.y * factor;
-            const w = measure.width * factor;
+            const x = measure.x * osmdScalingFactor;
+            const y = measure.y * osmdScalingFactor;
+            const w = measure.width * osmdScalingFactor;
 
             // Empty measures should be transparent
             if (measures[index].length === 0) {
@@ -116,23 +106,34 @@
             }
             // Add transparency
             const color = `rgba${measureColors[index].slice(3, -1)}, 0.25)`;
+            // TODO: highlight selectedMeasure
+            // const color =
+            //     index === selectedMeasure
+            //         ? `rgba${measureColors[index].slice(3, -1)}, 0.5)`
+            //         : `rgba${measureColors[index].slice(3, -1)}, 0.25)`;
+
             ctx.fillStyle = color;
 
             // Note Staff
-            ctx.fillRect(x, y, w, noteStaffHeight * factor);
+            ctx.fillRect(x, y, w, osmdNoteStaffHeight * osmdScalingFactor);
             const m = osmd.graphic.measureList[index];
             if (m.length > 1) {
                 const y2 = m[1].boundingBox.absolutePosition.y;
                 // Tab Staff
-                ctx.fillRect(x, y2 * factor, w, tabStaffHeight * factor);
+                ctx.fillRect(
+                    x,
+                    y2 * osmdScalingFactor,
+                    w,
+                    tabStaffHeight * osmdScalingFactor
+                );
                 // Gap
                 const color2 = `rgba${measureColors[index].slice(3, -1)}, 0.1)`;
                 ctx.fillStyle = color2;
                 ctx.fillRect(
                     x,
-                    (measure.y + noteStaffHeight) * factor,
+                    (measure.y + osmdNoteStaffHeight) * osmdScalingFactor,
                     w,
-                    (y2 - measure.y - noteStaffHeight) * factor
+                    (y2 - measure.y - osmdNoteStaffHeight) * osmdScalingFactor
                 );
             }
         }
@@ -144,14 +145,9 @@
         }
         // TODO: cache this in component state?
         const measureInfo = getMeasureInfo(osmd);
-        console.log(`Score: scroll`, measureInfo[selectedMeasure]);
         const y = measureInfo[selectedMeasure].y;
-        console.log(`Score: scroll to ${y}`);
-        main.scrollTop = (y + noteStaffHeight) * factor - 60;
+        main.scrollTop = (y + osmdNoteStaffHeight) * osmdScalingFactor - 60;
     };
-
-    // afterUpdate(drawVis);
-    // afterUpdate(scrollToMeasure);
 
     // Update depending on prop change
     $: if (true || musicxml || container) {
@@ -166,6 +162,7 @@
     }
     $: if (true || selectedMeasure) {
         scrollToMeasure();
+        colorize();
     }
 </script>
 

@@ -1,16 +1,17 @@
 @use 'sass:color';
 
 // https://github.com/material-components/material-components-web/blob/v13.0.0/packages/mdc-theme/_color-palette.scss
-@use '@material/theme/color-palette';
+// @use '@material/theme/color-palette';
+@use './_color-palette';
 
 // Svelte Colors!
-@use '@material/theme/index' as theme with (
-  $primary: #ff3e00,
-  $secondary: #676778,
-  $surface: #fff,
-  $background: #fff,
-  $error: color-palette.$red-900,
-);
+// @use '@material/theme/index' as theme with (
+//   $primary: cornflowerblue,
+//   $secondary: cornflowerblue,
+//   $surface: #fff,
+//   $background: #fff,
+//   $error: color-palette.$red-900,
+// );
 
 
 /* Theme colors. */
@@ -39,13 +40,14 @@
   --mdc-theme-text-hint-on-dark: rgba(255, 255, 255, 0.5);
   --mdc-theme-text-disabled-on-dark: rgba(255, 255, 255, 0.5);
   --mdc-theme-text-icon-on-dark: rgba(255, 255, 255, 0.5);
+  --mdc-segmented-button-selected-ink-color: white;
 }
 
 
 html,
 body {
-  background-color: theme.$surface;
-  color: theme.$on-surface;
+  background-color: white;
+  color: #222;
 }
 
 a ,

@@ -24,5 +24,10 @@
 
     <h3>About Us</h3>
     <p>TODO: paper abstract, paper link, bibtex, link to website, ...</p>
+
+    <h3>Acknowledgements</h3>
+    <p>
+      https://opensheetmusicdisplay.org/ d3 svelte smui druidjs musicvis-lib
+    </p>
   </Content>
 </Dialog>

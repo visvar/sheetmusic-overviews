@@ -15,18 +15,19 @@
     export let selectedMeasure;
     export let colors;
     export let encoding;
-    export let mode = "Measures";
 
     let mPerRow = 20;
+    let mode = "Measures";
     let showFrets = true;
     let showStrings = true;
 
     let canvas;
+    let canvasHeight = height - 30;
 
     const drawVis = () => {
         // Canvas.setupCanvas(canvas);
         const w = width;
-        const h = height - 30;
+        const h = canvasHeight;
         const isTab = encoding === "Tab";
         const context = canvas.getContext("2d");
 
@@ -71,10 +72,8 @@
             selectedMeasure = null;
         };
 
-        function draw() {
+        const draw = () => {
             // If a measure was selected, change colors to reflect distance to selected measure
-            console.log(`sheet draw sel ${selectedMeasure}`);
-
             let cols;
             let dists;
             if (measureOrSectMode && selectedMeasure !== null) {
@@ -100,6 +99,7 @@
             // Reset background
             context.fillStyle = "white";
             context.fillRect(0, 0, w, h);
+            context.imageSmoothingQuality = "high";
             // Draw measures
             context.strokeStyle = "black";
             context.textBaseline = "middle";
@@ -119,14 +119,6 @@
                     // Measure number
                     context.fillText(index + 1, mX, mY - 3.5);
                 }
-                // Distance to selected
-                // if (selectedMeasure !== null) {
-                //     context.fillText(
-                //         dists[index],
-                //         mX + mWidthInner - 10,
-                //         mY - 3.5
-                //     );
-                // }
                 // If selected, draw border
                 if (index === selectedMeasure) {
                     context.save();
@@ -232,7 +224,7 @@
                     }
                 }
             }
-        }
+        };
         draw();
     };
 
@@ -243,5 +235,11 @@
     <div>
         <input type="range" bind:value={mPerRow} min={1} max={100} step={1} />
     </div>
-    <canvas {width} {height} bind:this={canvas} />
+    <canvas {width} height={canvasHeight} bind:this={canvas} />
 </main>
+
+<style>
+    main {
+        margin-top: 40px;
+    }
+</style>

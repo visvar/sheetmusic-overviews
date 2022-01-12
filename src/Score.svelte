@@ -16,6 +16,8 @@
     let container;
     let osmd;
 
+    // TODO: zoom does not work
+    // const zoom = 0.5;
     const osmdScalingFactor = 10;
     const osmdNoteStaffHeight = 4;
 
@@ -30,11 +32,14 @@
         }
         osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(container);
         osmd.setOptions({
-            // autoResize: false,
-            autoResize: true,
+            autoResize: false,
+            // autoResize: true,
             backend: "canvas",
             drawingParameters: "compacttight",
         });
+        // Set zoom
+        // osmd.zoom = zoom;
+        // osmd.Zoom = zoom;
         // Load
         console.log("osmd loading");
         await osmd.load(musicxml);
@@ -45,6 +50,7 @@
         if (!osmd) {
             return;
         }
+        console.log(`osmd rendering track ${trackIndex}`);
         // Only show selected track
         // See https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/wiki/Exploring-the-Demo#part-selection-not-rendering-individual-partsinstruments
         for (let index = 0; index < osmd.sheet.Instruments.length; index++) {
@@ -52,7 +58,6 @@
             osmd.sheet.Instruments[index].Visible = isVisible;
         }
         // Render
-        console.log("osmd rendering");
         await osmd.render();
         console.log("osmd rendered");
     };
@@ -140,7 +145,7 @@
     };
 
     const scrollToMeasure = () => {
-        if (selectedMeasure === null) {
+        if (selectedMeasure === null || !osmd) {
             return;
         }
         // TODO: cache this in component state?
@@ -153,16 +158,14 @@
     $: if (true || musicxml || container) {
         loadOSMD();
     }
-    $: if (true || track || width) {
+    $: if (true || width || measureColors || osmd) {
         renderOSMD();
-    }
-    $: if (true || track || width || osmd) {
         // Colorize measures
         delay(0.1).then(() => colorize());
+        // colorize();
     }
     $: if (true || selectedMeasure) {
         scrollToMeasure();
-        colorize();
     }
 </script>
 

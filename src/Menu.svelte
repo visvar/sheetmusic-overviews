@@ -15,12 +15,14 @@
     export let selectedTrack = 0;
 
     let fileName = "";
+    let tracks = [];
 
     // Parse MusicXML into a MusicPiece
     const handleFileInput = async (event) => {
         fileName = "";
         musicxml = null;
         musicpiece = null;
+        tracks = [];
         selectedTrack = 0;
         const file = event.target.files[0];
         if (!file) {
@@ -47,11 +49,10 @@
         }
         fileName = n;
         musicpiece = MusicPiece.fromMusicXml(n, musicxml);
-        console.log("Menu: loaded musicpiece", musicpiece);
+        tracks = musicpiece.tracks;
+        console.log("Menu: loaded musicpiece", musicpiece, tracks);
         submitFile(musicxml, musicpiece);
     };
-
-    $: tracks = musicpiece?.tracks ?? [];
 
     let encodings = ["Tab", "Pianoroll", "Drums"];
     export let selectedEncoding = "Tab";
@@ -120,10 +121,10 @@
     <Button on:click={() => fileInput.click()}>Open file</Button>
     <input
         type="file"
-        on:input={handleFileInput}
         accept=".xml,.musicxml,.mxl"
-        bind:this={fileInput}
         style="display: none"
+        bind:this={fileInput}
+        on:input={handleFileInput}
     />
     <div>
         {fileName}

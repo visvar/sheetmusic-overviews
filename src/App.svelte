@@ -83,7 +83,8 @@
 
     // Sizes without nav and menu
     $: contentWidth = window.innerWidth - 370;
-    $: contentHeight = window.innerHeight - 90;
+    $: contentHeight = window.innerHeight - 80;
+    const treeHeight = 500;
 
     // Interaction
     let selectedSection = null;
@@ -200,11 +201,8 @@
             <main>
                 <div class="sideBar">
                     <Menu
-                        on:fileopened={(event) => {
-                            console.log(event.detail);
-                            musicxml = event.detail.musicxml;
-                            musicpiece = event.detail.musicpiece;
-                        }}
+                        bind:musicxml
+                        bind:musicpiece
                         bind:selectedTrack={trackIndex}
                         bind:selectedEncoding={encoding}
                         bind:selectedColoring={coloring}
@@ -228,7 +226,7 @@
                     {#if currentViews.includes("Tree") && sections && sections.length > 0}
                         <OverviewTree
                             width={contentWidth / 2}
-                            height={600}
+                            height={treeHeight}
                             {encoding}
                             {sectionInfo}
                             {sections}
@@ -244,13 +242,12 @@
                     {#if currentViews.includes("Sheet") && notes && notes.length > 0}
                         <OverviewSheet
                             width={contentWidth / 2}
-                            height={contentHeight - 600}
+                            height={contentHeight - treeHeight}
                             {track}
                             {measures}
                             {measureDists}
                             bind:selectedMeasure
                             {encoding}
-                            mode={"Measures"}
                             colors={measureColors}
                         />
                     {/if}

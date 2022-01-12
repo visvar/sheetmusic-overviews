@@ -19,7 +19,6 @@
     export let selectedMeasureOfSection = null;
     export let selectedMeasure = null;
     export let harmonyColors;
-    export let selectedHarmony = null;
     export let noteColors;
 
     let showNotes = true;
@@ -56,10 +55,31 @@
         selectedMeasureOfSection = selectedMeasure - startMeasure;
     }
 
+    const drawVerticalText = (
+        context,
+        x,
+        y,
+        text,
+        color,
+        size,
+        centered = false
+    ) => {
+        context.save();
+        context.rotate((90 * Math.PI) / 180);
+        if (centered) {
+            context.textAlign = "center";
+        }
+        context.fillStyle = color;
+        context.font = `${size}px sans-serif`;
+        context.fillText(text, y, -x);
+        context.restore();
+    };
+
     const drawVis = () => {
         // Canvas.setupCanvas(canvas);
-        const w = width;
-        const levelHeight = (h - 20) / 7;
+        const marginLeft = 15;
+        const w = width - marginLeft;
+        const levelHeight = Math.floor((h - 20) / 7);
         const rowHeight = levelHeight;
         const gapHeight = levelHeight;
 
@@ -86,16 +106,14 @@
                 selectedSection = Math.floor(event.offsetX / sWidth);
                 selectedMeasureOfSection = null;
                 selectedMeasure = null;
-                selectedHarmony = null;
             } else if (row === 1) {
                 // Measure selected
                 selectedMeasureOfSection = Math.floor(event.offsetX / mWidth);
-                const startMeasure = sectionInfo[selectedSection].startMeasure;
-                selectedMeasure = startMeasure + selectedMeasureOfSection;
-                selectedHarmony = null;
-            } else if (row === 2) {
-                // Harmony selected
-                selectedHarmony = Math.floor(event.offsetX / hWidth);
+                if (selectedSection !== null) {
+                    const startMeasure =
+                        sectionInfo[selectedSection].startMeasure;
+                    selectedMeasure = startMeasure + selectedMeasureOfSection;
+                }
             }
             draw();
         };
@@ -105,7 +123,6 @@
             selectedSection = null;
             selectedMeasureOfSection = null;
             selectedMeasure = null;
-            selectedHarmony = null;
             draw();
         };
 
@@ -146,7 +163,22 @@
 
             // Reset
             context.fillStyle = "white";
-            context.fillRect(0, 0, w, h);
+            context.resetTransform();
+            context.fillRect(0, 0, width, h);
+            context.imageSmoothingQuality = "high";
+
+            // Draw labels for rows
+            let y = 10 + rowHeight / 2;
+            for (const label of [
+                "Sections",
+                "Measures",
+                "Harmnonies",
+                "Notes",
+            ]) {
+                drawVerticalText(context, 0, y, label, "#333", 13, true);
+                y += rowHeight * 2;
+            }
+            context.translate(marginLeft, 0);
 
             // Draw sections
             sWidth = w / sections.length;
@@ -314,7 +346,7 @@
                 const col = index;
                 const mX = col * nWidth;
                 context.fillStyle = noteColors[note.pitch % 12];
-                context.fillRect(mX, rowY, nWidthInner, h);
+                context.fillRect(mX, rowY, nWidthInner, rowHeight);
                 if (showNotes) {
                     context.fillStyle =
                         Utils.getColorLightness(context.fillStyle) > 50

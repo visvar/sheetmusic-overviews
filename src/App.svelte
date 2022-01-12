@@ -23,8 +23,8 @@
     import { Chords } from "../node_modules/musicvis-lib/dist/musicvislib";
 
     // View
-    let views = ["Overview Sheet", "Tree", "Score"];
-    let currentView = views[0];
+    let views = ["Sheet", "Tree", "Score"];
+    let currentViews = ["Sheet", "Tree"];
 
     // Data
     let musicxml = null;
@@ -52,11 +52,11 @@
     $: sectionDists = getDistanceMatrix(sections, "levenshteinPitch");
     $: sectionPoints = getDRPointsFromDistances(sectionDists);
     $: sectionColors = getColorsFrom1DPoints(sectionPoints, colormap?.map);
-    $: console.log("app: sec colors", sectionColors);
+    // $: console.log("app: sec colors", sectionColors);
 
     // Harmonies
     $: harmonies = Chords.detectChordsByExactStart(notes);
-    $: console.log("app: harm", harmonies);
+    // $: console.log("app: harm", harmonies);
     $: harmonyDists = getDistanceMatrix(harmonies, "jaccardPitch");
     $: harmonyPoints = getDRPointsFromDistances(harmonyDists);
     $: harmonyColors = getColorsFrom1DPoints(harmonyPoints, colormap?.map);
@@ -93,9 +93,8 @@
                 <Section align="center" toolbar>
                     <SegmentedButton
                         segments={views}
-                        singleSelect
                         let:segment
-                        bind:selected={currentView}
+                        bind:selected={currentViews}
                     >
                         <Segment {segment}>
                             <Label>{segment}</Label>
@@ -124,7 +123,7 @@
                     bind:selectedColormap={colormap}
                 />
                 <div class="overviewContainer">
-                    {#if sections && sections.length > 0}
+                    {#if currentViews.includes("Tree") && sections && sections.length > 0}
                         <OverviewTree
                             width={contentWidth / 2}
                             height={600}
@@ -133,29 +132,27 @@
                             {sections}
                             {sectionColors}
                             {measures}
-                            {measureDists}
                             {measureColors}
                             {harmonyColors}
                             {noteColors}
                         />
                     {/if}
-                    {#if notes && notes.length > 0}
+                    {#if currentViews.includes("Sheet") && notes && notes.length > 0}
                         <OverviewSheet
                             width={contentWidth / 2}
                             height={contentHeight - 600}
                             {track}
                             {measures}
+                            {measureDists}
+                            bind:selectedMeasure
                             {encoding}
                             mode={"Measures"}
                             colors={measureColors}
-                            on:measureselected={(event) => {
-                                selectedMeasure = event.detail.measureIndex;
-                            }}
                         />
                     {/if}
                 </div>
                 <div class="scoreContainer">
-                    {#if musicxml && musicpiece && track && measureColors.length > 0}
+                    {#if currentViews.includes("Score") && musicxml && musicpiece && track && measureColors.length > 0}
                         <Score
                             width={contentWidth / 2}
                             height={contentHeight}
@@ -164,6 +161,7 @@
                             {track}
                             {measures}
                             {measureColors}
+                            {selectedMeasure}
                         />
                     {/if}
                 </div>
@@ -208,5 +206,6 @@
     main {
         display: grid;
         grid-template-columns: 320px auto auto;
+        gap: 10px;
     }
 </style>

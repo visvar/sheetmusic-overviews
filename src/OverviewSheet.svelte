@@ -1,8 +1,6 @@
 <script>
     import { onMount, afterUpdate } from "svelte";
-    import Slider from "@smui/slider";
     import * as d3 from "d3";
-    import { createEventDispatcher } from "svelte";
     import {
         Canvas,
         Chords,
@@ -14,6 +12,7 @@
     export let track;
     export let measures;
     export let measureDists;
+    export let selectedMeasure;
     export let colors;
     export let encoding;
     export let mode = "Measures";
@@ -23,10 +22,6 @@
     let showStrings = true;
 
     let canvas;
-
-    const dispatch = createEventDispatcher();
-    const selectMeasure = (measureIndex) =>
-        dispatch("measureselected", { measureIndex });
 
     const drawVis = () => {
         // Canvas.setupCanvas(canvas);
@@ -59,13 +54,32 @@
 
         const measureOrSectMode = ["Measures", "Sections"].includes(mode);
 
-        function draw(selectedMeasure = null) {
+        // Onclick handler
+        // Click to color by distance to selected measure
+        canvas.onmouseup = (event) => {
+            event.preventDefault();
+            const row = Math.floor(event.offsetY / mHeight);
+            const col = Math.floor(event.offsetX / mWidth);
+            selectedMeasure = row * mPerRow + col;
+            if (selectedMeasure > measures.length - 1) {
+                selectedMeasure = null;
+            }
+        };
+        // Double-click to reset
+        canvas.ondblclick = (event) => {
+            event.preventDefault();
+            selectedMeasure = null;
+        };
+
+        function draw() {
             // If a measure was selected, change colors to reflect distance to selected measure
+            console.log(`sheet draw sel ${selectedMeasure}`);
+
             let cols;
             let dists;
             if (measureOrSectMode && selectedMeasure !== null) {
                 // Distance of all measures to the currently selected one
-                dists = measureDistMatrix[selectedMeasure];
+                dists = measureDists[selectedMeasure];
                 const distColorScale = d3
                     .scaleLinear()
                     .domain(d3.extent(dists))
@@ -104,7 +118,7 @@
                     context.fillText(rehearsal, mX, mY - 3.5);
                 } else if (index % 5 === 0) {
                     // Measure number
-                    context.fillText(index, mX, mY - 3.5);
+                    context.fillText(index + 1, mX, mY - 3.5);
                 }
                 // Distance to selected
                 if (selectedMeasure !== null) {
@@ -213,27 +227,6 @@
             }
         }
         draw();
-
-        // Onclick handler
-        // Click to color by distance to selected measure
-        canvas.onmouseup = (event) => {
-            event.preventDefault();
-            const row = Math.floor(event.offsetY / mHeight);
-            const col = Math.floor(event.offsetX / mWidth);
-            let selectedMeasure = row * mPerRow + col;
-            if (selectedMeasure > measures.length - 1) {
-                selectedMeasure = null;
-            }
-            canvas.value = selectedMeasure;
-            draw(selectedMeasure);
-            selectMeasure(selectMeasure);
-        };
-        // Double-click to reset
-        canvas.ondblclick = (event) => {
-            event.preventDefault();
-            draw();
-            selectMeasure(null);
-        };
     };
 
     onMount(drawVis);
@@ -242,14 +235,7 @@
 
 <main>
     <div>
-        <Slider
-            bind:value={mPerRow}
-            min={1}
-            max={100}
-            step={1}
-            discrete={false}
-            input$aria-label="Measures per row"
-        />
+        <input type="range" bind:value={mPerRow} min={1} max={100} step={1} />
     </div>
     <canvas {width} {height} bind:this={canvas} />
 </main>

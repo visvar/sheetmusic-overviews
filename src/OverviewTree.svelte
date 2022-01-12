@@ -13,9 +13,12 @@
     export let sectionInfo;
     export let sections;
     export let sectionColors;
+    export let selectedSection = null;
     export let measures;
     export let measureColors;
+    export let selectedMeasure = null;
     export let harmonyColors;
+    export let selectedHarmony = null;
     export let noteColors;
 
     let showNotes = true;
@@ -39,17 +42,42 @@
         context.lineWidth = 0.25;
 
         // Globals
-        let selectedSection = null;
-        let selectedMeasure = null;
-
         let notes;
         let currMeasures;
         let allHarmonies;
-
         let sWidth;
         let mWidth;
         let hWidth;
         let nWidth;
+
+        // Onclick handler
+        // CLick to select and filter by section, measure, ...
+        canvas.onmouseup = (event) => {
+            event.preventDefault();
+            const row = Math.floor(event.offsetY / (rowHeight + gapHeight));
+            if (row === 0) {
+                // Section selected
+                selectedSection = Math.floor(event.offsetX / sWidth);
+                selectedMeasure = null;
+                selectedHarmony = null;
+            } else if (row === 1) {
+                // Measure selected
+                selectedMeasure = Math.floor(event.offsetX / mWidth);
+                selectedHarmony = null;
+            } else if (row === 2) {
+                // Harmony selected
+                selectedHarmony = Math.floor(event.offsetX / hWidth);
+            }
+            draw();
+        };
+        // Double-click to reset
+        canvas.ondblclick = (event) => {
+            event.preventDefault();
+            selectedSection = null;
+            selectedMeasure = null;
+            selectedHarmony = null;
+            draw();
+        };
 
         // Draw
         function draw() {
@@ -268,43 +296,6 @@
             }
         }
         draw();
-
-        // Onclick handler
-        // const canvas = context.canvas;
-        // canvas.value = null;
-        // canvas.dispatchEvent(new CustomEvent("input"));
-        // // CLick to select and filter by section, measure, ...
-        // canvas.onmouseup = (event) => {
-        //     event.preventDefault();
-        //     const row = Math.floor(event.offsetY / (rowHeight + gapHeight));
-        //     if (row === 0) {
-        //         // Section selected
-        //         selectedSection = Math.floor(event.offsetX / sWidth);
-        //         selectedMeasure = null;
-        //         selectedHarmony = null;
-        //     } else if (row === 1) {
-        //         // Measure selected
-        //         console.log(mWidth);
-        //         selectedMeasure = Math.floor(event.offsetX / mWidth);
-        //         selectedHarmony = null;
-        //     } else if (row === 2) {
-        //         // Harmony selected
-        //         selectedHarmony = Math.floor(event.offsetX / hWidth);
-        //     }
-        //     // canvas.value = selectedMeasure;
-        //     // canvas.dispatchEvent(new CustomEvent("input"));
-        //     draw();
-        // };
-        // // Double-click to reset
-        // canvas.ondblclick = (event) => {
-        //     event.preventDefault();
-        //     // canvas.value = null;
-        //     // canvas.dispatchEvent(new CustomEvent("input"));
-        //     selectedSection = null;
-        //     selectedMeasure = null;
-        //     selectedHarmony = null;
-        //     draw();
-        // };
     };
 
     onMount(drawVis);

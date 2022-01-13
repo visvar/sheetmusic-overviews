@@ -128,7 +128,7 @@
 
         // Draw
         function draw() {
-            const isTab = encoding === "Tab";
+            const isTab = encoding === "Tab" || encoding === "Tab (simple)";
 
             // Get filtered data
             currMeasures = measures;

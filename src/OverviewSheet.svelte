@@ -18,19 +18,21 @@
 
     let mPerRow = 20;
     let mode = "Measures";
-    let showFrets = true;
-    let showStrings = true;
 
     let canvas;
-    let canvasHeight = height - 30;
+    $: canvasHeight = height - 30;
 
     const drawVis = () => {
+        console.log("draw sheet", height, canvasHeight);
         // Canvas.setupCanvas(canvas);
+        const isTab = encoding === "Tab" || encoding === "Tab (simple)";
+        // Show for Tab but not Tab (simple)
+        let showStrings = encoding === "Tab";
+        let showFrets = showStrings;
+
+        const context = canvas.getContext("2d");
         const w = width;
         const h = canvasHeight;
-        const isTab = encoding === "Tab";
-        const context = canvas.getContext("2d");
-
         const mWidth = (width - 8) / mPerRow;
         const mWidthInner = mWidth - 2;
         const mHeight = Math.floor(
@@ -237,9 +239,3 @@
     </div>
     <canvas {width} height={canvasHeight} bind:this={canvas} />
 </main>
-
-<style>
-    main {
-        margin-top: 40px;
-    }
-</style>

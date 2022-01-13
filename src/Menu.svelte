@@ -16,6 +16,8 @@
 
     let fileName = "";
     let tracks = [];
+    let fileInput;
+    let colorRampCanvas;
 
     // Parse MusicXML into a MusicPiece
     const handleFileInput = async (event) => {
@@ -54,7 +56,7 @@
         submitFile(musicxml, musicpiece);
     };
 
-    let encodings = ["Tab", "Pianoroll", "Drums"];
+    let encodings = ["Tab", "Tab (simple)", "Pianoroll", "Drums"];
     export let selectedEncoding = "Tab";
 
     let colorings = ["DR", "Clustering", "MusicVAE"];
@@ -114,7 +116,28 @@
     ];
     export let selectedColormap = colormaps[0];
 
-    let fileInput;
+    /**
+     * @todo import from mvlib
+     * @param canvas
+     * @param width
+     * @param height
+     * @param colorMap
+     */
+    const drawColorRamp = (canvas, width, height, colorMap) => {
+        if (!canvas || !colorMap) {
+            return;
+        }
+        const context = canvas.getContext("2d");
+        context.fillStyle = "white";
+        context.fillRect(0, 0, width, height);
+        const scaleColor = d3.scaleLinear().domain([0, width]);
+        for (let hue = 0; hue < width; ++hue) {
+            context.fillStyle = colorMap(scaleColor(hue));
+            context.fillRect(hue, 0, 2, height);
+        }
+    };
+
+    $: drawColorRamp(colorRampCanvas, 200, 10, selectedColormap?.map);
 </script>
 
 <main>
@@ -130,11 +153,7 @@
         {fileName}
     </div>
 
-    <Select
-        bind:value={selectedTrack}
-        label="Track"
-        disabled={!musicpiece || musicpiece.tracks.length < 2}
-    >
+    <Select bind:value={selectedTrack} label="Track">
         {#each tracks as track, i}
             <Option value={i}>{i} {track.name}</Option>
         {/each}
@@ -171,10 +190,14 @@
             </Option>
         {/each}
     </Select>
+
+    <div>
+        <canvas bind:this={colorRampCanvas} width={200} height={10} />
+    </div>
 </main>
 
 <style>
     main {
-        width: 280px;
+        width: 250px;
     }
 </style>

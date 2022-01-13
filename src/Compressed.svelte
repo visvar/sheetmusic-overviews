@@ -1,0 +1,169 @@
+<script>
+    import { afterUpdate } from "svelte";
+    import * as d3 from "d3";
+    import {
+        Canvas,
+        Chords,
+        Utils,
+        StringBased,
+    } from "../node_modules/musicvis-lib/dist/musicvislib";
+
+    export let width;
+    export let height;
+    export let measures;
+    export let measureDists;
+    export let measureColors;
+
+    let zoom = 1;
+    let blockWidth = 30;
+    let canvas;
+    let canvasWidth = width;
+    let canvasHeight = height - 30;
+
+    $: repeatedIndices = Utils.findRepeatedIndices(
+        d3.range(0, measures.length),
+        (a, b) => measureDists[a][b] === 0
+    );
+    $: hierarchy =
+        StringBased.ImmediateRepetitionCompression.compress(repeatedIndices);
+
+    /**
+     *
+     * @param context
+     * @param tree
+     * @param x
+     * @param y
+     * @param blockWidth
+     * @param colors
+     */
+    const drawTreeNode = (context, tree, x, y, blockWidth, colors) => {
+        if (!tree) {
+            return;
+        }
+        // This is a leaf
+        const offset = blockWidth / 2;
+        const height = 80;
+        const scaleY = d3.scaleLinear().domain([1, 7]).range([0, height]);
+        const noteHeight = scaleY(1) - scaleY(0);
+        const noteHeight2 = 0.5 * noteHeight;
+        if (tree.join) {
+            for (const value of tree) {
+                if (blockWidth > 20) {
+                    context.fillText(value, x + offset, y);
+                }
+                const notes = measures[value];
+                // Draw measure
+                context.save();
+                const bgColor = notes.length === 0 ? "#f8f8f8" : colors[value];
+                context.fillStyle = bgColor;
+                context.fillRect(x + 1, y + 2, blockWidth - 2, height);
+                // Draw notes
+                context.textAlign = "left";
+                context.textBaseline = "middle";
+                context.font = `7px sans-serif`;
+                const scaleX = d3
+                    .scaleLinear()
+                    .domain([
+                        d3.min(notes, (d) => d.start),
+                        d3.max(notes, (d) => d.end),
+                    ])
+                    .range([x + 1, x + blockWidth - 2]);
+                const fn = Canvas.drawNoteTrapezoid;
+                for (const note of notes) {
+                    const nx = scaleX(note.start);
+                    const ny = y + scaleY(note.string);
+                    const width = scaleX(note.end) - nx;
+                    context.fillStyle = "#333";
+                    if (Utils.getColorLightness(bgColor) < 50) {
+                        context.fillStyle = "#eee";
+                    }
+                    fn(context, nx, ny, width, noteHeight, noteHeight2);
+                    // Draw fret numbers
+                    // if (isTab && showFretsToggle) {
+                    context.fillStyle =
+                        Utils.getColorLightness(context.fillStyle) > 50
+                            ? "black"
+                            : "white";
+                    context.fillText(
+                        note.fret,
+                        nx + 1,
+                        ny + noteHeight / 2 + 1
+                    );
+                    // }
+                }
+                context.restore();
+                x += blockWidth;
+            }
+            return;
+        }
+        // This is not a leaf
+        // Pre
+        if (tree.pre) {
+            drawTreeNode(context, tree.pre, x, y, blockWidth, colors);
+            x += tree.pre.length * blockWidth;
+        }
+        // Repetition
+        const treeWidth = tree.seq.length * blockWidth;
+        context.fillText(`${tree.rep} x`, x + treeWidth / 2, y);
+        Canvas.drawBracketH(context, x + 3, y + 5, treeWidth - 6, 5, true);
+        drawTreeNode(context, tree.seq, x, y + 25, blockWidth, colors);
+
+        // Post
+        if (tree.post) {
+            x += tree.seq.length * blockWidth;
+            drawTreeNode(context, tree.post, x, y, blockWidth, colors);
+        }
+    };
+
+    /**
+     *
+     * @param context
+     * @param tree
+     * @param blockWidth
+     * @param colors
+     */
+    const drawTreeGraph = (context, tree, blockWidth = 30, colors) => {
+        const w = tree.length * blockWidth + 10;
+        const h = (tree.depth + 1) * 30 + 100;
+        context.font = "13px sans-serif";
+        context.textAlign = "center";
+
+        // Reset
+        context.fillStyle = "white";
+        context.fillRect(0, 0, w, h);
+        context.fillStyle = "black";
+
+        // Draw tree
+        const x = 10;
+        const y = 10;
+        drawTreeNode(context, tree, x, y, blockWidth, colors);
+
+        const canvas = context.canvas;
+        canvas.addEventListener("click", (e) => {
+            const selected = Math.floor(e.offsetX / measureRepHierarchy.length);
+        });
+    };
+
+    const drawVis = () => {
+        // Canvas.setupCanvas(canvas);
+        const context = canvas.getContext("2d");
+        drawTreeGraph(context, hierarchy, 30, measureColors);
+    };
+
+    afterUpdate(drawVis);
+</script>
+
+<main>
+    <div>
+        <input type="range" bind:value={zoom} min={1} max={100} step={1} />
+    </div>
+    <div class="canvasContainer" style={`max-width: ${width}px`}>
+        <canvas {width} height={canvasHeight} bind:this={canvas} />
+    </div>
+</main>
+
+<style>
+    .canvasContainer {
+        overflow-x: scroll;
+    }
+</style>

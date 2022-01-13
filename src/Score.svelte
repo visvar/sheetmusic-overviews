@@ -1,7 +1,7 @@
 <script>
     import * as opensheetmusicdisplay from "opensheetmusicdisplay";
     import * as d3 from "d3";
-    import { delay } from "./lib.js";
+    import { delay, setOpacity } from "./lib.js";
 
     export let width;
     export let height;
@@ -110,7 +110,8 @@
                 continue;
             }
             // Add transparency
-            const color = `rgba${measureColors[index].slice(3, -1)}, 0.25)`;
+            // const color = `rgba${measureColors[index].slice(3, -1)}, 0.25)`;
+            const color = setOpacity(measureColors[index], 0.25);
             // TODO: highlight selectedMeasure
             // const color =
             //     index === selectedMeasure
@@ -132,8 +133,7 @@
                     tabStaffHeight * osmdScalingFactor
                 );
                 // Gap
-                const color2 = `rgba${measureColors[index].slice(3, -1)}, 0.1)`;
-                ctx.fillStyle = color2;
+                ctx.fillStyle = setOpacity(measureColors[index], 0.1);
                 ctx.fillRect(
                     x,
                     (measure.y + osmdNoteStaffHeight) * osmdScalingFactor,

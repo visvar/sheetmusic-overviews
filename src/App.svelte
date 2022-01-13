@@ -29,6 +29,7 @@
     import Menu from "./Menu.svelte";
     import OverviewSheet from "./OverviewSheet.svelte";
     import OverviewTree from "./OverviewTree.svelte";
+    import Compressed from "./Compressed.svelte";
     import Score from "./Score.svelte";
     import Help from "./modals/Help.svelte";
     import About from "./modals/About.svelte";
@@ -39,14 +40,16 @@
     let anchorClasses = {};
 
     // View
-    let views = ["Tree", "Sheet", "Score"];
-    let currentViews = ["Tree", "Sheet"];
+    let views = ["Tree", "Compressed", "Sheet", "Score"];
+    let currentViews = ["Tree", "Compressed", "Sheet"];
 
     // Data
     let musicxml = null;
     let musicpiece = null;
     $: console.log("app: musicpiece", musicpiece);
-    $: trackIndex = musicpiece ? 0 : 0;
+    // $: trackIndex = musicpiece ? 0 : 0;
+    let trackIndex = 0;
+    $: trackIndex = trackIndex === undefined ? 0 : trackIndex;
     $: track = musicpiece ? musicpiece.tracks[trackIndex] : null;
     $: console.log("app: track", trackIndex, track);
     let encoding;
@@ -82,9 +85,23 @@
         : d3.range(12).fill("white");
 
     // Sizes without nav and menu
-    $: contentWidth = window.innerWidth - 370;
+    $: contentWidth = window.innerWidth - 340;
     $: contentHeight = window.innerHeight - 80;
     const treeHeight = 500;
+    const compressedHeight = 200;
+    $: sheetHeight = getSheetHeight(currentViews);
+
+    const getSheetHeight = (currentViews) => {
+        let height = contentHeight;
+        if (currentViews.includes("Tree")) {
+            height -= treeHeight + 20;
+        }
+        if (currentViews.includes("Compressed")) {
+            height -= compressedHeight + 20;
+        }
+        console.log("new sheet height:", height);
+        return height;
+    };
 
     // Interaction
     let selectedSection = null;
@@ -239,10 +256,19 @@
                             {noteColors}
                         />
                     {/if}
+                    {#if currentViews.includes("Compressed") && notes && notes.length > 0}
+                        <Compressed
+                            width={contentWidth / 2}
+                            height={compressedHeight}
+                            {measures}
+                            {measureDists}
+                            {measureColors}
+                        />
+                    {/if}
                     {#if currentViews.includes("Sheet") && notes && notes.length > 0}
                         <OverviewSheet
                             width={contentWidth / 2}
-                            height={contentHeight - treeHeight}
+                            height={sheetHeight}
                             {track}
                             {measures}
                             {measureDists}
@@ -308,7 +334,7 @@
 
     main {
         display: grid;
-        grid-template-columns: 300px auto auto;
+        grid-template-columns: 260px auto auto;
         gap: 25px;
     }
 
@@ -318,5 +344,11 @@
 
     .infoBar {
         margin-top: 20px;
+    }
+
+    .overviewContainer {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 </style>

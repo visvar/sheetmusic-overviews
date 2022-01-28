@@ -34,8 +34,17 @@
         osmd.setOptions({
             autoResize: false,
             // autoResize: true,
-            backend: "canvas",
+            // backend: "canvas",
+            backend: "svg",
             drawingParameters: "compacttight",
+            onXMLRead: (xml) => {
+                // TODO: remove lyrics etc?
+                // console.log(xml);
+                // const parser = new DOMParser();
+                // const parsed = parser.parseFromString(xml, "text/xml");
+                // console.log(parsed);
+                return xml;
+            },
         });
         // Set zoom
         // osmd.zoom = zoom;
@@ -144,6 +153,69 @@
         }
     };
 
+    const colorizeSvg = async () => {
+        if (!osmd || !measureColors?.length > 0) {
+            return;
+        }
+        console.log("osmd colorizing SVG");
+        const el = container.getElementsByTagName("svg");
+        let svg = d3.select(el);
+
+        const isTab = d3.some(track.notes, (d) => d.fret !== undefined);
+        const tabStaffHeight = isTab ? 6.6 : 4;
+
+        // TODO: remove old rects or better: add when rendered and then only change later
+
+        const measureInfo = getMeasureInfo(osmd);
+        console.log("measureInfo", measureInfo);
+        for (const [index, measure] of measureInfo.entries()) {
+            const x = measure.x * osmdScalingFactor;
+            const y = measure.y * osmdScalingFactor;
+            const w = measure.width * osmdScalingFactor;
+
+            // Empty measures should be transparent
+            if (measures[index].length === 0) {
+                continue;
+            }
+            // Add transparency
+            // const color = `rgba${measureColors[index].slice(3, -1)}, 0.25)`;
+            const color = setOpacity(measureColors[index], 0.25);
+            // TODO: highlight selectedMeasure
+            // const color =
+            //     index === selectedMeasure
+            //         ? `rgba${measureColors[index].slice(3, -1)}, 0.5)`
+            //         : `rgba${measureColors[index].slice(3, -1)}, 0.25)`;
+
+            // Note Staff
+            svg.append("rec")
+                .attr("class", "coloredMeasure")
+                .attr("x", x)
+                .attr("y", y)
+                .attr("width", w)
+                .attr("height", osmdNoteStaffHeight * osmdScalingFactor)
+                .style("fill", color);
+            const m = osmd.graphic.measureList[index];
+            // if (m.length > 1) {
+            //     const y2 = m[1].boundingBox.absolutePosition.y;
+            //     // Tab Staff
+            //     ctx.fillRect(
+            //         x,
+            //         y2 * osmdScalingFactor,
+            //         w,
+            //         tabStaffHeight * osmdScalingFactor
+            //     );
+            //     // Gap
+            //     ctx.fillStyle = setOpacity(measureColors[index], 0.1);
+            //     ctx.fillRect(
+            //         x,
+            //         (measure.y + osmdNoteStaffHeight) * osmdScalingFactor,
+            //         w,
+            //         (y2 - measure.y - osmdNoteStaffHeight) * osmdScalingFactor
+            //     );
+            // }
+        }
+    };
+
     const scrollToMeasure = () => {
         if (selectedMeasure === null || !osmd) {
             return;
@@ -159,9 +231,10 @@
         loadOSMD();
     }
     $: if (true || width || measureColors || osmd) {
-        renderOSMD();
+        // renderOSMD();
         // Colorize measures
-        delay(0.1).then(() => colorize());
+        // delay(0.1).then(() => colorize());
+        renderOSMD().then(() => colorizeSvg());
         // colorize();
     }
     $: if (true || selectedMeasure) {

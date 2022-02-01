@@ -25,8 +25,6 @@
     let showNotes = true;
 
     let canvas;
-    // Compensate for slider
-    const h = height - 50;
 
     /**
      * Determines the section a measure occurs in
@@ -80,7 +78,7 @@
         // Canvas.setupCanvas(canvas);
         const marginLeft = 15;
         const w = width - marginLeft;
-        const levelHeight = Math.floor((h - 20) / 7);
+        const levelHeight = Math.floor((height - 20) / 7);
         const rowHeight = levelHeight;
         const gapHeight = levelHeight;
 
@@ -164,10 +162,10 @@
             }
 
             // Reset
-            context.fillStyle = "white";
             context.resetTransform();
-            context.fillRect(0, 0, width, h);
             context.imageSmoothingQuality = "high";
+            context.fillStyle = "white";
+            context.fillRect(0, 0, width, height);
 
             // Draw labels for rows
             let y = 10 + rowHeight / 2;
@@ -365,6 +363,14 @@
     afterUpdate(drawVis);
 </script>
 
-<main>
-    <canvas {width} height={h} bind:this={canvas} />
+<main style={`height: ${height}px`}>
+    <canvas {width} {height} bind:this={canvas} />
 </main>
+
+<style>
+    main {
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 0 10px #ccc;
+    }
+</style>

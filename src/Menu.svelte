@@ -22,17 +22,18 @@
 
     // Parse MusicXML into a MusicPiece
     const handleFileInput = async (event) => {
-        fileName = "";
-        musicxml = null;
-        musicpiece = null;
-        tracks = [];
-        selectedTrack = 0;
         const file = event.target.files[0];
         if (!file) {
             console.log("Menu: emptied musicpiece", musicpiece);
             submitFile(musicxml, musicpiece);
             return;
         }
+        // Reset only now that there is valid file, to avoid user mistakes
+        fileName = "";
+        musicxml = null;
+        musicpiece = null;
+        tracks = [];
+        selectedTrack = 0;
         const n = file.name;
         if (n.endsWith(".xml") || n.endsWith(".musicxml")) {
             // MusicXML
@@ -150,7 +151,7 @@
         bind:this={fileInput}
         on:input={handleFileInput}
     />
-    <div>
+    <div class="fileName">
         {fileName}
     </div>
 
@@ -202,5 +203,9 @@
 <style>
     main {
         width: 250px;
+    }
+
+    .fileName {
+        padding: 10px 0;
     }
 </style>

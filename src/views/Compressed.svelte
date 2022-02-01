@@ -13,11 +13,11 @@
     export let measures;
     export let measureDists;
     export let measureColors;
+    export let selectedMeasure;
 
     let zoom = 1;
-    let blockWidth = 30;
     let canvas;
-    let canvasHeight = height - 30;
+    let canvasHeight = height - 35;
 
     $: repeatedIndices = Utils.findRepeatedIndices(
         d3.range(0, measures.length),
@@ -25,6 +25,7 @@
     );
     $: hierarchy =
         StringBased.ImmediateRepetitionCompression.compress(repeatedIndices);
+    $: blockWidth = hierarchy ? (width / hierarchy.length) * zoom : 0;
 
     /**
      *
@@ -136,32 +137,49 @@
         const x = 10;
         const y = 10;
         drawTreeNode(context, tree, x, y, blockWidth, colors);
-
-        const canvas = context.canvas;
-        canvas.addEventListener("click", (e) => {
-            const selected = Math.floor(e.offsetX / measureRepHierarchy.length);
-        });
     };
 
     const drawVis = () => {
         // Canvas.setupCanvas(canvas);
         const context = canvas.getContext("2d");
-        drawTreeGraph(context, hierarchy, 30, measureColors);
+        drawTreeGraph(context, hierarchy, blockWidth, measureColors);
+    };
+
+    const onClick = (event) => {
+        event.preventDefault();
+        const column = Math.floor(event.offsetX / blockWidth);
+        const summary =
+            StringBased.ImmediateRepetitionCompression.summary(hierarchy);
+        selectedMeasure = summary[column];
     };
 
     afterUpdate(drawVis);
 </script>
 
-<main>
+<main style={`height: ${height}px`}>
     <div>
-        <input type="range" bind:value={zoom} min={1} max={100} step={1} />
+        <label>
+            Zoom
+            <input type="range" bind:value={zoom} min={1} max={20} step={1} />
+        </label>
     </div>
     <div class="canvasContainer" style={`max-width: ${width}px`}>
-        <canvas {width} height={canvasHeight} bind:this={canvas} />
+        <canvas
+            width={width * zoom}
+            height={canvasHeight}
+            bind:this={canvas}
+            on:click={onClick}
+        />
     </div>
 </main>
 
 <style>
+    main {
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 0 10px #ccc;
+    }
+
     .canvasContainer {
         overflow-x: scroll;
     }

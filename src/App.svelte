@@ -76,7 +76,6 @@
 
     // Harmonies
     $: harmonies = Chords.detectChordsByExactStart(notes);
-    // $: console.log("app: harm", harmonies);
     $: harmonyDists = getDistanceMatrix(harmonies, "jaccardPitch");
     $: harmonyPoints = getDRPointsFromDistances(harmonyDists);
     $: harmonyColors = getColorsFrom1DPoints(harmonyPoints, colormap?.map);
@@ -86,26 +85,25 @@
         : d3.range(12).fill("white");
 
     // Sizes without nav and menu
-    $: contentWidth = window.innerWidth - 340;
     $: contentHeight = window.innerHeight - 80;
-    $: overviewWidth = contentWidth / 2;
-    const tracksHeight = 120;
+    $: overviewWidth = (window.innerWidth - 340) / 2;
+    $: tracksHeight = (musicpiece?.tracks.length ?? 0.1) * 12 + 20;
     const treeHeight = 500;
     const compressedHeight = 200;
     $: sheetHeight = getSheetHeight(currentViews);
 
     const getSheetHeight = (currentViews) => {
-        let height = contentHeight;
+        const gap = 40;
+        let height = contentHeight - 35;
         if (currentViews.includes("Tracks")) {
-            height -= tracksHeight + 20;
+            height -= tracksHeight + gap;
         }
         if (currentViews.includes("Tree")) {
-            height -= treeHeight + 20;
+            height -= treeHeight + gap;
         }
         if (currentViews.includes("Compressed")) {
-            height -= compressedHeight + 20;
+            height -= compressedHeight + gap;
         }
-        console.log("new sheet height:", height);
         return height;
     };
 
@@ -232,7 +230,7 @@
                         bind:selectedColormap={colormap}
                     />
                     <div class="infoBar">
-                        {#if selectedSection !== null}
+                        {#if sectionInfo && selectedSection !== null}
                             <div>
                                 Selected section: {selectedSection + 1}
                                 {sectionInfo[selectedSection]?.name}
@@ -245,7 +243,10 @@
                         {/if}
                     </div>
                 </div>
-                <div class="overviewContainer">
+                <div
+                    class="overviewContainer"
+                    style={`width: ${overviewWidth}px`}
+                >
                     {#if currentViews.includes("Tracks") && musicpiece}
                         <Tracks
                             width={overviewWidth}
@@ -278,6 +279,7 @@
                             {measures}
                             {measureDists}
                             {measureColors}
+                            bind:selectedMeasure
                         />
                     {/if}
                     {#if currentViews.includes("Sheet") && notes && notes.length > 0}
@@ -362,6 +364,7 @@
     }
 
     .overviewContainer {
+        padding: 5px;
         display: grid;
         grid-template-columns: 1fr;
         gap: 20px;

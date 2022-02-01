@@ -84,7 +84,10 @@
         canvas.onmouseup = (event) => {
             // Measure selected
             event.preventDefault();
-            selectedMeasure = Math.floor((event.offsetX - marginLeft) / mWidth);
+            const measure = Math.floor((event.offsetX - marginLeft) / mWidth);
+            if (measure >= 0) {
+                selectedMeasure = measure;
+            }
         };
         // Double-click to reset
         canvas.ondblclick = (event) => {
@@ -96,6 +99,14 @@
     afterUpdate(drawVis);
 </script>
 
-<main>
+<main style={`height: ${height}px`}>
     <canvas {width} {height} bind:this={canvas} />
 </main>
+
+<style>
+    main {
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 0 10px #ccc;
+    }
+</style>

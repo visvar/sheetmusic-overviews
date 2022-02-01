@@ -18,13 +18,14 @@
     export let encoding;
 
     let mPerRow = 20;
+    let showDistance = false;
     let mode = "Measures";
 
     let canvas;
     $: canvasHeight = height - 30;
 
     const drawVis = () => {
-        console.log("draw sheet", height, canvasHeight);
+        // console.log("draw sheet", height, canvasHeight);
         // Canvas.setupCanvas(canvas);
         const isTab = encoding === "Tab" || encoding === "Tab (simple)";
         // Show for Tab but not Tab (simple)
@@ -79,7 +80,7 @@
             // If a measure was selected, change colors to reflect distance to selected measure
             let cols;
             let dists;
-            if (measureOrSectMode && selectedMeasure !== null) {
+            if (measureOrSectMode && showDistance && selectedMeasure !== null) {
                 // Distance of all measures to the currently selected one
                 dists = measureDists[selectedMeasure];
                 const distColorScale = d3
@@ -236,7 +237,28 @@
 
 <main>
     <div>
-        <input type="range" bind:value={mPerRow} min={1} max={100} step={1} />
+        <label>
+            Bars per row
+            <input
+                type="range"
+                bind:value={mPerRow}
+                min={1}
+                max={100}
+                step={1}
+            />
+        </label>
+        <label>
+            Show distance to selected
+            <input type="checkbox" bind:checked={showDistance} />
+        </label>
     </div>
     <canvas {width} height={canvasHeight} bind:this={canvas} />
 </main>
+
+<style>
+    main {
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 0 10px #ccc;
+    }
+</style>

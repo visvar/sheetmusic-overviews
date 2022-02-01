@@ -1,12 +1,12 @@
 <script>
     import { afterUpdate } from "svelte";
     import * as d3 from "d3";
+    // import { Canvas, Utils, StringBased } from "musicvis-lib/dist/musicvislib";
     import {
         Canvas,
-        Chords,
         Utils,
         StringBased,
-    } from "../node_modules/musicvis-lib/dist/musicvislib";
+    } from "../../node_modules/musicvis-lib/dist/musicvislib";
 
     export let width;
     export let height;
@@ -17,7 +17,6 @@
     let zoom = 1;
     let blockWidth = 30;
     let canvas;
-    let canvasWidth = width;
     let canvasHeight = height - 30;
 
     $: repeatedIndices = Utils.findRepeatedIndices(

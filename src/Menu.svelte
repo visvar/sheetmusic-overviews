@@ -1,5 +1,6 @@
 <script>
     import { MusicPiece } from "../node_modules/musicvis-lib/dist/musicvislib";
+    // import { MusicPiece } from "musicvis-lib/dist/musicvislib";
     import * as d3 from "d3";
     import JSZip from "jszip";
     import { createEventDispatcher } from "svelte";
@@ -155,7 +156,9 @@
 
     <Select bind:value={selectedTrack} label="Track">
         {#each tracks as track, i}
-            <Option value={i}>{i} {track.name}</Option>
+            <Option value={i} title={`${i} ${track.name}`}
+                >{i} {track.name.slice(0, 20)}</Option
+            >
         {/each}
     </Select>
 

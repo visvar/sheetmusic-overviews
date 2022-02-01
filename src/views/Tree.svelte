@@ -5,7 +5,8 @@
         Canvas,
         Chords,
         Utils,
-    } from "../node_modules/musicvis-lib/dist/musicvislib";
+    } from "../../node_modules/musicvis-lib/dist/musicvislib";
+    // import { Canvas, Utils, Chords } from "musicvis-lib/dist/musicvislib";
 
     export let width;
     export let height;
@@ -101,14 +102,15 @@
         canvas.onmouseup = (event) => {
             event.preventDefault();
             const row = Math.floor(event.offsetY / (rowHeight + gapHeight));
+            const x = event.offsetX - marginLeft;
             if (row === 0) {
                 // Section selected
-                selectedSection = Math.floor(event.offsetX / sWidth);
+                selectedSection = Math.floor(x / sWidth);
                 selectedMeasureOfSection = null;
                 selectedMeasure = null;
             } else if (row === 1) {
                 // Measure selected
-                selectedMeasureOfSection = Math.floor(event.offsetX / mWidth);
+                selectedMeasureOfSection = Math.floor(x / mWidth);
                 if (selectedSection !== null) {
                     const startMeasure =
                         sectionInfo[selectedSection].startMeasure;

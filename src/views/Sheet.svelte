@@ -5,7 +5,8 @@
         Canvas,
         Chords,
         Utils,
-    } from "../node_modules/musicvis-lib/dist/musicvislib";
+    } from "../../node_modules/musicvis-lib/dist/musicvislib";
+    // import { Canvas, Utils, Chords } from "musicvis-lib/dist/musicvislib";
 
     export let width;
     export let height;

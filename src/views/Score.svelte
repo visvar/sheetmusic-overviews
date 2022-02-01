@@ -1,7 +1,7 @@
 <script>
     import * as opensheetmusicdisplay from "opensheetmusicdisplay";
     import * as d3 from "d3";
-    import { delay, setOpacity } from "./lib.js";
+    import { delay, setOpacity } from "../lib.js";
 
     export let width;
     export let height;
@@ -17,7 +17,7 @@
     let osmd;
 
     const measureOpacity = 0.25;
-    const measureOpacityHighlighted = 0.6;
+    const measureOpacityHighlighted = 0.8;
 
     // TODO: zoom does not work
     // const zoom = 0.5;
@@ -230,10 +230,11 @@
     };
 
     /**
-     * Scrolls the view such that the selected measure is at the top
+     * Scrolls the view such that the selected measure is at the top.
+     * Only scrolls when measure is not already in view.
      *
      * @todo animate? https://gist.github.com/humbletim/5507619
-     * @param {number} selectedMeasure mesasure index
+     * @param {number} selectedMeasure measure index
      */
     const scrollToMeasure = (selectedMeasure) => {
         if (selectedMeasure === null || !osmd) {
@@ -242,13 +243,18 @@
         // TODO: cache this in component state?
         const measureInfo = getMeasureInfo(osmd);
         const y = measureInfo[selectedMeasure].y;
-        main.scrollTop = (y + osmdNoteStaffHeight) * osmdScalingFactor - 60;
+        const py = (y + osmdNoteStaffHeight) * osmdScalingFactor - 60;
+        const height = main.getBoundingClientRect().height;
+        const top = main.scrollTop;
+        if (py < top || py > top + height) {
+            main.scrollTop = py;
+        }
     };
 
     /**
      * Visually highlight a selected measure by applying more opacity
      *
-     * @param {number} measureIndex mesasure index
+     * @param {number} measureIndex measure index
      */
     const highlightMeasure = (measureIndex) => {
         // console.log(`Highlighting .measure${measureIndex}`);

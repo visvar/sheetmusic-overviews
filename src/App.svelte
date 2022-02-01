@@ -27,10 +27,11 @@
     } from "./lib.js";
 
     import Menu from "./Menu.svelte";
-    import OverviewSheet from "./OverviewSheet.svelte";
-    import OverviewTree from "./OverviewTree.svelte";
-    import Compressed from "./Compressed.svelte";
-    import Score from "./Score.svelte";
+    import Tracks from "./views/Tracks.svelte";
+    import Tree from "./views/Tree.svelte";
+    import Sheet from "./views/Sheet.svelte";
+    import Compressed from "./views/Compressed.svelte";
+    import Score from "./views/Score.svelte";
     import Help from "./modals/Help.svelte";
     import About from "./modals/About.svelte";
 
@@ -40,8 +41,8 @@
     let anchorClasses = {};
 
     // View
-    let views = ["Tree", "Compressed", "Sheet", "Score"];
-    let currentViews = ["Tree", "Compressed", "Sheet"];
+    let views = ["Tracks", "Tree", "Compressed", "Sheet", "Score"];
+    let currentViews = ["Tracks", "Tree", "Compressed", "Sheet"];
 
     // Data
     let musicxml = null;
@@ -87,12 +88,17 @@
     // Sizes without nav and menu
     $: contentWidth = window.innerWidth - 340;
     $: contentHeight = window.innerHeight - 80;
+    $: overviewWidth = contentWidth / 2;
+    const tracksHeight = 120;
     const treeHeight = 500;
     const compressedHeight = 200;
     $: sheetHeight = getSheetHeight(currentViews);
 
     const getSheetHeight = (currentViews) => {
         let height = contentHeight;
+        if (currentViews.includes("Tracks")) {
+            height -= tracksHeight + 20;
+        }
         if (currentViews.includes("Tree")) {
             height -= treeHeight + 20;
         }
@@ -240,9 +246,18 @@
                     </div>
                 </div>
                 <div class="overviewContainer">
+                    {#if currentViews.includes("Tracks") && musicpiece}
+                        <Tracks
+                            width={overviewWidth}
+                            height={tracksHeight}
+                            {musicpiece}
+                            {sectionInfo}
+                            bind:selectedMeasure
+                        />
+                    {/if}
                     {#if currentViews.includes("Tree") && sections && sections.length > 0}
-                        <OverviewTree
-                            width={contentWidth / 2}
+                        <Tree
+                            width={overviewWidth}
                             height={treeHeight}
                             {encoding}
                             {sectionInfo}
@@ -258,7 +273,7 @@
                     {/if}
                     {#if currentViews.includes("Compressed") && notes && notes.length > 0}
                         <Compressed
-                            width={contentWidth / 2}
+                            width={overviewWidth}
                             height={compressedHeight}
                             {measures}
                             {measureDists}
@@ -266,8 +281,8 @@
                         />
                     {/if}
                     {#if currentViews.includes("Sheet") && notes && notes.length > 0}
-                        <OverviewSheet
-                            width={contentWidth / 2}
+                        <Sheet
+                            width={overviewWidth}
                             height={sheetHeight}
                             {track}
                             {measures}
@@ -281,7 +296,7 @@
                 <div class="scoreContainer">
                     {#if currentViews.includes("Score") && musicxml && musicpiece && track && measureColors.length > 0}
                         <Score
-                            width={contentWidth / 2}
+                            width={overviewWidth}
                             height={contentHeight}
                             {musicxml}
                             {trackIndex}

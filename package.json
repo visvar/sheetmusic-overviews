@@ -1,6 +1,6 @@
 {
-  "name": "svelte-app",
-  "version": "1.0.0",
+  "name": "sheetmusic-overviews",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "build": "rollup -c",

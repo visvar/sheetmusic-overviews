@@ -1,0 +1,101 @@
+<script>
+    import { afterUpdate } from "svelte";
+    import * as d3 from "d3";
+    import { Canvas } from "../../node_modules/musicvis-lib/dist/musicvislib";
+    import { getMeasures } from "../lib.js";
+
+    export let width;
+    export let height;
+    export let musicpiece;
+    export let sectionInfo;
+    export let selectedMeasure = null;
+
+    let canvas;
+
+    const drawVis = () => {
+        const marginTop = 20;
+        const marginLeft = 100;
+
+        const context = canvas.getContext("2d");
+        context.imageSmoothingQuality = "high";
+
+        // Reset
+        context.fillStyle = "white";
+        context.fillRect(0, 0, width, height);
+
+        const tracks = musicpiece.tracks;
+        const maxMeasures = d3.max(tracks, (d) => d.measureIndices.length);
+
+        const mWidth = (width - marginLeft - 2) / maxMeasures;
+        const mWidthInner = mWidth - 1;
+        const mHeight = Math.min((height - marginTop) / tracks.length, 14);
+        const mHeightInner = mHeight - 1;
+        context.font = `${mHeight * 0.9}px sans-serif`;
+
+        // Sections
+        console.log("track: sections", sectionInfo);
+        for (const section of sectionInfo) {
+            const { name, startMeasure, length } = section;
+            const x = marginLeft + startMeasure * mWidth + 1;
+            const sectionWidth = length * mWidth - 2;
+            context.fillStyle = "#333";
+            context.fillText(name, x, 10);
+            context.fillStyle = "#666";
+            Canvas.drawBracketH(context, x, marginTop - 7, sectionWidth, 5);
+            // Avoid overlap
+            context.fillStyle = "white";
+            context.fillRect(x + sectionWidth, 0, width + 1, marginTop);
+        }
+
+        // Measure labels
+        context.fillStyle = "#333";
+        for (const [tIndex, track] of tracks.entries()) {
+            const y = marginTop + (tIndex + 1) * mHeight;
+            context.fillText(track.name, 0, y);
+        }
+        // Avoid overlap
+        context.fillStyle = "white";
+        context.fillRect(marginLeft - 2, marginTop, width, height);
+
+        // Measures
+        for (const [tIndex, track] of tracks.entries()) {
+            const y = marginTop + tIndex * mHeight;
+            const measures = getMeasures(track);
+            for (const [mIndex, measure] of measures.entries()) {
+                const x = marginLeft + mIndex * mWidth;
+                if (measure.length > 0) {
+                    context.fillStyle = d3.schemeTableau10[tIndex % 10];
+                    context.fillRect(x, y, mWidthInner, mHeightInner);
+                } else {
+                    context.fillStyle = "#eee";
+                    context.fillRect(x, y, mWidthInner, mHeightInner);
+                }
+            }
+        }
+
+        // Highlight for selected measure
+        if (selectedMeasure !== null && selectedMeasure !== undefined) {
+            const x = marginLeft + selectedMeasure * mWidth;
+            context.fillStyle = "rgba(128, 128, 128, 0.2)";
+            context.fillRect(x - 1, 0, mWidth - 2, height);
+        }
+
+        // Click to select measure, ...
+        canvas.onmouseup = (event) => {
+            // Measure selected
+            event.preventDefault();
+            selectedMeasure = Math.floor((event.offsetX - marginLeft) / mWidth);
+        };
+        // Double-click to reset
+        canvas.ondblclick = (event) => {
+            event.preventDefault();
+            selectedMeasure = null;
+        };
+    };
+
+    afterUpdate(drawVis);
+</script>
+
+<main>
+    <canvas {width} {height} bind:this={canvas} />
+</main>

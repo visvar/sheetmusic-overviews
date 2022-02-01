@@ -16,6 +16,9 @@
     let container;
     let osmd;
 
+    const measureOpacity = 0.25;
+    const measureOpacityHighlighted = 0.6;
+
     // TODO: zoom does not work
     // const zoom = 0.5;
     const osmdScalingFactor = 10;
@@ -158,65 +161,81 @@
             return;
         }
         console.log("osmd colorizing SVG");
-        const el = container.getElementsByTagName("svg");
-        let svg = d3.select(el);
-
         const isTab = d3.some(track.notes, (d) => d.fret !== undefined);
         const tabStaffHeight = isTab ? 6.6 : 4;
 
+        const el = container.getElementsByTagName("svg")[0];
+        let svg = d3.select(el);
         // TODO: remove old rects or better: add when rendered and then only change later
+        svg.selectAll(".coloredMeasure").remove();
 
         const measureInfo = getMeasureInfo(osmd);
         console.log("measureInfo", measureInfo);
         for (const [index, measure] of measureInfo.entries()) {
-            const x = measure.x * osmdScalingFactor;
-            const y = measure.y * osmdScalingFactor;
-            const w = measure.width * osmdScalingFactor;
-
             // Empty measures should be transparent
             if (measures[index].length === 0) {
                 continue;
             }
-            // Add transparency
-            // const color = `rgba${measureColors[index].slice(3, -1)}, 0.25)`;
-            const color = setOpacity(measureColors[index], 0.25);
-            // TODO: highlight selectedMeasure
-            // const color =
-            //     index === selectedMeasure
-            //         ? `rgba${measureColors[index].slice(3, -1)}, 0.5)`
-            //         : `rgba${measureColors[index].slice(3, -1)}, 0.25)`;
-
+            const x = measure.x * osmdScalingFactor;
+            const y = measure.y * osmdScalingFactor;
+            const w = measure.width * osmdScalingFactor;
+            const color = measureColors[index];
+            const onClick = () => (selectedMeasure = index);
             // Note Staff
-            svg.append("rec")
-                .attr("class", "coloredMeasure")
+            svg.append("rect")
+                .attr("class", `coloredMeasure measure${index}`)
                 .attr("x", x)
                 .attr("y", y)
                 .attr("width", w)
                 .attr("height", osmdNoteStaffHeight * osmdScalingFactor)
-                .style("fill", color);
+                .style("fill", color)
+                .style("opacity", measureOpacity)
+                .style("mix-blend-mode", "multiply")
+                .on("click", onClick);
             const m = osmd.graphic.measureList[index];
-            // if (m.length > 1) {
-            //     const y2 = m[1].boundingBox.absolutePosition.y;
-            //     // Tab Staff
-            //     ctx.fillRect(
-            //         x,
-            //         y2 * osmdScalingFactor,
-            //         w,
-            //         tabStaffHeight * osmdScalingFactor
-            //     );
-            //     // Gap
-            //     ctx.fillStyle = setOpacity(measureColors[index], 0.1);
-            //     ctx.fillRect(
-            //         x,
-            //         (measure.y + osmdNoteStaffHeight) * osmdScalingFactor,
-            //         w,
-            //         (y2 - measure.y - osmdNoteStaffHeight) * osmdScalingFactor
-            //     );
-            // }
+            if (m.length > 1) {
+                const y2 = m[1].boundingBox.absolutePosition.y;
+                if (y2 > 0) {
+                    // Tab Staff
+                    svg.append("rect")
+                        .attr("class", `coloredMeasure measure${index}`)
+                        .attr("x", x)
+                        .attr("y", y2 * osmdScalingFactor)
+                        .attr("width", w)
+                        .attr("height", tabStaffHeight * osmdScalingFactor)
+                        .style("fill", color)
+                        .style("opacity", measureOpacity)
+                        .style("mix-blend-mode", "multiply")
+                        .on("click", onClick);
+                }
+                const yGap =
+                    (measure.y + osmdNoteStaffHeight) * osmdScalingFactor;
+                const gapHeight =
+                    (y2 - measure.y - osmdNoteStaffHeight) * osmdScalingFactor;
+                if (gapHeight > 0) {
+                    // Gap
+                    svg.append("rect")
+                        .attr("class", `coloredMeasure gap measure${index}`)
+                        .attr("x", x)
+                        .attr("y", yGap)
+                        .attr("width", w)
+                        .attr("height", gapHeight)
+                        .style("fill", measureColors[index])
+                        .style("opacity", measureOpacity)
+                        .style("mix-blend-mode", "multiply")
+                        .on("click", onClick);
+                }
+            }
         }
     };
 
-    const scrollToMeasure = () => {
+    /**
+     * Scrolls the view such that the selected measure is at the top
+     *
+     * @todo animate? https://gist.github.com/humbletim/5507619
+     * @param {number} selectedMeasure mesasure index
+     */
+    const scrollToMeasure = (selectedMeasure) => {
         if (selectedMeasure === null || !osmd) {
             return;
         }
@@ -226,19 +245,34 @@
         main.scrollTop = (y + osmdNoteStaffHeight) * osmdScalingFactor - 60;
     };
 
+    /**
+     * Visually highlight a selected measure by applying more opacity
+     *
+     * @param {number} measureIndex mesasure index
+     */
+    const highlightMeasure = (measureIndex) => {
+        // console.log(`Highlighting .measure${measureIndex}`);
+        // Reset opacity of all measure backgrounds
+        const measures = d3.select(container).selectAll(`.coloredMeasure`);
+        measures.transition().style("opacity", measureOpacity);
+        if (measureIndex !== undefined && measureIndex !== null) {
+            // Highlight selected measure elements
+            const measures2 = measures.filter(`.measure${measureIndex}`);
+            measures2.transition().style("opacity", measureOpacityHighlighted);
+        }
+    };
+
     // Update depending on prop change
     $: if (true || musicxml || container) {
         loadOSMD();
     }
     $: if (true || width || measureColors || osmd) {
-        // renderOSMD();
         // Colorize measures
-        // delay(0.1).then(() => colorize());
-        renderOSMD().then(() => colorizeSvg());
-        // colorize();
+        renderOSMD().then(delay(0.1).then(colorizeSvg));
     }
     $: if (true || selectedMeasure) {
-        scrollToMeasure();
+        scrollToMeasure(selectedMeasure);
+        highlightMeasure(selectedMeasure);
     }
 </script>
 

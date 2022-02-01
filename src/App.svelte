@@ -288,7 +288,7 @@
                             {track}
                             {measures}
                             {measureColors}
-                            {selectedMeasure}
+                            bind:selectedMeasure
                         />
                     {/if}
                 </div>

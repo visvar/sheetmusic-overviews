@@ -189,7 +189,7 @@
                 const mX = col * sWidth;
                 // Background
                 const bgColor =
-                    section.length === 0 ? "#f8f8f8" : sectionColors[index];
+                    sectionColors.length < 2 ? "#f8f8f8" : sectionColors[index];
                 context.fillStyle = bgColor;
                 context.fillRect(mX, rowY, sWidthInner, rowHeight);
                 if (selectedSection !== null && index !== selectedSection) {

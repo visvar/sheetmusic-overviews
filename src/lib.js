@@ -182,3 +182,21 @@ export function setOpacity (color, opacity = 1) {
   const { r, g, b } = d3.color(color).rgb()
   return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
+
+/**
+ * Removes tags from an XML document.
+ * Will change the document in place.
+ *
+ * @param {XMLDocument} parsedXml
+ * @param {string[]} selectors e.g., ['mytag', '.myclass', '#myid']
+ * @returns {XMLDocument} the changed input document
+ */
+export function removeXmlElements (parsedXml, selectors) {
+  for (const selector of selectors) {
+    const elements = parsedXml.querySelectorAll(selector)
+    for (let element of elements) {
+      element.remove()
+    }
+  }
+  return parsedXml
+}

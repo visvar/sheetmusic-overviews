@@ -24,3 +24,15 @@ a:hover {
 a:visited {
 	color: rgb(0,80,160);
 }
+
+.overviewTitle {
+  position: relative;
+  width: 50px;
+  height: 0;
+  left: -40px;
+  top: 20px;
+  transform: rotate(90deg);
+  color: #aaa;
+  user-select: none;
+  letter-spacing: 0.1em;
+}

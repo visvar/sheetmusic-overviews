@@ -1,17 +1,17 @@
 <script>
   import { afterUpdate } from "svelte";
   import * as d3 from "d3";
-  // import { Canvas, Utils, StringBased } from "musicvis-lib/dist/musicvislib";
   import { Canvas, Utils, StringBased } from "musicvis-lib";
 
   export let width;
-  export let height;
+  export let height = 100;
   export let measures;
   export let measureDists;
   export let measureColors;
   export let selectedMeasure;
 
   let zoom = 1;
+  let container;
   let canvas;
   let canvasHeight = height - 35;
 
@@ -140,6 +140,14 @@
     selectedMeasure = summary[column];
   };
 
+  /**
+   * Scroll horizontally on mouse wheel interaction
+   * @param event
+   */
+  const onMouseWheel = (event) => {
+    container.scrollLeft += 2 * event.deltaY;
+  };
+
   afterUpdate(drawVis);
 </script>
 
@@ -149,14 +157,20 @@
     <label>
       Zoom
       <input type="range" bind:value={zoom} min={1} max={20} step={1} />
+      {zoom}x
     </label>
   </div>
-  <div class="canvasContainer" style={`max-width: ${width}px`}>
+  <div
+    class="canvasContainer"
+    style={`max-width: ${width}px`}
+    bind:this={container}
+  >
     <canvas
       width={width * zoom}
       height={canvasHeight}
       bind:this={canvas}
       on:click={onClick}
+      on:mousewheel={onMouseWheel}
     />
   </div>
 </main>

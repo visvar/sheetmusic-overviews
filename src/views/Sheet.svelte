@@ -1,10 +1,8 @@
 <script>
   import { afterUpdate } from "svelte";
-  import Slider from "@smui/slider";
   import Select, { Option } from "@smui/select";
   import * as d3 from "d3";
   import { Canvas, Chords, Utils } from "musicvis-lib";
-  // import { Canvas, Utils, Chords } from "musicvis-lib/dist/musicvislib";
 
   export let width;
   export let height;
@@ -79,14 +77,13 @@
     const draw = () => {
       // If a measure was selected, change colors to reflect distance to selected measure
       let cols;
-      let dists;
       if (
         measureOrSectMode &&
         selectedMeasure !== null &&
         selectedColoring !== "default"
       ) {
         // Distance of all measures to the currently selected one
-        dists = measureDists[selectedMeasure];
+        let dists = measureDists[selectedMeasure];
         if (selectedColoring === "identical") {
           // Highlight identical measures
           cols = dists.map((d) =>

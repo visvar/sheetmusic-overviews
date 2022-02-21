@@ -1,7 +1,7 @@
 <script>
   import { afterUpdate } from "svelte";
   import * as d3 from "d3";
-  import { Canvas } from "../../node_modules/musicvis-lib/dist/musicvislib";
+  import { Canvas } from "musicvis-lib";
   import { getMeasures } from "../lib.js";
 
   export let width;

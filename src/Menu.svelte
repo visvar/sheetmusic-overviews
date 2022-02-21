@@ -1,5 +1,5 @@
 <script>
-  import { MusicPiece } from "../node_modules/musicvis-lib/dist/musicvislib";
+  import { MusicPiece } from "musicvis-lib";
   import * as d3 from "d3";
   import JSZip from "jszip";
   import { createEventDispatcher } from "svelte";

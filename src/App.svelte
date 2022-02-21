@@ -15,7 +15,7 @@
     SecondaryText,
   } from "@smui/list";
   import { Label } from "@smui/button";
-  import { Chords } from "../node_modules/musicvis-lib/dist/musicvislib";
+  import { Chords } from "musicvis-lib";
 
   import {
     getColorsFrom1DPoints,
@@ -176,7 +176,7 @@
           </div>
           <Title>Sheet Music Overviews</Title>
         </Section>
-        <Section align="center" toolbar>
+        <Section toolbar>
           <SegmentedButton
             segments={views}
             let:segment

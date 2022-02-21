@@ -3,11 +3,7 @@
   import Slider from "@smui/slider";
   import Select, { Option } from "@smui/select";
   import * as d3 from "d3";
-  import {
-    Canvas,
-    Chords,
-    Utils,
-  } from "../../node_modules/musicvis-lib/dist/musicvislib";
+  import { Canvas, Chords, Utils } from "musicvis-lib";
   // import { Canvas, Utils, Chords } from "musicvis-lib/dist/musicvislib";
 
   export let width;

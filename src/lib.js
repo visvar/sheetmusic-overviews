@@ -1,4 +1,4 @@
-import { StringBased, Utils } from '../node_modules/musicvis-lib/dist/musicvislib'
+import { GuitarNote, Note, StringBased, Utils } from 'musicvis-lib'
 import * as druid from '@saehrimnir/druidjs/dist/druid.esm'
 import * as d3 from 'd3'
 
@@ -45,7 +45,7 @@ export function getMeasures (track) {
 export function getSectionInfo (track) {
   const sections = []
   for (const [startMeasure, name] of track.measureRehearsalMap.entries()) {
-    sections.push({ name, startMeasure })
+    sections.push({ name, startMeasure, endMeasure: null })
   }
   for (let index = 1; index < sections.length; ++index) {
     sections[index - 1].endMeasure = sections[index].startMeasure - 1
@@ -74,6 +74,7 @@ export function getSectionInfo (track) {
   }
   // Add lengths to each
   for (const section of sections) {
+    // @ts-ignore
     section.length = section.endMeasure - section.startMeasure + 1
   }
   return sections
@@ -94,7 +95,7 @@ export function getSections (sectionInfo, measures) {
 
 /**
  * Calculates the pairwise distances between all elements of noteCollections
- * @param {Note[][]} noteCollections Note[][]
+ * @param {Note[][]|GuitarNote[][]} noteCollections Note[][]
  * @param {'levenshteinPitch'|'levenshteinStringFret'|'jaccardPitch'} distanceMetric distance metric
  * @returns {number[][]} distance matrix
  */
@@ -130,7 +131,7 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
 
 /**
  * Computes 1D MDS on a distance matrix
- * @param {number[][]} distMatrx distance matrix
+ * @param {number[][]} distMatrix distance matrix
  * @returns {number[]} 1D DR points
  */
 export function getDRPointsFromDistances (distMatrix) {

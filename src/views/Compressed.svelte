@@ -2,11 +2,7 @@
   import { afterUpdate } from "svelte";
   import * as d3 from "d3";
   // import { Canvas, Utils, StringBased } from "musicvis-lib/dist/musicvislib";
-  import {
-    Canvas,
-    Utils,
-    StringBased,
-  } from "../../node_modules/musicvis-lib/dist/musicvislib";
+  import { Canvas, Utils, StringBased } from "musicvis-lib";
 
   export let width;
   export let height;

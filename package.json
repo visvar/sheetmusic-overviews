@@ -50,8 +50,8 @@
     "@smui/select": "^6.0.0-beta.14",
     "@smui/slider": "^6.0.0-beta.14",
     "@smui/top-app-bar": "^6.0.0-beta.14",
-    "npm-check-updates": "^12.3.0",
-    "rollup": "^2.67.2",
+    "npm-check-updates": "^12.4.0",
+    "rollup": "^2.67.3",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-svelte": "^7.1.0",
@@ -63,10 +63,10 @@
     "svelte-material-ui": "^6.0.0-beta.14"
   },
   "dependencies": {
-    "@saehrimnir/druidjs": "^0.3.16",
+    "@saehrimnir/druidjs": "^0.5.0",
     "d3": "^7.3.0",
     "jszip": "^3.7.1",
-    "musicvis-lib": "^0.53.3",
+    "musicvis-lib": "^0.54.0",
     "opensheetmusicdisplay": "^1.4.5"
   }
 }

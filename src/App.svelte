@@ -42,8 +42,8 @@
 
   // View
   let views = ["Tracks", "Tree", "Compressed", "Sheet", "Score"];
-  let currentViews = [...views];
-  // let currentViews = ["Tracks", "Tree", "Compressed", "Sheet"];
+  // let currentViews = [...views];
+  let currentViews = ["Tracks", "Tree", "Compressed", "Sheet"];
 
   // Data
   let musicxml = null;
@@ -65,7 +65,6 @@
   $: measureDists = getDistanceMatrix(measures, "levenshteinPitch");
   $: measurePoints = getDRPointsFromDistances(measureDists);
   $: measureColors = getColorsFrom1DPoints(measurePoints, colormap?.map);
-  // $: console.log("app: measure colors", measureColors);
 
   // Sections
   $: sectionInfo = track ? getSectionInfo(track) : null;
@@ -74,7 +73,6 @@
   $: sectionDists = getDistanceMatrix(sections, "levenshteinPitch");
   $: sectionPoints = getDRPointsFromDistances(sectionDists);
   $: sectionColors = getColorsFrom1DPoints(sectionPoints, colormap?.map);
-  // $: console.log("app: sec colors", sectionColors);
 
   // Harmonies
   $: harmonies = Chords.detectChordsByExactStart(notes);
@@ -89,13 +87,12 @@
   // Sizes without nav and menu
   $: contentHeight = window.innerHeight - 80;
   $: overviewWidth = (window.innerWidth - 340) / 2;
-  $: tracksHeight = (musicpiece?.tracks.length ?? 0.1) * 12 + 25;
+  $: tracksHeight = (musicpiece?.tracks.length ?? 0.1) * 14 + 40;
   const treeHeight = 400;
   const compressedHeight = 200;
-  $: sheetHeight = getSheetHeight(currentViews);
+  $: sheetHeight = getSheetHeight(currentViews, contentHeight);
 
-  const getSheetHeight = (currentViews) => {
-    const gap = 40;
+  const getSheetHeight = (currentViews, contentHeight, gap = 40) => {
     let height = contentHeight - 40;
     if (currentViews.includes("Tracks")) {
       height -= tracksHeight + gap;
@@ -191,12 +188,15 @@
           </SegmentedButton>
         </Section>
         <Section align="end" toolbar>
-          <IconButton on:click={() => (showAbout = true)} class="material-icons"
-            >info</IconButton
+          <IconButton
+            on:click={() => (showAbout = true)}
+            class="material-icons"
           >
-          <IconButton on:click={() => (showHelp = true)} class="material-icons"
-            >help</IconButton
-          >
+            info
+          </IconButton>
+          <IconButton on:click={() => (showHelp = true)} class="material-icons">
+            help
+          </IconButton>
         </Section>
       </Row>
     </TopAppBar>

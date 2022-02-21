@@ -22,6 +22,7 @@
   let mPerRow = 20;
   let selectedColoring = "identical";
   let mode = "Measures";
+  let compactRepeatedNotes = false;
 
   let canvas;
   $: canvasHeight = height - 60;
@@ -96,7 +97,7 @@
             d === 0 ? "steelblue" : "rgb(238, 238, 238)"
           );
         } else {
-          // COlor all measures by distance
+          // Color all measures by distance
           const distColorScale = d3
             .scaleLinear()
             .domain(d3.extent(dists))
@@ -180,7 +181,7 @@
         const fn = Canvas.drawNoteTrapezoid;
         context.font = `7px sans-serif`;
         if (mode !== "Harmonies") {
-          for (const note of measure) {
+          for (const [index, note] of measure.entries()) {
             const x = scaleX(note.start);
             const y = mY + scaleY(isTab ? note.string : note.pitch);
             const width = scaleX(note.end) - x;
@@ -198,7 +199,14 @@
                 Utils.getColorLightness(context.fillStyle) > 50
                   ? "black"
                   : "white";
-              context.fillText(note.fret, x + 1, y + noteHeight / 2 + 1);
+              const lastNote = measure[index - 1];
+              if (
+                !compactRepeatedNotes ||
+                note.fret !== lastNote?.fret ||
+                note.string !== lastNote?.string
+              ) {
+                context.fillText(note.fret, x + 1, y + noteHeight / 2 + 1);
+              }
             }
           }
         } else {
@@ -256,6 +264,10 @@
         Default
       </Option>
     </Select>
+    <label>
+      Compact repeated notes
+      <input type="checkbox" bind:checked={compactRepeatedNotes} />
+    </label>
   </div>
   <canvas {width} height={canvasHeight} bind:this={canvas} />
 </main>
@@ -269,5 +281,9 @@
 
   .control {
     margin-bottom: 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+    align-items: center;
   }
 </style>

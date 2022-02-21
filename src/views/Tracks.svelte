@@ -13,9 +13,9 @@
   let canvas;
 
   const drawVis = () => {
-    const marginTop = 20;
-    const marginLeft = 100;
-    const marginBottom = 5;
+    const marginTop = 25;
+    const marginLeft = 110;
+    const marginBottom = 20;
 
     const context = canvas.getContext("2d");
     context.imageSmoothingQuality = "high";
@@ -34,7 +34,8 @@
       14
     );
     const mHeightInner = mHeight - 1;
-    context.font = `${mHeight * 0.9}px sans-serif`;
+    const fontSize = mHeight * 0.85;
+    context.font = `${fontSize}px sans-serif`;
 
     // Sections
     console.log("track: sections", sectionInfo);
@@ -75,6 +76,14 @@
           context.fillRect(x, y, mWidthInner, mHeightInner);
         }
       }
+    }
+
+    // Measure numbers
+    const y = height - marginBottom + fontSize + 3;
+    context.fillStyle = "#333";
+    for (let i = 9; i < maxMeasures; i += 10) {
+      const x = marginLeft + i * mWidth;
+      context.fillText(i + 1, x, y);
     }
 
     // Highlight for selected measure

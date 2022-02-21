@@ -10,5 +10,3 @@
 
 
 ## Bugs
-
-- loading a second file fails

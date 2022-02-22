@@ -137,9 +137,11 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
 export function getDRPointsFromDistances (distMatrix) {
   if (distMatrix.length === 0) { return [] }
   // DR
-  const druidMatrix = druid.Matrix.from(distMatrix)
-  const DR = new druid.MDS(druidMatrix, 1, 'precomputed').transform()
-  const points = DR.to2dArray.map((d) => d[0])
+  const DR = new druid.MDS(distMatrix)
+    .parameter("d", 1)
+    .parameter("metric", "precomputed")
+    .transform()
+  const points = DR.map((d) => d[0])
   return points
 }
 

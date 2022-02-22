@@ -7,15 +7,17 @@
   export let width;
   export let height;
   export let track;
+  export let colorMode = "bars";
   export let measures;
   export let measureDists;
   export let selectedMeasure;
   export let colors;
+  export let sectionInfo;
+  export let sectionColors;
   export let encoding;
 
   let mPerRow = 20;
   let selectedColoring = "identical";
-  let mode = "Measures";
   let compactRepeatedNotes = false;
 
   let canvas;
@@ -55,7 +57,7 @@
         .range([mHeightInner, 0]);
     }
 
-    const measureOrSectMode = ["Measures", "Sections"].includes(mode);
+    const measureOrSectMode = ["bars", "sections"].includes(colorMode);
 
     // Onclick handler
     // Click to color by distance to selected measure
@@ -99,8 +101,8 @@
           const distColor = (dist) => chromScale(distColorScale(dist));
           cols = dists.map(distColor);
         }
-      } else if (mode === "Sections") {
-        cols = sections.flatMap((section, index) =>
+      } else if (colorMode === "sections") {
+        cols = sectionInfo.flatMap((section, index) =>
           Array.from({
             length: section.endMeasure - section.startMeasure + 1,
           }).fill(sectionColors[index])
@@ -108,6 +110,7 @@
       } else {
         cols = colors;
       }
+      console.log(colorMode, sectionInfo, cols);
 
       // Reset background
       context.fillStyle = "white";
@@ -164,7 +167,7 @@
         // Draw strings
         if (isTab && showStrings) {
           context.fillStyle =
-            mode === "Measures" ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 0.05)";
+            colorMode === "bars" ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 0.05)";
           for (let string = 1.5; string < 7; ++string) {
             context.fillRect(mX, mY + scaleY(string), mWidthInner, 1);
           }
@@ -173,7 +176,7 @@
         // Draw notes
         const fn = Canvas.drawNoteTrapezoid;
         context.font = `7px sans-serif`;
-        if (mode !== "Harmonies") {
+        if (colorMode !== "Harmonies") {
           for (const [index, note] of measure.entries()) {
             const x = scaleX(note.start);
             const y = mY + scaleY(isTab ? note.string : note.pitch);
@@ -182,7 +185,7 @@
             if (measureOrSectMode && Utils.getColorLightness(bgColor) < 50) {
               context.fillStyle = "#eee";
             }
-            if (mode === "Notes") {
+            if (colorMode === "Notes") {
               context.fillStyle = cols[note.pitch % 12];
             }
             fn(context, x, y, width, noteHeight, noteEndHeight);

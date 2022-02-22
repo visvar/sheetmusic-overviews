@@ -7,8 +7,11 @@
   export let height;
   export let musicxml;
   export let trackIndex;
+  export let colorMode = "bars";
   export let measures;
   export let measureColors;
+  export let sectionInfo;
+  export let sectionColors;
   export let selectedMeasure = null;
 
   let main;
@@ -25,6 +28,15 @@
   const tabStaffHeight = 6.6;
 
   let parsedXml;
+
+  $: colors =
+    colorMode === "bars"
+      ? measureColors
+      : sectionInfo.flatMap((section, index) =>
+          new Array(section.endMeasure - section.startMeasure + 1).fill(
+            sectionColors[index]
+          )
+        );
 
   const cleanXml = (stringXml) => {
     // Remove lyrics etc
@@ -150,55 +162,8 @@
     }
   };
 
-  const colorize = async () => {
-    // if (!osmd || !measureColors?.length > 0) {
-    //     return;
-    // }
-    // console.log("osmd colorizing");
-    // let ctx = document
-    //     .getElementById("osmdCanvasVexFlowBackendCanvas1")
-    //     .getContext("2d");
-    // const isTab = d3.some(track.notes, (d) => d.fret !== undefined);
-    // const tabStaffHeight = isTab ? 6.6 : 4;
-    // const measureInfo = getMeasureInfo(osmd);
-    // console.log("measureInfo", measureInfo);
-    // for (const [index, measure] of measureInfo.entries()) {
-    //     const x = measure.x * osmdScalingFactor;
-    //     const y = measure.y * osmdScalingFactor;
-    //     const w = measure.width * osmdScalingFactor;
-    //     // Empty measures should be transparent
-    //     if (measures[index].length === 0) {
-    //         continue;
-    //     }
-    //     // Add transparency
-    //     const color = setOpacity(measureColors[index], 0.25);
-    //     ctx.fillStyle = color;
-    //     // Note Staff
-    //     ctx.fillRect(x, y, w, osmdNoteStaffHeight * osmdScalingFactor);
-    //     const m = osmd.graphic.measureList[index];
-    //     if (m.length > 1) {
-    //         const y2 = m[1].boundingBox.absolutePosition.y;
-    //         // Tab Staff
-    //         ctx.fillRect(
-    //             x,
-    //             y2 * osmdScalingFactor,
-    //             w,
-    //             tabStaffHeight * osmdScalingFactor
-    //         );
-    //         // Gap
-    //         ctx.fillStyle = setOpacity(measureColors[index], 0.1);
-    //         ctx.fillRect(
-    //             x,
-    //             (measure.y + osmdNoteStaffHeight) * osmdScalingFactor,
-    //             w,
-    //             (y2 - measure.y - osmdNoteStaffHeight) * osmdScalingFactor
-    //         );
-    //     }
-    // }
-  };
-
   const colorizeSvg = async () => {
-    if (!osmd || !measureColors?.length > 0) {
+    if (!osmd || !measureColors || measureColors.length === 0) {
       return;
     }
     console.log("osmd colorizing SVG");
@@ -220,7 +185,7 @@
       const x = measure.x * osmdScalingFactor;
       const y = measure.y * osmdScalingFactor;
       const w = measure.width * osmdScalingFactor;
-      const color = measureColors[index];
+      const color = colors[index];
       const onClick = () => (selectedMeasure = index);
       const m = osmd.graphic.measureList[index];
       // First staff
@@ -271,7 +236,7 @@
             .attr("height", gapHeight)
             .on("click", onClick)
             .transition()
-            .style("fill", measureColors[index])
+            .style("fill", color)
             .style("opacity", measureOpacity)
             .style("mix-blend-mode", "multiply");
         }
@@ -323,9 +288,9 @@
     loadOSMD();
   }
   $: if (true || width || osmd) {
-    renderOSMD().then(delay(0.1).then(colorizeSvg));
+    renderOSMD().then(() => delay(0.1).then(colorizeSvg));
   }
-  $: if (true || measureColors) {
+  $: if (true || colors) {
     colorizeSvg();
   }
   $: if (true || selectedMeasure) {

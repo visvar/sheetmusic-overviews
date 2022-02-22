@@ -85,8 +85,10 @@
     : d3.range(12).fill("white");
 
   // Sizes without nav and menu
-  $: contentHeight = window.innerHeight - 80;
-  $: overviewWidth = (window.innerWidth - 340) / 2;
+  let windowWidth;
+  let windowHeight;
+  $: overviewWidth = (windowWidth - 340) / 2;
+  $: contentHeight = windowHeight - 80;
   $: tracksHeight = (musicpiece?.tracks.length ?? 0.1) * 14 + 40;
   const treeHeight = 400;
   const compressedHeight = 200;
@@ -115,6 +117,8 @@
   let showHelp = false;
   let showAbout = false;
 </script>
+
+<svelte:window bind:innerWidth={windowWidth} bind:innerHeight={windowHeight} />
 
 <div class="flexy">
   <div
@@ -269,11 +273,14 @@
               width={overviewWidth}
               height={sheetHeight}
               {track}
+              {colorMode}
               {measures}
               {measureDists}
               bind:selectedMeasure
               {encoding}
               colors={measureColors}
+              {sectionInfo}
+              {sectionColors}
             />
           {/if}
         </div>
@@ -284,8 +291,11 @@
               height={contentHeight}
               {musicxml}
               {trackIndex}
+              {colorMode}
               {measures}
               {measureColors}
+              {sectionInfo}
+              {sectionColors}
               bind:selectedMeasure
             />
           {/if}

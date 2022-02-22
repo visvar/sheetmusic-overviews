@@ -25,7 +25,7 @@
     context.fillRect(0, 0, width, height);
 
     const tracks = musicpiece.tracks;
-    const maxMeasures = d3.max(tracks, (d) => d.measureIndices.length);
+    const maxMeasures = +d3.max(tracks, (d) => d.measureIndices.length);
 
     const mWidth = (width - marginLeft - 2) / maxMeasures;
     const mWidthInner = mWidth - 1;

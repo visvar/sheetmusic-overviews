@@ -103,14 +103,13 @@
         }
       } else if (colorMode === "sections") {
         cols = sectionInfo.flatMap((section, index) =>
-          Array.from({
-            length: section.endMeasure - section.startMeasure + 1,
-          }).fill(sectionColors[index])
+          new Array(section.endMeasure - section.startMeasure + 1).fill(
+            sectionColors[index]
+          )
         );
       } else {
         cols = colors;
       }
-      console.log(colorMode, sectionInfo, cols);
 
       // Reset background
       context.fillStyle = "white";

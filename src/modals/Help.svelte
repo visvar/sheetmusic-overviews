@@ -27,6 +27,13 @@
     </p>
     <p>You can change how colors are computed and mapped with options below.</p>
 
+    <h3>Tracks</h3>
+    <p>
+      The Tracks view shows all tracks (usually, there is one for each
+      instrument) in an overview. Colored rectangles indicate bars that contain
+      notes. Clicking on a bar will highlight it in other views.
+    </p>
+
     <h3>Tree</h3>
     <p>
       The Tree view shows the hierarchical structure, the rows display sections,

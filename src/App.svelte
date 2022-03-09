@@ -5,15 +5,6 @@
   import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
   import IconButton from "@smui/icon-button";
   import SegmentedButton, { Segment } from "@smui/segmented-button";
-  import MainMenu from "@smui/menu";
-  import { Anchor } from "@smui/menu-surface";
-  import List, {
-    Item,
-    Separator,
-    Text,
-    PrimaryText,
-    SecondaryText,
-  } from "@smui/list";
   import { Label } from "@smui/button";
   import { Chords } from "musicvis-lib";
 
@@ -112,14 +103,39 @@
   // Interaction
   let selectedSection = null;
   let selectedMeasure = null;
-  let menuAction = "";
 
   // Modals
   let showHelp = false;
   let showAbout = false;
+
+  // Keyboard input
+  const handleKeydown = (event) => {
+    console.log(event);
+    if (event.code === "ArrowRight") {
+      // Next measure
+      event.preventDefault();
+      selectedMeasure = Math.min((selectedMeasure ?? 0) + 1, measures.length);
+    } else if (event.code === "ArrowLeft") {
+      // previous measure
+      event.preventDefault();
+      selectedMeasure = Math.max((selectedMeasure ?? 0) - 1, 0);
+    } else if (event.code === "ArrowDown") {
+      event.preventDefault();
+      selectedSection = Math.min((selectedSection ?? 0) + 1, sections.length);
+      selectedMeasure = sectionInfo[selectedSection].startMeasure;
+    } else if (event.code === "ArrowUp") {
+      event.preventDefault();
+      selectedSection = Math.max((selectedSection ?? 0) - 1, 0);
+      selectedMeasure = sectionInfo[selectedSection].startMeasure;
+    }
+  };
 </script>
 
-<svelte:window bind:innerWidth={windowWidth} bind:innerHeight={windowHeight} />
+<svelte:window
+  bind:innerWidth={windowWidth}
+  bind:innerHeight={windowHeight}
+  on:keydown={handleKeydown}
+/>
 
 <div class="flexy">
   <div
@@ -131,6 +147,8 @@
         <Section>
           <Title>Sheet Music Overviews</Title>
         </Section>
+
+        <!-- View buttons -->
         <Section toolbar>
           <SegmentedButton
             segments={views}
@@ -143,10 +161,12 @@
           </SegmentedButton>
         </Section>
 
+        <!-- Player -->
         <Section toolbar>
-          <Player {musicpiece} {trackIndex} {selectedMeasure} />
+          <Player {musicpiece} {trackIndex} bind:selectedMeasure />
         </Section>
 
+        <!-- Info and help modal butons -->
         <Section align="end" toolbar>
           <IconButton
             on:click={() => (showAbout = true)}
@@ -183,7 +203,7 @@
             {/if}
             {#if selectedMeasure !== null}
               <div>
-                Selected measure: {selectedMeasure + 1}
+                Selected bar: {selectedMeasure + 1}
               </div>
             {/if}
           </div>

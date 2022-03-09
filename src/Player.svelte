@@ -12,59 +12,76 @@
   let speed = 1;
   let loop = false;
   let endAt = -1;
+  let logging = false;
 
   let currentPlayerTime = null;
-  let isPlaying = false;
 
-  const p = new Player()
-    .onTimeChange((t) => {
-      currentPlayerTime = t;
-    })
+  const updateCurrentMeasure = (time) => {
+    currentPlayerTime = time;
+    if (time === null) {
+      return;
+    }
+    // Find current measure
+    // let currentMeasure = selectedMeasure;
+    let currentMeasure = 0;
+    const times = musicpiece.measureTimes;
+    while (time > times[currentMeasure]) {
+      currentMeasure++;
+    }
+    // Update state
+    selectedMeasure = currentMeasure;
+  };
+
+  const player = new Player()
+    .onTimeChange(updateCurrentMeasure)
     .onStop(() => {
-      isPlaying = false;
       currentPlayerTime = null;
     })
     .setVolume(3)
-    .setLogging(true);
+    .setLogging(logging);
 
-  let instruments = p.getAvailableInstruments();
+  let instruments = player.getAvailableInstruments();
   let instrument = "acoustic_grand_piano";
   $: if (instrument) {
-    p.preloadInstrument(instrument);
+    player.preloadInstrument(instrument);
   }
 
   const handlePlayButton = () => {
-    if (!isPlaying) {
-      if (!currentPlayerTime) {
-        // Start from beginning
-        const notes = musicpiece.getNotesFromTracks(trackIndex);
-        // Start at selected measure
-        const startMeasure = selectedMeasure ?? 0;
-        const startAt =
-          startMeasure > 0 ? musicpiece.measureTimes[startMeasure - 1] : 0;
-        p.playNotes(notes, instrument, startAt, endAt, speed, loop);
+    // Start from beginning
+    const notes = musicpiece.getNotesFromTracks(trackIndex);
+    // Start at selected measure
+    const startMeasure = selectedMeasure ?? 0;
+    const startAt =
+      startMeasure > 0 ? musicpiece.measureTimes[startMeasure - 1] : 0;
+    player.playNotes(notes, instrument, startAt, endAt, speed, loop);
+  };
+
+  const handleKeydown = (event) => {
+    if (event.code === "Space") {
+      event.preventDefault();
+      if (currentPlayerTime === null) {
+        handlePlayButton();
       } else {
-        // Resume
-        p.resume();
+        player.stop();
       }
-      isPlaying = true;
-    } else {
-      // Pause
-      p.pause();
-      isPlaying = false;
     }
   };
 </script>
 
-<main>
-  <!-- Play/pause, stop, and loop button -->
-  <IconButton on:click={handlePlayButton} class="material-icons">
-    {isPlaying ? "pause" : "play_arrow"}
-  </IconButton>
-  <IconButton on:click={() => p.stop()} class="material-icons">stop</IconButton>
+<svelte:window on:keydown={handleKeydown} />
 
-  <!-- Time indicator -->
+<main>
+  <!-- Play and stop button -->
+  <IconButton on:click={handlePlayButton} class="material-icons">
+    play_arrow
+  </IconButton>
+  <IconButton on:click={() => player.stop()} class="material-icons">
+    stop
+  </IconButton>
+
+  <!-- Bar and time indicator -->
   <span class="time">
+    B {(selectedMeasure ?? 0) + 1} &nbsp;
     {Utils.formatTime(currentPlayerTime, false)}
   </span>
 

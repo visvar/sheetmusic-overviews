@@ -27,6 +27,22 @@
     </p>
     <p>You can change how colors are computed and mapped with options below.</p>
 
+    <h3>Navigation</h3>
+    <p>
+      You can select a bar by clicking on it in any view. Using the left and
+      right arrow keys on your keyboard, you can jump to the previous and next
+      bar. Sections can be selected in the Tree view, or by using up and down
+      arrow keys.
+    </p>
+
+    <h3>Player</h3>
+    <p>
+      You can play notes back as audio using the player. It will start at the
+      currently selected bar and play until you stop it, the currently played
+      bar will be highlighted in other parts of the app. The player has options
+      for instrument and speed.
+    </p>
+
     <h3>Tracks</h3>
     <p>
       The Tracks view shows all tracks (usually, there is one for each

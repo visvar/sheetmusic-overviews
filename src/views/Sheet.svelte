@@ -17,7 +17,10 @@
   export let encoding;
 
   let mPerRow = 20;
-  let selectedColoring = "identical";
+  /**
+   * @type {'default'|'identical'|'distance'}
+   */
+  let selectedColoring = "default";
   let compactRepeatedNotes = false;
 
   let canvas;
@@ -249,14 +252,14 @@
       <input type="range" bind:value={mPerRow} min={1} max={100} step={1} />
     </label>
     <Select bind:value={selectedColoring} label="Coloring when selected">
+      <Option value="default" title="Draw as if nothing was selected">
+        Default
+      </Option>
       <Option value="identical" title="Highlight identical bars">
         Identical
       </Option>
       <Option value="distance" title="Distance to selected bar">
         Distance
-      </Option>
-      <Option value="default" title="Draw as if nothing was selected">
-        Default
       </Option>
     </Select>
     <label>

@@ -38,7 +38,7 @@
     context.font = `${fontSize}px sans-serif`;
 
     // Sections
-    console.log("track: sections", sectionInfo);
+    // console.log("track: sections", sectionInfo);
     for (const section of sectionInfo) {
       const { name, startMeasure, length } = section;
       const x = marginLeft + startMeasure * mWidth + 1;

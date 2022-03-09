@@ -3,11 +3,13 @@
   import Player from "./lib/Player.js";
   import { Utils } from "musicvis-lib";
   import IconButton from "@smui/icon-button";
+  import Tooltip, { Wrapper } from "@smui/tooltip";
   import SelectMenuSingle from "./ui/SelectMenuSingle.svelte";
 
   export let musicpiece;
   export let trackIndex = 0;
   export let selectedMeasure = 0;
+  export let selectedSection = 0;
 
   let speed = 1;
   let loop = false;
@@ -25,7 +27,7 @@
     // let currentMeasure = selectedMeasure;
     let currentMeasure = 0;
     const times = musicpiece.measureTimes;
-    while (time > times[currentMeasure]) {
+    while (time >= times[currentMeasure]) {
       currentMeasure++;
     }
     // Update state
@@ -46,13 +48,13 @@
     player.preloadInstrument(instrument);
   }
 
+  $: startMeasure = selectedMeasure ?? 0;
+  $: startAt = startMeasure > 0 ? musicpiece.measureTimes[startMeasure - 1] : 0;
+
   const handlePlayButton = () => {
     // Start from beginning
     const notes = musicpiece.getNotesFromTracks(trackIndex);
     // Start at selected measure
-    const startMeasure = selectedMeasure ?? 0;
-    const startAt =
-      startMeasure > 0 ? musicpiece.measureTimes[startMeasure - 1] : 0;
     player.playNotes(notes, instrument, startAt, endAt, speed, loop);
   };
 
@@ -79,11 +81,14 @@
     stop
   </IconButton>
 
-  <!-- Bar and time indicator -->
-  <span class="time">
-    B {(selectedMeasure ?? 0) + 1} &nbsp;
-    {Utils.formatTime(currentPlayerTime, false)}
-  </span>
+  <!-- Section, bar, and time indicator -->
+  <Wrapper>
+    <span class="time">
+      S {(selectedSection ?? 0) + 1} &nbsp; B {(selectedMeasure ?? 0) + 1} &nbsp;
+      {Utils.formatTime(currentPlayerTime ?? startAt, false)}
+    </span>
+    <Tooltip unbounded>Current section, bar, and time</Tooltip>
+  </Wrapper>
 
   <!-- Instrument selection -->
   <SelectMenuSingle items={instruments} bind:value={instrument} icon="piano" />
@@ -106,6 +111,7 @@
   }
 
   .time {
+    user-select: none;
     font-family: monospace;
   }
 </style>

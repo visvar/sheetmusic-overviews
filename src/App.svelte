@@ -120,10 +120,12 @@
       event.preventDefault();
       selectedMeasure = Math.max((selectedMeasure ?? 0) - 1, 0);
     } else if (event.code === "ArrowDown") {
+      // Next section
       event.preventDefault();
       selectedSection = Math.min((selectedSection ?? 0) + 1, sections.length);
       selectedMeasure = sectionInfo[selectedSection].startMeasure;
     } else if (event.code === "ArrowUp") {
+      // Previous section
       event.preventDefault();
       selectedSection = Math.max((selectedSection ?? 0) - 1, 0);
       selectedMeasure = sectionInfo[selectedSection].startMeasure;
@@ -163,7 +165,12 @@
 
         <!-- Player -->
         <Section toolbar>
-          <Player {musicpiece} {trackIndex} bind:selectedMeasure />
+          <Player
+            {musicpiece}
+            {trackIndex}
+            {selectedSection}
+            bind:selectedMeasure
+          />
         </Section>
 
         <!-- Info and help modal butons -->
@@ -194,19 +201,6 @@
             bind:selectedColorMode={colorMode}
             bind:selectedColormap={colormap}
           />
-          <div class="infoBar">
-            {#if sectionInfo && selectedSection !== null}
-              <div>
-                Selected section: {selectedSection + 1}
-                {sectionInfo[selectedSection]?.name}
-              </div>
-            {/if}
-            {#if selectedMeasure !== null}
-              <div>
-                Selected bar: {selectedMeasure + 1}
-              </div>
-            {/if}
-          </div>
         </div>
         <div class="overviewContainer" style={`width: ${overviewWidth}px`}>
           {#if currentViews.includes("Tracks") && musicpiece}
@@ -324,10 +318,6 @@
 
   .sideBar {
     padding-left: 15px;
-  }
-
-  .infoBar {
-    margin-top: 20px;
   }
 
   .overviewContainer {

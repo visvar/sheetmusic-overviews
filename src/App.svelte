@@ -34,6 +34,7 @@
   import Score from "./views/Score.svelte";
   import Help from "./modals/Help.svelte";
   import About from "./modals/About.svelte";
+  import Player from "./Player.svelte";
 
   // Main menu
   let menu;
@@ -128,56 +129,6 @@
     <TopAppBar variant="static" prominent={false} dense={true} color="primary">
       <Row>
         <Section>
-          <div
-            class={Object.keys(anchorClasses).join(" ")}
-            use:Anchor={{
-              addClass: (className) => {
-                if (!anchorClasses[className]) {
-                  anchorClasses[className] = true;
-                }
-              },
-              removeClass: (className) => {
-                if (anchorClasses[className]) {
-                  delete anchorClasses[className];
-                  anchorClasses = anchorClasses;
-                }
-              },
-            }}
-            bind:this={anchor}
-          >
-            <IconButton
-              class="material-icons"
-              on:click={() => menu.setOpen(true)}>menu</IconButton
-            >
-            <MainMenu
-              bind:this={menu}
-              anchor={false}
-              bind:anchorElement={anchor}
-              anchorCorner="BOTTOM_LEFT"
-            >
-              <List twoLine>
-                <Item on:SMUI:action={() => (menuAction = "Cut")}>
-                  <Text>
-                    <PrimaryText>Cut</PrimaryText>
-                    <SecondaryText>Copy to clipboard and remove.</SecondaryText>
-                  </Text>
-                </Item>
-                <Item on:SMUI:action={() => (menuAction = "Copy")}>
-                  <Text>
-                    <PrimaryText>Copy</PrimaryText>
-                    <SecondaryText>Copy to clipboard.</SecondaryText>
-                  </Text>
-                </Item>
-                <Separator />
-                <Item on:SMUI:action={() => (menuAction = "Delete")}>
-                  <Text>
-                    <PrimaryText>Delete</PrimaryText>
-                    <SecondaryText>Remove item.</SecondaryText>
-                  </Text>
-                </Item>
-              </List>
-            </MainMenu>
-          </div>
           <Title>Sheet Music Overviews</Title>
         </Section>
         <Section toolbar>
@@ -191,6 +142,11 @@
             </Segment>
           </SegmentedButton>
         </Section>
+
+        <Section toolbar>
+          <Player {musicpiece} {trackIndex} {selectedMeasure} />
+        </Section>
+
         <Section align="end" toolbar>
           <IconButton
             on:click={() => (showAbout = true)}

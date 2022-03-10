@@ -5,6 +5,7 @@
 
   export let width;
   export let height;
+  export let musicpiece;
   export let musicxml;
   export let trackIndex;
   export let colorMode = "bars";
@@ -18,7 +19,7 @@
   let container;
   let osmd;
 
-  const measureOpacity = 0.4;
+  const measureOpacity = 0.3;
   const measureOpacityHighlighted = 0.8;
 
   // TODO: zoom does not work
@@ -28,6 +29,11 @@
   const tabStaffHeight = 6.6;
 
   let parsedXml;
+
+  $: selectedXmlMeasure =
+    selectedMeasure !== null
+      ? musicpiece.xmlMeasureIndices[selectedMeasure]
+      : null;
 
   $: colors =
     colorMode === "bars"
@@ -178,15 +184,16 @@
     console.log("stafftype", staffType);
 
     for (const [index, measure] of measureInfo.entries()) {
+      const parsedMIndex = musicpiece.xmlMeasureIndices.indexOf(index);
       // Empty measures should be transparent
-      if (measures[index].length === 0) {
+      if (measures[parsedMIndex].length === 0) {
         continue;
       }
       const x = measure.x * osmdScalingFactor;
       const y = measure.y * osmdScalingFactor;
       const w = measure.width * osmdScalingFactor;
-      const color = colors[index];
-      const onClick = () => (selectedMeasure = index);
+      const color = colors[parsedMIndex];
+      const onClick = () => (selectedMeasure = parsedMIndex);
       const m = osmd.graphic.measureList[index];
       // First staff
       const staffHeight1 =
@@ -249,15 +256,15 @@
    * Only scrolls when measure is not already in view.
    *
    * @todo animate? https://gist.github.com/humbletim/5507619
-   * @param {number} selectedMeasure measure index
+   * @param {number} measureIndex measure index
    */
-  const scrollToMeasure = (selectedMeasure) => {
-    if (selectedMeasure === null || !osmd) {
+  const scrollToMeasure = (measureIndex) => {
+    if (measureIndex === null || !osmd) {
       return;
     }
     // TODO: cache this in component state?
     const measureInfo = getMeasureInfo(osmd);
-    const y = measureInfo[selectedMeasure].y;
+    const y = measureInfo[measureIndex].y;
     const py = (y + noteStaffHeight) * osmdScalingFactor - 60;
     const height = main.getBoundingClientRect().height;
     const top = main.scrollTop;
@@ -293,9 +300,9 @@
   $: if (true || colors) {
     colorizeSvg();
   }
-  $: if (true || selectedMeasure) {
-    scrollToMeasure(selectedMeasure);
-    highlightMeasure(selectedMeasure);
+  $: if (true || selectedXmlMeasure) {
+    scrollToMeasure(selectedXmlMeasure);
+    highlightMeasure(selectedXmlMeasure);
   }
 </script>
 

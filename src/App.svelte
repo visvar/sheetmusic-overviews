@@ -259,6 +259,7 @@
             <Score
               width={overviewWidth}
               height={contentHeight}
+              {musicpiece}
               {musicxml}
               {trackIndex}
               {colorMode}

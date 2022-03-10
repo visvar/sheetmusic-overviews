@@ -65,11 +65,11 @@
     "vite": "^2.8.6"
   },
   "dependencies": {
-    "@saehrimnir/druidjs": "^0.6.0",
+    "@saehrimnir/druidjs": "^0.6.2",
     "@types/d3": "^7.1.0",
     "d3": "^7.3.0",
     "jszip": "^3.7.1",
-    "musicvis-lib": "^0.54.2",
+    "musicvis-lib": "^0.55.0",
     "opensheetmusicdisplay": "^1.4.5",
     "soundfont-player": "^0.12.0"
   }

@@ -27,11 +27,6 @@
   import About from "./modals/About.svelte";
   import Player from "./Player.svelte";
 
-  // Main menu
-  let menu;
-  let anchor;
-  let anchorClasses = {};
-
   // View
   let views = ["Tracks", "Tree", "Compressed", "Sheet", "Score"];
   // let currentViews = [...views];
@@ -110,7 +105,7 @@
 
   // Keyboard input
   const handleKeydown = (event) => {
-    console.log(event);
+    // console.log(event);
     if (event.code === "ArrowRight") {
       // Next measure
       event.preventDefault();

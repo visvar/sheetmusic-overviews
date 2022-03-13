@@ -1,5 +1,5 @@
 <script>
-  import { afterUpdate } from "svelte";
+  import { afterUpdate, onMount } from "svelte";
   import * as d3 from "d3";
   import { Canvas } from "musicvis-lib";
   import { getMeasures } from "../lib.js";
@@ -11,6 +11,14 @@
   export let selectedMeasure = null;
 
   let canvas;
+
+  // onMount(() => {
+  //   Canvas.setupCanvas(canvas);
+  // });
+
+  // $: if (width && canvas) {
+  //   Canvas.setupCanvas(canvas);
+  // }
 
   const drawVis = () => {
     const marginTop = 25;
@@ -38,7 +46,6 @@
     context.font = `${fontSize}px sans-serif`;
 
     // Sections
-    // console.log("track: sections", sectionInfo);
     for (const section of sectionInfo) {
       const { name, startMeasure, length } = section;
       const x = marginLeft + startMeasure * mWidth + 1;
@@ -114,7 +121,12 @@
 
 <main style={`height: ${height}px`}>
   <div class="overviewTitle">Tracks</div>
-  <canvas {width} {height} bind:this={canvas} />
+  <canvas
+    {width}
+    {height}
+    style="width: {width}px; height: {height}px;"
+    bind:this={canvas}
+  />
 </main>
 
 <style>

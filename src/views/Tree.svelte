@@ -1,10 +1,9 @@
 <script>
-  import { afterUpdate } from "svelte";
+  import { afterUpdate, onMount } from "svelte";
   import * as d3 from "d3";
   import { Canvas, Chords, Utils } from "musicvis-lib";
-  // import { Canvas, Utils, Chords } from "musicvis-lib/dist/musicvislib";
 
-  export let width;
+  export let width = 800;
   export let height;
   export let encoding;
   export let sectionInfo;
@@ -21,6 +20,14 @@
   let showNotes = true;
 
   let canvas;
+
+  // onMount(() => {
+  //   Canvas.setupCanvas(canvas);
+  // });
+
+  // $: if (width && canvas) {
+  //   Canvas.setupCanvas(canvas);
+  // }
 
   /**
    * Determines the section a measure occurs in
@@ -71,7 +78,6 @@
   };
 
   const drawVis = () => {
-    // Canvas.setupCanvas(canvas);
     const marginLeft = 15;
     const w = width - marginLeft;
     const levelHeight = Math.floor((height - 20) / 7);
@@ -344,6 +350,7 @@
 
 <main style={`height: ${height}px`}>
   <div class="overviewTitle">Tree</div>
+  <!-- <canvas style="width: {width}px; height: {height}px;" bind:this={canvas} /> -->
   <canvas {width} {height} bind:this={canvas} />
 </main>
 

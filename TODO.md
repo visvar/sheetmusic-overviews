@@ -9,10 +9,12 @@
 
 - VAE distances https://observablehq.com/d/6357c054145a6678
 - selection of multiple bars
-- comparison of two selectionsp
+- comparison of two selections
+- allow playing only one measure / loop it
 
 ## Bugs
 
 ## Publication
 
 - add about modal
+- github pages: https://hrishikeshpathak.com/blog/svelte-gh-pages

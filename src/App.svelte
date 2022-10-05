@@ -4,8 +4,7 @@
   import * as d3 from "d3";
   import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
   import IconButton from "@smui/icon-button";
-  // import SegmentedButton, { Segment } from "@smui/segmented-button";
-  import { Label } from "@smui/button";
+  import Button, { Label } from "@smui/button";
   import { Chords } from "musicvis-lib";
 
   import {
@@ -34,7 +33,7 @@
 
   // View
   let views = ["Tracks", "Tree", "Compressed", "Sheet", "Score"];
-  let currentViews = [...views];
+  let currentViews = new Set([...views]);
   // let currentViews = ["Tracks", "Tree", "Compressed", "Sheet"];
 
   // Data
@@ -88,13 +87,13 @@
 
   const getSheetHeight = (currentViews, contentHeight, gap = 40) => {
     let height = contentHeight - 40;
-    if (currentViews.includes("Tracks")) {
+    if (currentViews.has("Tracks")) {
       height -= tracksHeight + gap;
     }
-    if (currentViews.includes("Tree")) {
+    if (currentViews.has("Tree")) {
       height -= treeHeight + gap;
     }
-    if (currentViews.includes("Compressed")) {
+    if (currentViews.has("Compressed")) {
       height -= compressedHeight + gap;
     }
     return height;
@@ -152,15 +151,20 @@
 
         <!-- View buttons -->
         <Section toolbar>
-          <!-- <SegmentedButton
-            segments={views}
-            let:segment
-            bind:selected={currentViews}
-          >
-            <Segment {segment}>
-              <Label>{segment}</Label>
-            </Segment>
-          </SegmentedButton> -->
+          {#each views as view}
+            <Button
+              on:click={() => {
+                currentViews.has(view)
+                  ? currentViews.delete(view)
+                  : currentViews.add(view);
+                currentViews = new Set(currentViews);
+              }}
+            >
+              <div style="opacity: {currentViews.has(view) ? 1 : 0.5}">
+                <Label>{view}</Label>
+              </div>
+            </Button>
+          {/each}
         </Section>
 
         <!-- Player -->
@@ -175,12 +179,12 @@
 
         <!-- Info and help modal butons -->
         <Section align="end" toolbar>
-          <IconButton
+          <!-- <IconButton
             on:click={() => (showAbout = true)}
             class="material-icons"
           >
             info
-          </IconButton>
+          </IconButton> -->
           <IconButton on:click={() => (showHelp = true)} class="material-icons">
             help
           </IconButton>
@@ -203,7 +207,7 @@
           />
         </div>
         <div class="overviewContainer" style={`width: ${overviewWidth}px`}>
-          {#if currentViews.includes("Tracks") && musicpiece}
+          {#if currentViews.has("Tracks") && musicpiece}
             <Tracks
               width={overviewWidth}
               height={tracksHeight}
@@ -212,7 +216,7 @@
               bind:selectedMeasure
             />
           {/if}
-          {#if currentViews.includes("Tree") && sections && sections.length > 0}
+          {#if currentViews.has("Tree") && sections && sections.length > 0}
             <Tree
               width={overviewWidth}
               height={treeHeight}
@@ -228,7 +232,7 @@
               {noteColors}
             />
           {/if}
-          {#if currentViews.includes("Compressed") && notes && notes.length > 0}
+          {#if currentViews.has("Compressed") && notes && notes.length > 0}
             <Compressed
               width={overviewWidth}
               height={compressedHeight}
@@ -238,7 +242,7 @@
               bind:selectedMeasure
             />
           {/if}
-          {#if currentViews.includes("Sheet") && notes && notes.length > 0}
+          {#if currentViews.has("Sheet") && notes && notes.length > 0}
             <Sheet
               width={overviewWidth}
               height={sheetHeight}
@@ -255,7 +259,7 @@
           {/if}
         </div>
         <div class="scoreContainer">
-          {#if currentViews.includes("Score") && musicxml && musicpiece && track && measureColors.length > 0}
+          {#if currentViews.has("Score") && musicxml && musicpiece && track && measureColors.length > 0}
             <Score
               width={overviewWidth}
               height={contentHeight}
@@ -274,8 +278,8 @@
       </main>
     </div>
   </div>
-  <Help bind:open={showHelp} />
   <About bind:open={showAbout} />
+  <Help bind:open={showHelp} />
 </div>
 
 <style>

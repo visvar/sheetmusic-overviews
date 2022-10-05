@@ -78,7 +78,9 @@
   // Sizes without nav and menu
   let windowWidth;
   let windowHeight;
-  $: overviewWidth = (windowWidth - 340) / 2;
+  $: overviewWidth = currentViews.has("Score")
+    ? (windowWidth - 340) / 2
+    : windowWidth - 340;
   $: contentHeight = windowHeight - 80;
   $: tracksHeight = (musicpiece?.tracks.length ?? 0.1) * 14 + 40;
   const treeHeight = 400;

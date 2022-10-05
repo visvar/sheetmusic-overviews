@@ -21,7 +21,7 @@
   );
   $: hierarchy =
     StringBased.ImmediateRepetitionCompression.compress(repeatedIndices);
-  $: blockWidth = hierarchy ? (width / hierarchy.length) * zoom : 0;
+  $: blockWidth = hierarchy ? (width / (hierarchy.length + 1)) * zoom : 0;
 
   /**
    *

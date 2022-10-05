@@ -24,3 +24,38 @@ a:hover {
 a:visited {
 	color: rgb(0,80,160);
 }
+
+.overviewTitle {
+  position: relative;
+  width: 50px;
+  height: 0;
+  left: -40px;
+  top: 20px;
+  transform: rotate(90deg);
+  color: #aaa;
+  user-select: none;
+  letter-spacing: 0.1em;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  transition: all 250ms;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(128, 128, 128, 0.7);
+}

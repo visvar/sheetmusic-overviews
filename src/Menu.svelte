@@ -208,6 +208,16 @@
   <div>
     <canvas bind:this={colorRampCanvas} width={200} height={10} />
   </div>
+
+  <div style="margin-top: 20px">
+    <Button
+      on:click={() => {
+        selectedSection = null;
+        selectedMeasure = null;
+      }}>
+      Reset current selection
+    </Button>
+  </div>
 </main>
 
 <style>

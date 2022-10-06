@@ -8,6 +8,7 @@
 
 ## Features
 
+- add legend to sheet when shwoing distances
 - VAE distances https://observablehq.com/d/6357c054145a6678
 - selection of multiple bars
 - comparison of two selections

@@ -64,7 +64,8 @@
   let encodings = ['Tab', 'Tab (simple)', 'Pianoroll', 'Drums'];
   export let selectedEncoding = 'Tab';
 
-  let colorings = ['DR', 'Clustering', 'MusicVAE'];
+  // let colorings = ['DR', 'Clustering', 'MusicVAE'];
+  let colorings = ['DR', 'Clustering'];
   export let selectedColoring = 'DR';
 
   export let selectedColorMode = 'bars';
@@ -97,7 +98,7 @@
     },
     {
       name: 'Turbo',
-      description: '',
+      description: 'many hues',
       map: (d) => d3.interpolateTurbo(d),
     },
     {
@@ -110,11 +111,6 @@
       description: 'dark-to-bright, colorblind-friendly',
       map: d3.interpolateCividis,
     },
-    // {
-    //   name: "CIELAB",
-    //   description: "uniform lightness",
-    //   map: (d) => d3.lab(75, 40, d * 256 - 128),
-    // },
     {
       name: 'Blues',
       description: 'single-hue, easier to perceive distances',
@@ -122,7 +118,7 @@
     },
     {
       name: 'White',
-      description: 'White',
+      description: 'White, no coloring',
       map: () => 'rgb(238, 238, 238)',
     },
   ];
@@ -164,7 +160,7 @@
     {fileName}
   </div>
 
-  <Select bind:value={selectedTrack} label="Track">
+  <Select bind:value={selectedTrack} label="Track" disabled={!musicpiece}>
     {#each tracks as track, i}
       <Option value={i} title={`${i} ${track.name}`}>
         {i}
@@ -211,6 +207,7 @@
 
   <div style="margin-top: 20px">
     <Button
+      disabled={!musicpiece}
       on:click={() => {
         selectedSection = null;
         selectedMeasure = null;

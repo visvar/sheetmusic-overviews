@@ -130,11 +130,12 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
 }
 
 /**
- * Computes 1D MDS on a distance matrix
+ * Computes MDS to obtain a coloring
  * @param {number[][]} distMatrix distance matrix
- * @returns {number[]} 1D DR points
+ * @param {function} colormap colormap [0,1]=>string
+ * @returns {string[]} colors
  */
-export function getDRPointsFromDistances (distMatrix) {
+export function getColorsViaMDSFromDistances (distMatrix, colormap) {
   if (distMatrix.length === 0) { return [] }
   // DR
   const DR = new druid.MDS(distMatrix)
@@ -142,21 +143,99 @@ export function getDRPointsFromDistances (distMatrix) {
     .parameter("metric", "precomputed")
     .transform()
   const points = DR.map((d) => d[0])
-  return points
-}
 
-/**
- * Maps 1D points to colors
- * @param {number[]} points points
- * @param {function} colormap colormap [0,1]=>string
- * @returns {string[]} colors
- */
-export function getColorsFrom1DPoints (points, colormap) {
   if (!points || points.length === 0 || !colormap) {
     return []
   }
   const scaleColor = d3.scaleLinear().domain(d3.extent(points)).range([0, 1])
   return points.map((d) => colormap(scaleColor(d)))
+}
+
+
+/**
+ * Computes hierachical clustering on a distance matrix to obtain a coloring
+ * @param {number[][]} distMatrix distance matrix
+ * @returns {string[]} colors
+ */
+export function getColorsViaClusteringFromDistances (
+  distMatrix,
+  colormap,
+  clusterThreshold = 0,
+) {
+  if (distMatrix.length === 0) { return [] }
+  // Perform clustering
+  const druidMatrix = druid.Matrix.from(distMatrix)
+  const clusterTree = new druid.Hierarchical_Clustering(
+    druidMatrix,
+    "complete",
+    "precomputed",
+    druidMatrix.to2dArray
+  )
+  /**
+   * Traverses a tree in pre-order
+   * @param {object} node tree node
+   * @returns {object[]} nodes
+   */
+  function preOrderTraverse (node) {
+    const nodes = []
+    // Next node always at last position
+    const todo = [node]
+    while (todo.length > 0) {
+      const currentNode = todo.pop()
+      nodes.push(currentNode)
+      if (!currentNode.isLeaf) {
+        // Do left before right, so push it last
+        todo.push(currentNode.right, currentNode.left)
+      }
+    }
+    return nodes
+  }
+  // Get nodes
+  const nodes = preOrderTraverse(clusterTree.root)
+  const leaves = nodes.filter((n) => n.isLeaf)
+  // Compute x from weighted mean of children
+  for (const [i, node] of leaves.entries()) {
+    node.x = i
+  }
+  const sortedBottomUp = nodes
+    .filter((n) => !n.isLeaf)
+    .sort((a, b) => a.depth - b.depth)
+  for (const node of sortedBottomUp) {
+    const { left, right } = node
+    node.x =
+      (left.x * left.size + right.x * right.size) / (left.size + right.size)
+  }
+  // Get clusters (e.g. for color)
+  const threshold = clusterThreshold
+  // const clusters = clusterTree.get_clusters(threshold, "depth");
+  const clusters = clusterTree.get_clusters(threshold, "distance")
+  // Assign cluster IDs to nodes
+  for (const [clusterId, cluster] of clusters.entries()) {
+    for (const node of cluster) {
+      node.clusterId = clusterId
+    }
+  }
+  const measureClusters = clusters
+    .flatMap((cluster, cIndex) =>
+      cluster.map((item) => {
+        return {
+          mIndex: item.index,
+          cIndex
+        }
+      })
+    )
+    .sort((a, b) => a.mIndex - b.mIndex)
+    .map((d) => d.cIndex)
+  const scaleColor = d3
+    .scaleLinear()
+    .domain([0, clusters.length])
+    .range([0, 1])
+  const measureColors = measureClusters.map((d) =>
+    colormap(scaleColor(d + 0.5))
+  )
+  // measureClusters is an array with array[measureIndex] = clusterId
+  // return { measureClusters, measureColors, nClusters: clusters.length };
+  return measureColors
 }
 
 /**

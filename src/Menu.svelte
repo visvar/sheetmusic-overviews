@@ -1,14 +1,14 @@
 <script>
-  import { MusicPiece } from "musicvis-lib";
-  import * as d3 from "d3";
-  import JSZip from "jszip";
-  import { createEventDispatcher } from "svelte";
-  import Select, { Option } from "@smui/select";
-  import Button from "@smui/button";
+  import { MusicPiece } from 'musicvis-lib';
+  import * as d3 from 'd3';
+  import JSZip from 'jszip';
+  import { createEventDispatcher } from 'svelte';
+  import Select, { Option } from '@smui/select';
+  import Button from '@smui/button';
 
   const dispatch = createEventDispatcher();
   const submitFile = (musicxml, musicpiece) =>
-    dispatch("fileopened", { musicxml, musicpiece });
+    dispatch('fileopened', { musicxml, musicpiece });
 
   export let musicxml = null;
   export let musicpiece = null;
@@ -16,7 +16,7 @@
   export let selectedMeasure = null;
   export let selectedSection = null;
 
-  let fileName = "";
+  let fileName = '';
   let tracks = [];
   let fileInput;
   let colorRampCanvas;
@@ -25,12 +25,12 @@
   const handleFileInput = async (event) => {
     const file = event.target.files[0];
     if (!file) {
-      console.log("Menu: emptied musicpiece", musicpiece);
+      console.log('Menu: emptied musicpiece', musicpiece);
       submitFile(musicxml, musicpiece);
       return;
     }
     // Reset only now that there is valid file, to avoid user mistakes
-    fileName = "";
+    fileName = '';
     musicxml = null;
     musicpiece = null;
     tracks = [];
@@ -38,92 +38,92 @@
     selectedMeasure = null;
     selectedSection = null;
     const n = file.name;
-    if (n.endsWith(".xml") || n.endsWith(".musicxml")) {
+    if (n.endsWith('.xml') || n.endsWith('.musicxml')) {
       // MusicXML
       musicxml = await file.text();
-    } else if (n.endsWith(".mxl")) {
+    } else if (n.endsWith('.mxl')) {
       // Compressed MusicXML
       const compressed = await file.arrayBuffer();
       const extracted = await JSZip.loadAsync(compressed);
       // Get XML file with score from archive
       const scoreFile = Object.keys(extracted.files).filter(
-        (d) => !d.startsWith("META")
+        (d) => !d.startsWith('META')
       )[0];
-      musicxml = await extracted.file(scoreFile).async("string");
+      musicxml = await extracted.file(scoreFile).async('string');
     } else {
-      alert("Invalid file");
+      alert('Invalid file');
       return;
     }
     fileName = n;
     musicpiece = MusicPiece.fromMusicXml(n, musicxml);
     tracks = musicpiece.tracks;
-    console.log("Menu: loaded musicpiece", musicpiece, tracks);
+    console.log('Menu: loaded musicpiece', musicpiece, tracks);
     submitFile(musicxml, musicpiece);
   };
 
-  let encodings = ["Tab", "Tab (simple)", "Pianoroll", "Drums"];
-  export let selectedEncoding = "Tab";
+  let encodings = ['Tab', 'Tab (simple)', 'Pianoroll', 'Drums'];
+  export let selectedEncoding = 'Tab';
 
-  let colorings = ["DR", "Clustering", "MusicVAE"];
-  export let selectedColoring = "DR";
+  let colorings = ['DR', 'Clustering', 'MusicVAE'];
+  export let selectedColoring = 'DR';
 
-  export let selectedColorMode = "bars";
+  export let selectedColorMode = 'bars';
 
   let colormaps = [
     {
-      name: "Rainbow",
-      description: "many hues, similar brightness, but cyclical",
-      map: (d) => d3.interpolateRainbow(d * 0.9),
-    },
-    {
-      name: "Viridis",
-      description: "dark-to-bright, colorblind-friendly",
-      map: d3.interpolateViridis,
-    },
-    {
-      name: "Cividis",
-      description: "dark-to-bright, colorblind-friendly",
-      map: d3.interpolateCividis,
-    },
-    {
-      name: "Blues",
-      description: "single-hue, easier to perceive distances",
-      map: d3.interpolateBlues,
-    },
-    {
-      name: "Warm",
-      description: "left half of interpolateRainbow",
-      map: d3.interpolateWarm,
-    },
-    {
-      name: "Cool",
-      description: "right half of interpolateRainbow",
-      map: d3.interpolateCool,
-    },
-    {
-      name: "Spectral",
-      description: "many hues, not cyclical",
+      name: 'Spectral',
+      description: 'many hues, not cyclical',
       map: d3.interpolateSpectral,
     },
     {
-      name: "Sinebow",
-      description: "many hues, but cyclical",
+      name: 'Warm',
+      description: 'left half of interpolateRainbow',
+      map: d3.interpolateWarm,
+    },
+    {
+      name: 'Cool',
+      description: 'right half of interpolateRainbow',
+      map: d3.interpolateCool,
+    },
+    {
+      name: 'Rainbow',
+      description: 'many hues, similar brightness, but cyclical',
+      map: (d) => d3.interpolateRainbow(d * 0.9),
+    },
+    {
+      name: 'Sinebow',
+      description: 'many hues, but cyclical',
       map: (d) => d3.interpolateSinebow(d * 0.9),
     },
     {
-      name: "Turbo",
-      description: "",
+      name: 'Turbo',
+      description: '',
       map: (d) => d3.interpolateTurbo(d),
     },
     {
-      name: "CIELAB",
-      description: "uniform lightness",
-      map: (d) => d3.lab(75, 40, d * 256 - 128),
+      name: 'Viridis',
+      description: 'dark-to-bright, colorblind-friendly',
+      map: d3.interpolateViridis,
     },
     {
-      name: "White",
-      description: "White",
-      map: () => "rgb(238, 238, 238)",
+      name: 'Cividis',
+      description: 'dark-to-bright, colorblind-friendly',
+      map: d3.interpolateCividis,
+    },
+    // {
+    //   name: "CIELAB",
+    //   description: "uniform lightness",
+    //   map: (d) => d3.lab(75, 40, d * 256 - 128),
+    // },
+    {
+      name: 'Blues',
+      description: 'single-hue, easier to perceive distances',
+      map: d3.interpolateBlues,
+    },
+    {
+      name: 'White',
+      description: 'White',
+      map: () => 'rgb(238, 238, 238)',
     },
   ];
   export let selectedColormap = colormaps[0];
@@ -139,8 +139,8 @@
     if (!canvas || !colorMap) {
       return;
     }
-    const context = canvas.getContext("2d");
-    context.fillStyle = "white";
+    const context = canvas.getContext('2d');
+    context.fillStyle = 'white';
     context.fillRect(0, 0, width, height);
     const scaleColor = d3.scaleLinear().domain([0, width]);
     for (let hue = 0; hue < width; ++hue) {
@@ -159,8 +159,7 @@
     accept=".xml,.musicxml,.mxl"
     style="display: none"
     bind:this={fileInput}
-    on:input={handleFileInput}
-  />
+    on:input={handleFileInput} />
   <div class="fileName">
     {fileName}
   </div>
@@ -193,8 +192,7 @@
   <Select
     bind:value={selectedColorMode}
     label="Color mode"
-    disabled={!musicpiece}
-  >
+    disabled={!musicpiece}>
     <Option value="bars" title="bars">Bars</Option>
     <Option value="sections" title="sections">Sections</Option>
   </Select>

@@ -42,6 +42,7 @@
   $: console.log('app: track', trackIndex, track);
   let encoding;
   let coloring;
+  let clusterThreshold;
   let colorMode;
   let colormap;
 
@@ -52,7 +53,11 @@
   $: measureColors =
     coloring === 'DR'
       ? getColorsViaMDSFromDistances(measureDists, colormap?.map)
-      : getColorsViaClusteringFromDistances(measureDists, colormap?.map);
+      : getColorsViaClusteringFromDistances(
+          measureDists,
+          colormap?.map,
+          clusterThreshold
+        );
 
   // Sections
   $: sectionInfo = track ? getSectionInfo(track) : null;
@@ -62,7 +67,11 @@
   $: sectionColors =
     coloring === 'DR'
       ? getColorsViaMDSFromDistances(sectionDists, colormap?.map)
-      : getColorsViaClusteringFromDistances(sectionDists, colormap?.map);
+      : getColorsViaClusteringFromDistances(
+          sectionDists,
+          colormap?.map,
+          clusterThreshold
+        );
 
   // Harmonies
   $: harmonies = Chords.detectChordsByExactStart(notes);
@@ -70,7 +79,11 @@
   $: harmonyColors =
     coloring === 'DR'
       ? getColorsViaMDSFromDistances(harmonyDists, colormap?.map)
-      : getColorsViaClusteringFromDistances(harmonyDists, colormap?.map);
+      : getColorsViaClusteringFromDistances(
+          harmonyDists,
+          colormap?.map,
+          clusterThreshold
+        );
 
   $: noteColors = colormap
     ? d3.range(0, 12).map((d) => '' + colormap.map(d / 12))
@@ -201,6 +214,7 @@
             bind:selectedMeasure
             bind:selectedEncoding={encoding}
             bind:selectedColoring={coloring}
+            bind:clusterThreshold
             bind:selectedColorMode={colorMode}
             bind:selectedColormap={colormap} />
         </div>

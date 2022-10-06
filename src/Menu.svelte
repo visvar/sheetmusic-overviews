@@ -5,6 +5,8 @@
   import { createEventDispatcher } from 'svelte';
   import Select, { Option } from '@smui/select';
   import Button from '@smui/button';
+  import Slider from '@smui/slider';
+  import FormField from '@smui/form-field';
 
   const dispatch = createEventDispatcher();
   const submitFile = (musicxml, musicpiece) =>
@@ -67,6 +69,7 @@
   // let colorings = ['DR', 'Clustering', 'MusicVAE'];
   let colorings = ['DR', 'Clustering'];
   export let selectedColoring = 'DR';
+  export let clusterThreshold = 0;
 
   export let selectedColorMode = 'bars';
 
@@ -185,6 +188,23 @@
     {/each}
   </Select>
 
+  {#if selectedColoring === 'Clustering'}
+    <FormField align="end" style="display: flex;">
+      <Slider
+        style="flex-grow: 1;"
+        bind:value={clusterThreshold}
+        min={0}
+        max={1}
+        step={0.01}
+        input$aria-label="Cluster threshold" />
+      <span
+        slot="label"
+        style="padding-right: 0px; width: max-content; display: block;">
+        Threshold
+      </span>
+    </FormField>
+  {/if}
+
   <Select
     bind:value={selectedColorMode}
     label="Color mode"
@@ -207,12 +227,13 @@
 
   <div style="margin-top: 20px">
     <Button
-      disabled={!musicpiece}
+      disabled={!musicpiece ||
+        (selectedSection === null && selectedMeasure === null)}
       on:click={() => {
         selectedSection = null;
         selectedMeasure = null;
       }}>
-      Reset current selection
+      Reset selection
     </Button>
   </div>
 </main>

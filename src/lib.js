@@ -115,7 +115,8 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
     for (let index2 = index1; index2 < n; index2++) {
       let distance
       if (distanceMetric === 'jaccardPitch') {
-        distance = Utils.jaccardIndex(preprocessed[index1], preprocessed[index2])
+        // Turn similarity into distance by taking negative
+        distance = -Utils.jaccardIndex(preprocessed[index1], preprocessed[index2])
       } else {
         distance = StringBased.Levenshtein.levenshtein(
           preprocessed[index1],
@@ -126,7 +127,8 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
       distMatrix[index2][index1] = distance
     }
   }
-  return distMatrix
+  // Normalize
+  return normalizeNdArray(distMatrix)
 }
 
 /**
@@ -168,8 +170,7 @@ export function getColorsViaClusteringFromDistances (
   const clusterTree = new druid.Hierarchical_Clustering(
     druidMatrix,
     "complete",
-    "precomputed",
-    druidMatrix.to2dArray
+    "precomputed"
   )
   /**
    * Traverses a tree in pre-order
@@ -206,24 +207,21 @@ export function getColorsViaClusteringFromDistances (
       (left.x * left.size + right.x * right.size) / (left.size + right.size)
   }
   // Get clusters (e.g. for color)
-  const threshold = clusterThreshold
-  // const clusters = clusterTree.get_clusters(threshold, "depth");
-  const clusters = clusterTree.get_clusters(threshold, "distance")
+  const clusters = clusterTree.get_clusters(clusterThreshold, "distance")
   // Assign cluster IDs to nodes
   for (const [clusterId, cluster] of clusters.entries()) {
     for (const node of cluster) {
       node.clusterId = clusterId
     }
   }
-  const measureClusters = clusters
-    .flatMap((cluster, cIndex) =>
-      cluster.map((item) => {
-        return {
-          mIndex: item.index,
-          cIndex
-        }
-      })
-    )
+  const measureClusters = clusters.flatMap((cluster, cIndex) =>
+    cluster.map((item) => {
+      return {
+        mIndex: item.index,
+        cIndex
+      }
+    })
+  )
     .sort((a, b) => a.mIndex - b.mIndex)
     .map((d) => d.cIndex)
   const scaleColor = d3
@@ -281,4 +279,23 @@ export function removeXmlElements (parsedXml, selectors) {
     }
   }
   return parsedXml
+}
+
+
+/**
+ * Normalizes by dividing scaling all values to [0, 1] linearly.
+ *
+ * @todo move to musicvis-lib and test
+ * @param {Array} array nD array with arbitrary depth and structure, containing
+ *  only numbers
+ * @returns {Array} normalized array
+ */
+export function normalizeNdArray (array) {
+  const extent = d3.extent(array.flat(Number.POSITIVE_INFINITY))
+  const scale = d3.scaleLinear().domain(extent)
+  const normalize = (array_) =>
+    array_.map((d) => {
+      return d.length !== undefined ? normalize(d) : scale(d)
+    })
+  return normalize(array)
 }

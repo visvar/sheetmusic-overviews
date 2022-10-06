@@ -4,6 +4,7 @@
    1. [Features](#features)
    2. [Bugs](#bugs)
    3. [Publication](#publication)
+   4. [Future work](#future-work)
 
 ## Features
 
@@ -14,7 +15,14 @@
 
 ## Bugs
 
+- support 7 string guitar, 4 string bass etc
+  - check tuning pitches to get number of strings, then compute bbox of measures from that?
+
 ## Publication
 
 - add about modal
 - github pages: https://hrishikeshpathak.com/blog/svelte-gh-pages
+
+## Future work
+
+- allow to see multiple instruments at same time

@@ -8,7 +8,11 @@
 
 ## Features
 
+- allow to select multiple consecutiove bars
+- rename measures to bars in tree
+- get colors from compressed blocks: each block that is repeated or in between reps gets its own color
 - add legend to sheet when shwoing distances
+- show highlighting in compressed
 - VAE distances https://observablehq.com/d/6357c054145a6678
 - selection of multiple bars
 - comparison of two selections

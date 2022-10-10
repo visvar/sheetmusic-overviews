@@ -1,33 +1,42 @@
 # TODO
 
 1. [TODO](#todo)
-   1. [Features](#features)
-   2. [Bugs](#bugs)
-   3. [Publication](#publication)
-   4. [Future work](#future-work)
+   1. [Urgent](#urgent)
+   2. [Features](#features)
+   3. [Bugs](#bugs)
+   4. [Publication](#publication)
+   5. [Future work](#future-work)
+
+## Urgent
+
+- rename score to detailed
+- rename sheet to compact
 
 ## Features
 
-- allow to select multiple consecutiove bars
-- rename measures to bars in tree
+- make clustering more performant by not reclustering on threshold change
 - get colors from compressed blocks: each block that is repeated or in between reps gets its own color
-- add legend to sheet when shwoing distances
-- show highlighting in compressed
-- VAE distances https://observablehq.com/d/6357c054145a6678
-- selection of multiple bars
-- comparison of two selections
-- allow playing only one measure / loop it
+- encodings for drum and general staff notation, see observable
 
 ## Bugs
 
 - support 7 string guitar, 4 string bass etc
   - check tuning pitches to get number of strings, then compute bbox of measures from that?
+  - sheet
+  - score
 
 ## Publication
 
 - add about modal
 - github pages: https://hrishikeshpathak.com/blog/svelte-gh-pages
+- publish https://observablehq.com/@fheyen/sequence-immediate-repetition-hierarchies
+  - link to it from mvlib code
 
 ## Future work
 
+- allow to select multiple consecutiove bars
+- allow playing only curent selection / loop it
+- selection of two consecute sequences of bars
+  - comparison of two selections
 - allow to see multiple instruments at same time
+- allow to manually assign colors to selections to overwrite coloring

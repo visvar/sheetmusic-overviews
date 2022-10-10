@@ -7,6 +7,7 @@
   import Button from '@smui/button';
   import Slider from '@smui/slider';
   import FormField from '@smui/form-field';
+  import { drawColorRamp } from './lib.js';
 
   const dispatch = createEventDispatcher();
   const submitFile = (musicxml, musicpiece) =>
@@ -66,10 +67,11 @@
   let encodings = ['Tab', 'Tab (simple)', 'Pianoroll', 'Drums'];
   export let selectedEncoding = 'Tab';
 
-  // let colorings = ['DR', 'Clustering', 'MusicVAE'];
-  let colorings = ['DR', 'Clustering'];
-  export let selectedColoring = 'DR';
+  let colorings = ['DR', 'Clustering', 'Compression'];
+  // export let selectedColoring = 'DR';
+  export let selectedColoring = 'Compression';
   export let clusterThreshold = 0;
+  export let compressionDepth = 2;
 
   export let selectedColorMode = 'bars';
 
@@ -127,27 +129,6 @@
   ];
   export let selectedColormap = colormaps[0];
 
-  /**
-   * @todo import from mvlib
-   * @param canvas
-   * @param width
-   * @param height
-   * @param colorMap
-   */
-  const drawColorRamp = (canvas, width, height, colorMap) => {
-    if (!canvas || !colorMap) {
-      return;
-    }
-    const context = canvas.getContext('2d');
-    context.fillStyle = 'white';
-    context.fillRect(0, 0, width, height);
-    const scaleColor = d3.scaleLinear().domain([0, width]);
-    for (let hue = 0; hue < width; ++hue) {
-      context.fillStyle = colorMap(scaleColor(hue));
-      context.fillRect(hue, 0, 2, height);
-    }
-  };
-
   $: drawColorRamp(colorRampCanvas, 200, 10, selectedColormap?.map);
 </script>
 
@@ -189,7 +170,7 @@
   </Select>
 
   {#if selectedColoring === 'Clustering'}
-    <FormField align="end" style="display: flex;">
+    <FormField align="end" style="width: 220px; display: flex;">
       <Slider
         style="flex-grow: 1;"
         bind:value={clusterThreshold}
@@ -199,9 +180,26 @@
         input$aria-label="Cluster threshold" />
       <span
         slot="label"
-        style="padding-right: 0px; width: max-content; display: block;">
+        style="padding-right: 0; width: max-content; display: block;">
         Threshold
       </span>
+    </FormField>
+  {/if}
+  {#if selectedColoring === 'Compression'}
+    <FormField align="end" style="width: 200px; display: flex;">
+      <Slider
+        style="flex-grow: 1;"
+        bind:value={compressionDepth}
+        min={0}
+        max={4}
+        step={1}
+        input$aria-label="Compression depth" />
+      <span
+        slot="label"
+        style="padding-right: 0; width: max-content; display: block;">
+        Depth
+      </span>
+      <span>{compressionDepth}</span>
     </FormField>
   {/if}
 

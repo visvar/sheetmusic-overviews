@@ -157,6 +157,9 @@ export function getColorsViaMDSFromDistances (distMatrix, colormap) {
 /**
  * Computes hierachical clustering on a distance matrix to obtain a coloring
  * @param {number[][]} distMatrix distance matrix
+ * @param {function} colormap colormap [0,1]=>string
+ * @param {number} [clusterThreshold=0] threshold between 0 and 1 for cluster
+ * cut-off
  * @returns {string[]} colors
  */
 export function getColorsViaClusteringFromDistances (
@@ -237,6 +240,113 @@ export function getColorsViaClusteringFromDistances (
 }
 
 /**
+ * Computes a compression hierachy of nested repeated sections and uses this
+ * hierarchy for coloring, similar to the approach with hierarchical clustering
+ * @param {number[][]} distMatrix distance matrix
+ * @param {function} colormap colormap [0,1]=>string
+ * @param {number} [depth=2] determines the depth where to cut the hierachy
+ */
+export function getColorsViaCompression (distMatrix, colormap, depth = 2) {
+  if (distMatrix.length === 0) { return [] }
+  const repeatedIndices = Utils.findRepeatedIndices(
+    d3.range(0, distMatrix.length),
+    (a, b) => distMatrix[a][b] === 0
+  )
+  const hierarchy =
+    StringBased.ImmediateRepetitionCompression.compress(repeatedIndices)
+
+  // Segmentation
+  let currentCluster = 1
+  const recurse = (node, parent) => {
+    if (node.pre) {
+      recurse(node.pre, node)
+    }
+    if (!node.seq) {
+      parent.seq = new Array(node.length).fill(currentCluster)
+      currentCluster++
+      return
+    } else {
+      recurse(node.seq, node)
+    }
+    if (node.post) {
+      recurse(node.post, node)
+    }
+  }
+  recurse(hierarchy)
+
+  console.log(hierarchy)
+  let measureClusters = StringBased.ImmediateRepetitionCompression.decompress(hierarchy)
+  console.log(measureClusters)
+
+  // Make every second cluster a very different color
+  const max = d3.max(measureClusters)
+  measureClusters = measureClusters.map(d => d % 2 === 0 ? d + max : d)
+  console.log(measureClusters)
+  // Map colors
+  const scaleColor = d3
+    .scaleLinear()
+    .domain(d3.extent(measureClusters))
+    .range([0, 1])
+  const measureColors = measureClusters.map((d) =>
+    colormap(scaleColor(d + 0.5)))
+  return measureColors
+}
+// export function getColorsViaCompression (distMatrix, colormap, depth = 2) {
+//   if (distMatrix.length === 0) { return [] }
+//   const repeatedIndices = Utils.findRepeatedIndices(
+//     d3.range(0, distMatrix.length),
+//     (a, b) => distMatrix[a][b] === 0
+//   )
+//   const hierarchy =
+//     StringBased.ImmediateRepetitionCompression.compress(repeatedIndices)
+//   console.log(distMatrix)
+
+//   // Segmentation
+//   let currentCluster = 1
+//   const measureClusters = new Array(distMatrix.length).fill(0)
+//   const recurse = node => {
+//     if (!node.seq) {
+//       for (const itemIndex of node) {
+//         measureClusters[itemIndex] = currentCluster
+//       }
+//       currentCluster++
+//       return
+//     }
+//     if (node.pre) {
+//       recurse(node.pre)
+//     }
+//     recurse(node.seq)
+//     if (node.post) {
+//       recurse(node.post)
+//     }
+//   }
+//   recurse(hierarchy)
+
+
+//   // Since repeated indices have the same number of identical items, we need
+//   // to post-process measureClusters and copy values
+//   // TODO: or do this directly when assigning clusters?
+//   for (const [mIndex, rIndex] of repeatedIndices.entries()) {
+//     if (measureClusters[mIndex] === 0 && measureClusters[rIndex] > measureClusters[mIndex]) {
+//       measureClusters[mIndex] = measureClusters[rIndex]
+//     }
+//   }
+//   const nClusters = (new Set(measureClusters)).size
+//   console.log(repeatedIndices)
+//   console.log(hierarchy)
+//   console.log(measureClusters)
+//   console.log(nClusters)
+//   // Map colors
+//   const scaleColor = d3
+//     .scaleLinear()
+//     .domain([0, nClusters])
+//     .range([0, 1])
+//   const measureColors = measureClusters.map((d) =>
+//     colormap(scaleColor(d + 0.5)))
+//   return measureColors
+// }
+
+/**
  * Allows to wait for a number of seconds with async/await
  * IMPORTANT: This it not exact, it will at *least* wait for X seconds
  *
@@ -298,4 +408,26 @@ export function normalizeNdArray (array) {
       return d.length !== undefined ? normalize(d) : scale(d)
     })
   return normalize(array)
+}
+
+
+/**
+ * @todo import from mvlib
+ * @param canvas
+ * @param width
+ * @param height
+ * @param colorMap
+ */
+export function drawColorRamp (canvas, width, height, colorMap) {
+  if (!canvas || !colorMap) {
+    return
+  }
+  const context = canvas.getContext('2d')
+  context.fillStyle = 'white'
+  context.fillRect(0, 0, width, height)
+  const scaleColor = d3.scaleLinear().domain([0, width])
+  for (let hue = 0; hue < width; ++hue) {
+    context.fillStyle = colorMap(scaleColor(hue))
+    context.fillRect(hue, 0, 2, height)
+  }
 }

@@ -9,6 +9,7 @@
 
   import {
     getColorsViaClusteringFromDistances,
+    getColorsViaCompression,
     getColorsViaMDSFromDistances,
     getDistanceMatrix,
     getMeasures,
@@ -43,6 +44,7 @@
   let encoding;
   let coloring;
   let clusterThreshold;
+  let compressionDepth = 2;
   let colorMode;
   let colormap;
 
@@ -50,14 +52,34 @@
   $: notes = track ? track.notes : [];
   $: measures = track ? getMeasures(track) : [];
   $: measureDists = getDistanceMatrix(measures, 'levenshteinPitch');
-  $: measureColors =
-    coloring === 'DR'
-      ? getColorsViaMDSFromDistances(measureDists, colormap?.map)
-      : getColorsViaClusteringFromDistances(
-          measureDists,
-          colormap?.map,
-          clusterThreshold
-        );
+  let measureColors;
+  // $: measureColors =
+  //   coloring === 'DR'
+  //     ? getColorsViaMDSFromDistances(measureDists, colormap?.map)
+  //     : getColorsViaClusteringFromDistances(
+  //         measureDists,
+  //         colormap?.map,
+  //         clusterThreshold
+  //       );
+  // $: measureColors = getColors(coloring, measureDists, colormap?.map, );
+
+  $: {
+    if (coloring === 'DR') {
+      measureColors = getColorsViaMDSFromDistances(measureDists, colormap?.map);
+    } else if (coloring === 'Clustering') {
+      measureColors = getColorsViaClusteringFromDistances(
+        measureDists,
+        colormap?.map,
+        clusterThreshold
+      );
+    } else if (coloring === 'Compression') {
+      measureColors = getColorsViaCompression(
+        measureDists,
+        colormap?.map,
+        compressionDepth
+      );
+    }
+  }
 
   // Sections
   $: sectionInfo = track ? getSectionInfo(track) : null;
@@ -215,6 +237,7 @@
             bind:selectedEncoding={encoding}
             bind:selectedColoring={coloring}
             bind:clusterThreshold
+            bind:compressionDepth
             bind:selectedColorMode={colorMode}
             bind:selectedColormap={colormap} />
         </div>

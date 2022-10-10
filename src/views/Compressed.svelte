@@ -1,7 +1,7 @@
 <script>
-  import { afterUpdate } from "svelte";
-  import * as d3 from "d3";
-  import { Canvas, Utils, StringBased } from "musicvis-lib";
+  import { afterUpdate } from 'svelte';
+  import * as d3 from 'd3';
+  import { Canvas, Utils, StringBased } from 'musicvis-lib';
 
   export let width;
   export let height = 100;
@@ -43,19 +43,32 @@
     const noteHeight = scaleY(1) - scaleY(0);
     const noteHeight2 = 0.5 * noteHeight;
     if (tree.join) {
-      for (const value of tree) {
+      for (const currentBarIndex of tree) {
         if (blockWidth > 20) {
-          context.fillText(value, x + offset, y);
+          context.fillText(currentBarIndex, x + offset, y);
         }
-        const notes = measures[value];
+        const notes = measures[currentBarIndex];
         // Draw measure
         context.save();
-        const bgColor = notes.length === 0 ? "#f8f8f8" : colors[value];
+        // To know if highlighted, we have to check if any identical is selected
+        let highlight = false;
+        for (const [index, v] of measureDists[currentBarIndex].entries()) {
+          if (v === 0 && index === selectedMeasure) {
+            highlight = true;
+            break;
+          }
+        }
+        if (highlight) {
+          context.fillStyle = 'black';
+          context.fillRect(x, y, blockWidth, height + 4);
+        }
+        const bgColor =
+          notes.length === 0 ? '#f8f8f8' : colors[currentBarIndex];
         context.fillStyle = bgColor;
         context.fillRect(x + 1, y + 2, blockWidth - 2, height);
         // Draw notes
-        context.textAlign = "left";
-        context.textBaseline = "middle";
+        context.textAlign = 'left';
+        context.textBaseline = 'middle';
         context.font = `7px sans-serif`;
         const scaleX = d3
           .scaleLinear()
@@ -66,15 +79,15 @@
           const nx = scaleX(note.start);
           const ny = y + scaleY(note.string);
           const width = scaleX(note.end) - nx;
-          context.fillStyle = "#333";
+          context.fillStyle = '#333';
           if (Utils.getColorLightness(bgColor) < 50) {
-            context.fillStyle = "#eee";
+            context.fillStyle = '#eee';
           }
           fn(context, nx, ny, width, noteHeight, noteHeight2);
           // Draw fret numbers
           // if (isTab && showFretsToggle) {
           context.fillStyle =
-            Utils.getColorLightness(context.fillStyle) > 50 ? "black" : "white";
+            Utils.getColorLightness(context.fillStyle) > 50 ? 'black' : 'white';
           context.fillText(note.fret, nx + 1, ny + noteHeight / 2 + 1);
           // }
         }
@@ -112,13 +125,13 @@
   const drawTreeGraph = (context, tree, blockWidth = 30, colors) => {
     const w = tree.length * blockWidth + 10;
     const h = (tree.depth + 1) * 30 + 100;
-    context.font = "13px sans-serif";
-    context.textAlign = "center";
+    context.font = '13px sans-serif';
+    context.textAlign = 'center';
 
     // Reset
-    context.fillStyle = "white";
+    context.fillStyle = 'white';
     context.fillRect(0, 0, w, h);
-    context.fillStyle = "black";
+    context.fillStyle = 'black';
 
     // Draw tree
     const x = 10;
@@ -128,13 +141,13 @@
 
   const drawVis = () => {
     // Canvas.setupCanvas(canvas);
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext('2d');
     drawTreeGraph(context, hierarchy, blockWidth, measureColors);
   };
 
   const onClick = (event) => {
     event.preventDefault();
-    const column = Math.floor(event.offsetX / blockWidth);
+    const column = Math.floor((event.offsetX - 10) / blockWidth);
     const summary =
       StringBased.ImmediateRepetitionCompression.summary(hierarchy);
     selectedMeasure = summary[column];
@@ -163,15 +176,13 @@
   <div
     class="canvasContainer"
     style={`max-width: ${width}px`}
-    bind:this={container}
-  >
+    bind:this={container}>
     <canvas
       width={width * zoom}
       height={canvasHeight}
       bind:this={canvas}
       on:click={onClick}
-      on:mousewheel={onMouseWheel}
-    />
+      on:mousewheel={onMouseWheel} />
   </div>
 </main>
 

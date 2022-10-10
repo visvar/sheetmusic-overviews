@@ -3,6 +3,7 @@
   import Select, { Option } from '@smui/select';
   import * as d3 from 'd3';
   import { Canvas, Chords, Utils } from 'musicvis-lib';
+  import { drawColorRamp } from '../lib.js';
 
   export let width;
   export let height;
@@ -27,6 +28,7 @@
 
   let canvas;
   $: canvasHeight = height - 60;
+  let colorRampCanvas;
 
   const drawVis = () => {
     // console.log("draw sheet", height, canvasHeight);
@@ -236,11 +238,39 @@
   };
 
   afterUpdate(drawVis);
+
+  $: drawColorRamp(colorRampCanvas, 100, 10, (d) => d3.interpolateBlues(1 - d));
 </script>
 
 <main>
   <div class="overviewTitle">Sheet</div>
   <div class="control">
+    <div>
+      <Select bind:value={selectedColoring} label="Coloring when selected">
+        <Option value="default" title="Draw as if nothing was selected">
+          Default
+        </Option>
+        <Option value="identical" title="Highlight identical bars">
+          Identical
+        </Option>
+        <Option value="distance" title="Distance to selected bar">
+          Distance
+        </Option>
+      </Select>
+    </div>
+    <div
+      class="legend"
+      style="visibility: {selectedColoring === 'distance'
+        ? 'visible'
+        : 'hidden'}">
+      <div>Identical</div>
+      <canvas bind:this={colorRampCanvas} width={100} height={10} />
+      <div>Different</div>
+    </div>
+    <label>
+      Compact repeated notes
+      <input type="checkbox" bind:checked={compactRepeatedNotes} />
+    </label>
     <label>
       Bars per row
       <!-- <Slider
@@ -252,21 +282,6 @@
         tickMarks
       /> -->
       <input type="range" bind:value={mPerRow} min={1} max={100} step={1} />
-    </label>
-    <Select bind:value={selectedColoring} label="Coloring when selected">
-      <Option value="default" title="Draw as if nothing was selected">
-        Default
-      </Option>
-      <Option value="identical" title="Highlight identical bars">
-        Identical
-      </Option>
-      <Option value="distance" title="Distance to selected bar">
-        Distance
-      </Option>
-    </Select>
-    <label>
-      Compact repeated notes
-      <input type="checkbox" bind:checked={compactRepeatedNotes} />
     </label>
   </div>
   <canvas {width} height={canvasHeight} bind:this={canvas} />
@@ -282,8 +297,15 @@
   .control {
     margin-bottom: 4px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     justify-items: center;
+    align-items: center;
+  }
+
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 15px;
     align-items: center;
   }
 </style>

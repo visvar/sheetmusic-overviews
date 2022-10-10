@@ -55,21 +55,21 @@
     "@smui/slider": "^6.1.4",
     "@smui/tooltip": "^6.1.4",
     "@smui/top-app-bar": "^6.1.4",
-    "@sveltejs/vite-plugin-svelte": "^1.0.8",
-    "npm-check-updates": "^16.3.8",
+    "@sveltejs/vite-plugin-svelte": "^1.0.9",
+    "npm-check-updates": "^16.3.11",
     "smui-theme": "^6.2.0",
     "standard": "^17.0.0",
-    "svelte": "^3.50.1",
+    "svelte": "^3.51.0",
     "svelte-material-ui": "^6.2.0",
     "typescript": "^4.8.4",
-    "vite": "^3.1.4"
+    "vite": "^3.1.7"
   },
   "dependencies": {
     "@saehrimnir/druidjs": "^0.6.3",
     "@types/d3": "^7.4.0",
     "d3": "^7.6.1",
     "jszip": "^3.10.1",
-    "musicvis-lib": "^0.55.0",
+    "musicvis-lib": "^0.56.0",
     "opensheetmusicdisplay": "^1.5.7",
     "soundfont-player": "^0.12.0"
   }

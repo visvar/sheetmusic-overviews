@@ -167,7 +167,7 @@ export function getColorsViaClusteringFromDistances (
   colormap,
   clusterThreshold = 0,
 ) {
-  if (distMatrix.length === 0) { return [] }
+  if (distMatrix.length === 0 || distMatrix.length === 1) { return [] }
   // Perform clustering
   const druidMatrix = druid.Matrix.from(distMatrix)
   const clusterTree = new druid.Hierarchical_Clustering(
@@ -175,6 +175,10 @@ export function getColorsViaClusteringFromDistances (
     "complete",
     "precomputed"
   )
+  if (!clusterTree.root) {
+    console.error("cluster tree root is null", clusterTree, distMatrix)
+    return []
+  }
   /**
    * Traverses a tree in pre-order
    * @param {object} node tree node

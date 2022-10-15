@@ -10,12 +10,14 @@
   export let track;
   export let colorMode = 'bars';
   export let measures;
+  export let measureTimes;
   export let measureDists;
   export let selectedMeasure;
   export let colors;
   export let sectionInfo;
   export let sectionColors;
   export let encoding;
+  export let displayLeadingRests = false;
 
   const chromScaleForDistance = (d) => d3.interpolateBlues(1 - d);
 
@@ -24,7 +26,7 @@
    * @type {'default'|'identical'|'distance'}
    */
   let selectedColoring = 'default';
-  let compactRepeatedNotes = false;
+  let compactRepeatedNotes = true;
 
   let canvas;
   $: canvasHeight = height - 60;
@@ -161,15 +163,15 @@
         if (measure.length === 0) {
           continue;
         }
-        const scaleX = d3
-          .scaleLinear()
-          .domain([
-            d3.min(measure, (d) => d.start),
-            d3.max(measure, (d) => d.end),
-            // measureTimes[index - 1] ?? 0,
-            // measureTimes[index]
-          ])
-          .range([mX, mX + mWidthInner]);
+        const scaleX = d3.scaleLinear().range([mX, mX + mWidthInner]);
+        if (!displayLeadingRests || !measureTimes) {
+          scaleX.domain([
+            d3.min(measure, (d) => +d.start),
+            d3.max(measure, (d) => +d.end),
+          ]);
+        } else {
+          scaleX.domain([measureTimes[index - 1] ?? 0, measureTimes[index]]);
+        }
         // Draw strings
         if (isTab && showStrings) {
           context.fillStyle =
@@ -239,7 +241,7 @@
 
   afterUpdate(drawVis);
 
-  $: drawColorRamp(colorRampCanvas, 100, 10, (d) => d3.interpolateBlues(1 - d));
+  $: drawColorRamp(colorRampCanvas, 50, 10, (d) => d3.interpolateBlues(1 - d));
 </script>
 
 <main>
@@ -264,25 +266,27 @@
         ? 'visible'
         : 'hidden'}">
       <div>Identical</div>
-      <canvas bind:this={colorRampCanvas} width={100} height={10} />
+      <canvas bind:this={colorRampCanvas} width={50} height={10} />
       <div>Different</div>
     </div>
-    <label>
-      Compact repeated notes
-      <input type="checkbox" bind:checked={compactRepeatedNotes} />
-    </label>
-    <label>
-      Bars per row
-      <!-- <Slider
-        bind:mPerRow
-        min={1}
-        max={100}
-        step={1}
-        discrete
-        tickMarks
-      /> -->
-      <input type="range" bind:value={mPerRow} min={1} max={100} step={1} />
-    </label>
+    <div>
+      <label>
+        Compact repeated notes
+        <input type="checkbox" bind:checked={compactRepeatedNotes} />
+      </label>
+    </div>
+    <div>
+      <label>
+        Leading/trailing rests
+        <input type="checkbox" bind:checked={displayLeadingRests} />
+      </label>
+    </div>
+    <!-- <div>
+      <label>
+        Bars per row
+        <input type="range" bind:value={mPerRow} min={1} max={100} step={1} />
+      </label>
+    </div> -->
   </div>
   <canvas {width} height={canvasHeight} bind:this={canvas} />
 </main>
@@ -305,7 +309,7 @@
   .legend {
     display: grid;
     grid-template-columns: repeat(3, auto);
-    gap: 15px;
+    gap: 10px;
     align-items: center;
   }
 </style>

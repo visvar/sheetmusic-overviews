@@ -9,21 +9,23 @@
 
 ## Urgent
 
-- rename score to detailed
+- rename score to full
 - rename sheet to compact
 
 ## Features
 
 - make clustering more performant by not reclustering on threshold change
 - get colors from compressed blocks: each block that is repeated or in between reps gets its own color
-- encodings for drum and general staff notation, see observable
-
-## Bugs
-
+- allow using any encoding (e.g, piano roll and tab) everywhere
+  - add encodings for drum and general staff notation, see observable
 - support 7 string guitar, 4 string bass etc
   - check tuning pitches to get number of strings, then compute bbox of measures from that?
   - sheet
   - score
+
+## Bugs
+
+- does not work for some musicxml files
 
 ## Publication
 

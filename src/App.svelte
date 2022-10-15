@@ -281,6 +281,7 @@
               {track}
               {colorMode}
               {measures}
+              measureTimes={musicpiece.measureTimes}
               {measureDists}
               bind:selectedMeasure
               {encoding}

@@ -66,15 +66,6 @@
 
     const measureOrSectMode = ["bars", "sections"].includes(colorMode);
 
-    // TODO:
-    const renderer = new BarRenderer(
-      encoding.toLowerCase(),
-      measures.flat(),
-      mHeightInner,
-      mWidth,
-      compactRepeatedNotes
-    );
-
     // Onclick handler
     // Click to color by distance to selected measure
     canvas.onmouseup = (event) => {

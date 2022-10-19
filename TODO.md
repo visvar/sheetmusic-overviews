@@ -11,6 +11,11 @@
 
 - rename score to full
 - allow using any encoding (e.g, piano roll and tab) everywhere
+  - none (notes hidden)
+  - piano roll
+  - tab (should support different numbers of strings)
+  - future: staff
+- draw measures with rounded corners to show where they end
 
 ## Features
 
@@ -26,7 +31,6 @@
 ## Bugs
 
 - does not work for some musicxml files
-- tree: piano roll encoding leads to overflow
 
 ## Publication
 
@@ -38,7 +42,7 @@
 
 ## Future work
 
-- allow to select multiple consecutiove bars
+- allow to select multiple consecutive bars
 - allow playing only curent selection / loop it
 - selection of two consecute sequences of bars
   - comparison of two selections

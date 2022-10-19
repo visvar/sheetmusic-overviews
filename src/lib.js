@@ -12,7 +12,7 @@ export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A",
  * @param {Note} b a note to compare
  * @returns {number} negative for smaller, positive for greater, 0 for euqal
  */
-export function sortTimePitchComparator (a, b) {
+export function sortTimePitchComparator(a, b) {
   return a.start !== b.start ? a.start - b.start : a.pitch - b.pitch
 }
 
@@ -21,7 +21,7 @@ export function sortTimePitchComparator (a, b) {
  * @param {object} track MusicPiece Track
  * @returns {Note[][]} notes grouped by measures
  */
-export function getMeasures (track) {
+export function getMeasures(track) {
   // Get notes by measures
   const indices = [0, ...track.measureIndices]
   const allNotes = track.notes
@@ -42,7 +42,7 @@ export function getMeasures (track) {
  * @param {object} track MusicPiece Track
  * @returns {object[]} section information
  */
-export function getSectionInfo (track) {
+export function getSectionInfo(track) {
   const sections = []
   for (const [startMeasure, name] of track.measureRehearsalMap.entries()) {
     sections.push({ name, startMeasure, endMeasure: null })
@@ -80,7 +80,7 @@ export function getSectionInfo (track) {
   return sections
 }
 
-export function getSections (sectionInfo, measures) {
+export function getSections(sectionInfo, measures) {
   // Get notes by measures
   const indices = sectionInfo.map((d) => d.startMeasure)
   const notesBySection = []
@@ -99,7 +99,7 @@ export function getSections (sectionInfo, measures) {
  * @param {'levenshteinPitch'|'levenshteinStringFret'|'jaccardPitch'} distanceMetric distance metric
  * @returns {number[][]} distance matrix
  */
-export function getDistanceMatrix (noteCollections, distanceMetric) {
+export function getDistanceMatrix(noteCollections, distanceMetric) {
   let preprocessed
   if (distanceMetric === 'levenshteinPitch') {
     preprocessed = noteCollections.map((m) => m.map((n) => n.pitch))
@@ -137,7 +137,7 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
  * @param {function} colormap colormap [0,1]=>string
  * @returns {string[]} colors
  */
-export function getColorsViaMDSFromDistances (distMatrix, colormap) {
+export function getColorsViaMDSFromDistances(distMatrix, colormap) {
   if (distMatrix.length === 0) { return [] }
   // DR
   const DR = new druid.MDS(distMatrix)
@@ -162,7 +162,7 @@ export function getColorsViaMDSFromDistances (distMatrix, colormap) {
  * cut-off
  * @returns {string[]} colors
  */
-export function getColorsViaClusteringFromDistances (
+export function getColorsViaClusteringFromDistances(
   distMatrix,
   colormap,
   clusterThreshold = 0,
@@ -176,7 +176,7 @@ export function getColorsViaClusteringFromDistances (
     "precomputed"
   )
   if (!clusterTree.root) {
-    console.error("cluster tree root is null", clusterTree, distMatrix)
+    // Happens when there are no items, e.g., when piece has no sections
     return []
   }
   /**
@@ -184,7 +184,7 @@ export function getColorsViaClusteringFromDistances (
    * @param {object} node tree node
    * @returns {object[]} nodes
    */
-  function preOrderTraverse (node) {
+  function preOrderTraverse(node) {
     const nodes = []
     // Next node always at last position
     const todo = [node]
@@ -250,7 +250,7 @@ export function getColorsViaClusteringFromDistances (
  * @param {function} colormap colormap [0,1]=>string
  * @param {number} [depth=2] determines the depth where to cut the hierachy
  */
-export function getColorsViaCompression (distMatrix, colormap, depth = 2) {
+export function getColorsViaCompression(distMatrix, colormap, depth = 2) {
   if (distMatrix.length === 0) { return [] }
   const repeatedIndices = Utils.findRepeatedIndices(
     d3.range(0, distMatrix.length),
@@ -358,7 +358,7 @@ export function getColorsViaCompression (distMatrix, colormap, depth = 2) {
  * @returns {Promise} empty Promise that will resolve after the specified amount
  *      of seconds
  */
-export function delay (seconds) {
+export function delay(seconds) {
   return new Promise(resolve => {
     setTimeout(resolve, seconds * 1000)
   })
@@ -372,7 +372,7 @@ export function delay (seconds) {
  * @param {number} [opacity=1] opacity from 0 to 1
  * @returns
  */
-export function setOpacity (color, opacity = 1) {
+export function setOpacity(color, opacity = 1) {
   const { r, g, b } = d3.color(color).rgb()
   return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
@@ -385,7 +385,7 @@ export function setOpacity (color, opacity = 1) {
  * @param {string[]} selectors e.g., ['mytag', '.myclass', '#myid']
  * @returns {XMLDocument} the changed input document
  */
-export function removeXmlElements (parsedXml, selectors) {
+export function removeXmlElements(parsedXml, selectors) {
   for (const selector of selectors) {
     const elements = parsedXml.querySelectorAll(selector)
     for (let element of elements) {
@@ -404,7 +404,7 @@ export function removeXmlElements (parsedXml, selectors) {
  *  only numbers
  * @returns {Array} normalized array
  */
-export function normalizeNdArray (array) {
+export function normalizeNdArray(array) {
   const extent = d3.extent(array.flat(Number.POSITIVE_INFINITY))
   const scale = d3.scaleLinear().domain(extent)
   const normalize = (array_) =>
@@ -422,7 +422,7 @@ export function normalizeNdArray (array) {
  * @param height
  * @param colorMap
  */
-export function drawColorRamp (canvas, width, height, colorMap) {
+export function drawColorRamp(canvas, width, height, colorMap) {
   if (!canvas || !colorMap) {
     return
   }

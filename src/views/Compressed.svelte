@@ -1,7 +1,7 @@
 <script>
-  import { afterUpdate } from 'svelte';
-  import * as d3 from 'd3';
-  import { Canvas, Utils, StringBased } from 'musicvis-lib';
+  import { afterUpdate } from "svelte";
+  import * as d3 from "d3";
+  import { Canvas, Utils, StringBased } from "musicvis-lib";
 
   export let width;
   export let height = 100;
@@ -59,35 +59,32 @@
           }
         }
         if (highlight) {
-          context.fillStyle = 'black';
+          context.fillStyle = "black";
           context.fillRect(x, y, blockWidth, height + 4);
         }
         const bgColor =
-          notes.length === 0 ? '#f8f8f8' : colors[currentBarIndex];
+          notes.length === 0 ? "#f8f8f8" : colors[currentBarIndex] ?? "#f8f8f8";
         context.fillStyle = bgColor;
         context.fillRect(x + 1, y + 2, blockWidth - 2, height);
         // Draw notes
-        context.textAlign = 'left';
-        context.textBaseline = 'middle';
+        context.textAlign = "left";
+        context.textBaseline = "middle";
         context.font = `7px sans-serif`;
         const scaleX = d3
           .scaleLinear()
           .domain([d3.min(notes, (d) => d.start), d3.max(notes, (d) => d.end)])
           .range([x + 1, x + blockWidth - 2]);
-        const fn = Canvas.drawNoteTrapezoid;
+        const drawFn = Canvas.drawNoteTrapezoid;
+        const darkBg = Utils.getColorLightness(bgColor) < 50;
         for (const note of notes) {
           const nx = scaleX(note.start);
           const ny = y + scaleY(note.string);
           const width = scaleX(note.end) - nx;
-          context.fillStyle = '#333';
-          if (Utils.getColorLightness(bgColor) < 50) {
-            context.fillStyle = '#eee';
-          }
-          fn(context, nx, ny, width, noteHeight, noteHeight2);
+          context.fillStyle = darkBg ? "#eee" : "#333";
+          drawFn(context, nx, ny, width, noteHeight, noteHeight2);
           // Draw fret numbers
           // if (isTab && showFretsToggle) {
-          context.fillStyle =
-            Utils.getColorLightness(context.fillStyle) > 50 ? 'black' : 'white';
+          context.fillStyle = darkBg ? "black" : "white";
           context.fillText(note.fret, nx + 1, ny + noteHeight / 2 + 1);
           // }
         }
@@ -125,13 +122,13 @@
   const drawTreeGraph = (context, tree, blockWidth = 30, colors) => {
     const w = tree.length * blockWidth + 10;
     const h = (tree.depth + 1) * 30 + 100;
-    context.font = '13px sans-serif';
-    context.textAlign = 'center';
+    context.font = "13px sans-serif";
+    context.textAlign = "center";
 
     // Reset
-    context.fillStyle = 'white';
+    context.fillStyle = "white";
     context.fillRect(0, 0, w, h);
-    context.fillStyle = 'black';
+    context.fillStyle = "black";
 
     // Draw tree
     const x = 10;
@@ -141,7 +138,7 @@
 
   const drawVis = () => {
     // Canvas.setupCanvas(canvas);
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     drawTreeGraph(context, hierarchy, blockWidth, measureColors);
   };
 
@@ -176,13 +173,15 @@
   <div
     class="canvasContainer"
     style={`max-width: ${width}px`}
-    bind:this={container}>
+    bind:this={container}
+  >
     <canvas
       width={width * zoom}
       height={canvasHeight}
       bind:this={canvas}
       on:click={onClick}
-      on:mousewheel={onMouseWheel} />
+      on:mousewheel={onMouseWheel}
+    />
   </div>
 </main>
 

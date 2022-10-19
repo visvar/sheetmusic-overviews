@@ -1,14 +1,14 @@
 <script>
-  import { afterUpdate } from 'svelte';
-  import Select, { Option } from '@smui/select';
-  import * as d3 from 'd3';
-  import { Canvas, Chords, Utils } from 'musicvis-lib';
-  import { drawColorRamp } from '../lib.js';
+  import { afterUpdate } from "svelte";
+  import Select, { Option } from "@smui/select";
+  import * as d3 from "d3";
+  import { Canvas, Utils } from "musicvis-lib";
+  import { drawColorRamp } from "../lib.js";
 
   export let width;
   export let height;
   export let track;
-  export let colorMode = 'bars';
+  export let colorMode = "bars";
   export let measures;
   export let measureTimes;
   export let measureDists;
@@ -25,7 +25,7 @@
   /**
    * @type {'default'|'identical'|'distance'}
    */
-  let selectedColoring = 'default';
+  let selectedColoring = "default";
   let compactRepeatedNotes = true;
 
   let canvas;
@@ -35,12 +35,12 @@
   const drawVis = () => {
     // console.log("draw sheet", height, canvasHeight);
     // Canvas.setupCanvas(canvas);
-    const isTab = encoding === 'Tab' || encoding === 'Tab (simple)';
+    const isTab = encoding === "Tab" || encoding === "Tab (simple)";
     // Show for Tab but not Tab (simple)
-    let showStrings = encoding === 'Tab';
+    let showStrings = encoding === "Tab";
     let showFrets = showStrings;
 
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     const w = width;
     const h = canvasHeight;
     const mWidth = (width - 8) / mPerRow;
@@ -66,7 +66,7 @@
         .range([mHeightInner, 0]);
     }
 
-    const measureOrSectMode = ['bars', 'sections'].includes(colorMode);
+    const measureOrSectMode = ["bars", "sections"].includes(colorMode);
 
     // Onclick handler
     // Click to color by distance to selected measure
@@ -91,14 +91,14 @@
       if (
         measureOrSectMode &&
         selectedMeasure !== null &&
-        selectedColoring !== 'default'
+        selectedColoring !== "default"
       ) {
         // Distance of all measures to the currently selected one
         let dists = measureDists[selectedMeasure];
-        if (selectedColoring === 'identical') {
+        if (selectedColoring === "identical") {
           // Highlight identical measures
           cols = dists.map((d) =>
-            d === 0 ? 'steelblue' : 'rgb(238, 238, 238)'
+            d === 0 ? "steelblue" : "rgb(238, 238, 238)"
           );
         } else {
           // Color all measures by distance
@@ -110,7 +110,7 @@
             chromScaleForDistance(distColorScale(dist));
           cols = dists.map(distColor);
         }
-      } else if (colorMode === 'sections') {
+      } else if (colorMode === "sections") {
         cols = sectionInfo.flatMap((section, index) =>
           new Array(section.endMeasure - section.startMeasure + 1).fill(
             sectionColors[index]
@@ -121,20 +121,19 @@
       }
 
       // Reset background
-      context.fillStyle = 'white';
+      context.fillStyle = "white";
       context.fillRect(0, 0, w, h);
-      context.imageSmoothingQuality = 'high';
+      context.imageSmoothingQuality = "high";
       // Draw measures
-      context.strokeStyle = 'black';
-      context.textBaseline = 'middle';
-      let currentChord = 0;
+      context.strokeStyle = "black";
+      context.textBaseline = "middle";
       for (const [index, measure] of measures.entries()) {
         const col = index % mPerRow;
         const row = Math.floor(index / mPerRow);
         const mX = col * mWidth + 4;
         const mY = row * mHeight + 10;
         context.font = `9px sans-serif`;
-        context.fillStyle = '#666';
+        context.fillStyle = "#666";
         // Rehearsal / section name
         const rehearsal = track.measureRehearsalMap.get(index);
         if (rehearsal) {
@@ -146,17 +145,16 @@
         // If selected, draw border
         if (index === selectedMeasure) {
           context.save();
-          context.strokeStyle = '#333';
+          context.strokeStyle = "#333";
           context.lineWidth = 4;
           context.strokeRect(mX, mY, mWidthInner, mHeightInner);
           context.restore();
         }
         // Background
-        let bgColor;
+        let bgColor = "#f8f8f8";
         if (!measureOrSectMode || measure.length === 0) {
-          bgColor = '#f8f8f8';
         } else {
-          bgColor = cols[index];
+          bgColor = cols[index] ?? "#f8f8f8";
         }
         context.fillStyle = bgColor;
         context.fillRect(mX, mY, mWidthInner, mHeightInner);
@@ -175,63 +173,39 @@
         // Draw strings
         if (isTab && showStrings) {
           context.fillStyle =
-            colorMode === 'bars' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+            colorMode === "bars" ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 0.05)";
           for (let string = 1.5; string < 7; ++string) {
             context.fillRect(mX, mY + scaleY(string), mWidthInner, 1);
           }
         }
 
         // Draw notes
-        const fn = Canvas.drawNoteTrapezoid;
+        const drawFn = Canvas.drawNoteTrapezoid;
+        const darkBg = Utils.getColorLightness(bgColor) < 50;
         context.font = `7px sans-serif`;
-        if (colorMode !== 'Harmonies') {
-          for (const [index, note] of measure.entries()) {
-            const x = scaleX(note.start);
-            const y = mY + scaleY(isTab ? note.string : note.pitch);
-            const width = scaleX(note.end) - x;
-            context.fillStyle = '#333';
-            if (measureOrSectMode && Utils.getColorLightness(bgColor) < 50) {
-              context.fillStyle = '#eee';
-            }
-            if (colorMode === 'Notes') {
-              context.fillStyle = cols[note.pitch % 12];
-            }
-            fn(context, x, y, width, noteHeight, noteEndHeight);
-            // Draw fret numbers
-            if (isTab && showFrets) {
-              context.fillStyle =
-                Utils.getColorLightness(context.fillStyle) > 50
-                  ? 'black'
-                  : 'white';
-              const lastNote = measure[index - 1];
-              if (
-                !compactRepeatedNotes ||
-                note.fret !== lastNote?.fret ||
-                note.string !== lastNote?.string
-              ) {
-                context.fillText(note.fret, x + 1, y + noteHeight / 2 + 1);
-              }
-            }
+        for (const [index, note] of measure.entries()) {
+          const x = scaleX(note.start);
+          const y = mY + scaleY(isTab ? note.string : note.pitch);
+          const width = scaleX(note.end) - x;
+          context.fillStyle = "#333";
+          if (measureOrSectMode && darkBg) {
+            context.fillStyle = "#eee";
           }
-        } else {
-          const chords = Chords.detectChordsByExactStart(measure);
-          for (const chord of chords) {
-            for (const note of chord) {
-              const x = scaleX(note.start);
-              const y = mY + scaleY(isTab ? note.string : note.pitch);
-              const width = scaleX(note.end) - x;
-              context.fillStyle = cols[currentChord];
-              fn(context, x, y, width, noteHeight, noteEndHeight);
-              // Draw fret numbers
-              if (showFrets) {
-                context.fillStyle =
-                  Utils.getColorLightness(context.fillStyle) > 50
-                    ? 'black'
-                    : 'white';
-                context.fillText(note.fret, x + 1, y + noteHeight / 2 + 1);
-              }
+          if (colorMode === "Notes") {
+            context.fillStyle = cols[note.pitch % 12];
+          }
+          drawFn(context, x, y, width, noteHeight, noteEndHeight);
+          // Draw fret numbers
+          if (isTab && showFrets) {
+            context.fillStyle = darkBg ? "black" : "white";
+            const lastNote = measure[index - 1];
+            if (
+              !compactRepeatedNotes ||
+              note.fret !== lastNote?.fret ||
+              note.string !== lastNote?.string
+            ) {
+              context.fillText(note.fret, x + 1, y + noteHeight / 2 + 1);
             }
-            currentChord++;
           }
         }
       }
@@ -264,7 +238,8 @@
       class="legend"
       style="visibility: {selectedColoring === 'distance'
         ? 'visible'
-        : 'hidden'}">
+        : 'hidden'}"
+    >
       <div>Identical</div>
       <canvas bind:this={colorRampCanvas} width={50} height={10} />
       <div>Different</div>

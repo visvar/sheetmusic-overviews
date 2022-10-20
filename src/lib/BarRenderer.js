@@ -16,10 +16,10 @@ class BarRenderer {
     this.scaleX = d3.scaleLinear().range([0, barWidth])
     this.scaleY = d3.scaleLinear().range([0, barHeight])
     switch (mode) {
-      case 'none':
+      case 'None':
         break
 
-      case 'pianoroll':
+      case 'Pianoroll':
         const pitchExtent = d3.extent(notes, (d) => d.pitch)
         this.scaleY.domain([pitchExtent[1], pitchExtent[0] - 1])
         this.pitchCount = pitchExtent[1] - pitchExtent[0] + 2
@@ -28,8 +28,8 @@ class BarRenderer {
         this.cList = d3.range(minC, pitchExtent[1], 12)
         break
 
-      case 'tab':
-      case 'tab (simple)':
+      case 'Tab':
+      case 'Tab (simple)':
         const stringExtent = d3.extent(notes, (d) => d.string)
         // console.log(stringExtent)
         // this.stringCount = stringExtent[1] - stringExtent[0] + 1
@@ -38,15 +38,28 @@ class BarRenderer {
         this.stringCount = 6
         break
 
-      case 'drums':
+      case 'Drums':
         // TODO:
         break
-      case 'staff':
+
+      case 'Staff':
         // TODO:
         break
+
       default:
-        throw new Error('Invalid render mode')
+        throw new Error(`Invalid render mode ${mode}`)
     }
+  }
+
+  /**
+   * Changes the bar width or returns the current when width is undefined
+   * @param {number} width new bar width
+   * @returns {BarRenderer} this
+   */
+  setBarWidth(width) {
+    this.barWidth = width
+    this.scaleX.range([0, width])
+    return this
   }
 
   /**
@@ -65,6 +78,16 @@ class BarRenderer {
     context.restore()
   }
 
+  /**
+   * Draws a bar and its notes
+   * @param {CanvasRenderingContext2D} context canvas context
+   * @param {number} index index of the current bar
+   * @param {Note[]} notes notes
+   * @param {number} x x position of this bar
+   * @param {number} y y position of this bar
+   * @param {string} bgColor background color
+   * @param {object} params additional parameters, e.g., showFrets
+   */
   render(
     context,
     index,
@@ -89,8 +112,8 @@ class BarRenderer {
     // Stripes?
     context.fillStyle = 'rgba(0, 0, 0, 0.1)'
     switch (this.mode) {
-      case 'tab':
-      case 'tab (simple)':
+      case 'Tab':
+      case 'Tab (simple)':
         // For tabs, draw strings
         for (let string = 1.5; string < 7; ++string) {
           context.fillRect(
@@ -102,7 +125,7 @@ class BarRenderer {
         }
         break
 
-      case 'pianoroll':
+      case 'Pianoroll':
         // For pianoroll, draw Cs
         for (const c of this.cList) {
           context.fillRect(
@@ -114,10 +137,10 @@ class BarRenderer {
         }
         break
 
-      case 'drums':
+      case 'Drums':
         // TODO:
         break
-      case 'staff':
+      case 'Staff':
         // TODO:
         break
     }
@@ -139,9 +162,9 @@ class BarRenderer {
     let noteHeight
     const drawFn = Canvas.drawNoteTrapezoid
     switch (this.mode) {
-      case 'tab (simple)':
-      case 'tab':
-        params.showFrets = this.mode === 'tab (simple)' ? false : params.showFrets
+      case 'Tab (simple)':
+      case 'Tab':
+        params.showFrets = this.mode === 'Tab (simple)' ? false : params.showFrets
         // Params: showFrets, displayLeadingRests, measureTimes, compactRepeatedNotes
         noteHeight = this.barHeight / this.stringCount
         const noteEndHeight = params.showFrets ? noteHeight * 0.8 : 0
@@ -172,7 +195,7 @@ class BarRenderer {
         }
         break
 
-      case 'pianoroll':
+      case 'Pianoroll':
         // For pianoroll, draw Cs
         noteHeight = this.barHeight / this.pitchCount
         // Draw notes
@@ -186,10 +209,10 @@ class BarRenderer {
         }
         break
 
-      case 'drums':
+      case 'Drums':
         // TODO:
         break
-      case 'staff':
+      case 'Staff':
         // TODO:
         break
     }

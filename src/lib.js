@@ -435,3 +435,33 @@ export function drawColorRamp(canvas, width, height, colorMap) {
     context.fillRect(hue, 0, 2, height)
   }
 }
+
+/**
+ * Draws text horizontally rotated 90 degrees clock-wise
+ * @param {*} context
+ * @param {*} x
+ * @param {*} y
+ * @param {*} text
+ * @param {*} color
+ * @param {*} size
+ * @param {*} centered
+ */
+export function drawVerticalText(
+  context,
+  x,
+  y,
+  text,
+  color,
+  size,
+  centered = false
+) {
+  context.save();
+  context.rotate((90 * Math.PI) / 180)
+  if (centered) {
+    context.textAlign = 'center'
+  }
+  context.fillStyle = color
+  context.font = `${size}px sans-serif`
+  context.fillText(text, y, -x)
+  context.restore()
+}

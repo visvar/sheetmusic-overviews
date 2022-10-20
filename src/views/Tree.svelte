@@ -2,6 +2,8 @@
   import { afterUpdate } from "svelte";
   import * as d3 from "d3";
   import { Canvas, Chords, Utils } from "musicvis-lib";
+  import { drawVerticalText } from "../lib.js";
+  import BarRenderer from "../lib/BarRenderer.js";
 
   export let width;
   export let height;
@@ -17,8 +19,7 @@
   export let harmonyColors;
   export let noteColors;
 
-  let showNotes = true;
-
+  const fadeColor = "rgba(255, 255, 255, 0.5)";
   let canvas;
 
   /**
@@ -48,26 +49,6 @@
     const startMeasure = sectionInfo[selectedSection].startMeasure;
     selectedMeasureOfSection = selectedMeasure - startMeasure;
   }
-
-  const drawVerticalText = (
-    context,
-    x,
-    y,
-    text,
-    color,
-    size,
-    centered = false
-  ) => {
-    context.save();
-    context.rotate((90 * Math.PI) / 180);
-    if (centered) {
-      context.textAlign = "center";
-    }
-    context.fillStyle = color;
-    context.font = `${size}px sans-serif`;
-    context.fillText(text, y, -x);
-    context.restore();
-  };
 
   const drawVis = () => {
     // Canvas.setupCanvas(canvas);
@@ -122,8 +103,6 @@
 
     // Draw
     function draw() {
-      const isTab = encoding === "Tab" || encoding === "Tab (simple)";
-
       // Get filtered data
       currMeasures = measures;
       if (selectedSection !== null) {
@@ -141,20 +120,9 @@
       notes = allHarmonies.flat(Infinity);
 
       // Config
-      const drawFn = Canvas.drawNoteTrapezoid;
-      const pitchExtent = d3.extent(notes, (d) => d.pitch);
-      const noteHeight = isTab
-        ? rowHeight / 6
-        : rowHeight / (pitchExtent[1] - pitchExtent[0]);
-      let scaleY;
-      if (isTab) {
-        scaleY = d3.scaleLinear().domain([1, 7]).range([0, rowHeight]);
-      } else {
-        scaleY = d3
-          .scaleLinear()
-          .domain([pitchExtent[0] - 1, pitchExtent[1] + 1])
-          .range([rowHeight, 0]);
-      }
+      const renderParams = {
+        showFrets: true,
+      };
 
       // Reset
       context.resetTransform();
@@ -173,6 +141,12 @@
       // Draw sections
       sWidth = w / sections.length;
       const sWidthInner = sWidth > 3 ? sWidth - 0.5 : sWidth;
+      const sRenderer = new BarRenderer(
+        encoding,
+        measures.flat(),
+        sWidthInner,
+        rowHeight
+      );
       let rowY = 10;
       for (const [index, section] of sections.entries()) {
         const col = index;
@@ -180,35 +154,25 @@
         // Background
         const bgColor =
           sectionColors.length < 2 ? "#f8f8f8" : sectionColors[index];
-        context.fillStyle = bgColor;
-        context.fillRect(mX, rowY, sWidthInner, rowHeight);
-        if (selectedSection !== null && index !== selectedSection) {
-          // Fade not-selected sections
-          context.fillStyle = "rgba(255, 255, 255, 0.7)";
-          context.fillRect(mX, rowY, sWidthInner, rowHeight);
-        }
-        const scaleX = d3
-          .scaleLinear()
-          .domain([
-            d3.min(section, (d) => d.start),
-            d3.max(section, (d) => d.end),
-          ])
-          .range([mX, mX + sWidthInner]);
         // Section name
         context.fillStyle = "white";
         context.fillRect(mX - 5, rowY - 10, w, 10);
         context.fillStyle = "black";
         context.fillText(sectionInfo[index].name, mX, rowY - 2);
-        // Draw notes
-        context.fillStyle =
-          Utils.getColorLightness(bgColor) > 50 ? "black" : "white";
-        if (showNotes) {
-          for (const note of section) {
-            const x = scaleX(note.start);
-            const y = rowY + scaleY(isTab ? note.string : note.pitch);
-            const width = scaleX(note.end) - x;
-            drawFn(context, x, y, width, noteHeight, 0);
-          }
+        // Notes
+        sRenderer.render(
+          context,
+          index,
+          section,
+          mX,
+          rowY,
+          bgColor,
+          renderParams
+        );
+        // Fade not-selected sections
+        if (selectedSection !== null && index !== selectedSection) {
+          context.fillStyle = fadeColor;
+          context.fillRect(mX, rowY, sWidthInner, rowHeight);
         }
       }
 
@@ -233,45 +197,36 @@
         Canvas.drawBezierConnectorY(context, x1b, y1, w, y2);
       }
       // Draw measures
+      const mRenderer = sRenderer.setBarWidth(mWidthInner);
       rowY += rowHeight + gapHeight;
       for (const [index, measure] of currMeasures.entries()) {
         const col = index;
         const mX = col * mWidth;
         // Background
-        context.fillStyle =
-          measure.length === 0 ? "#f8f8f8" : measureColors[index];
-        context.fillRect(mX, rowY, mWidthInner, rowHeight);
+        const bgColor = measure.length === 0 ? "#f8f8f8" : measureColors[index];
+        mRenderer.render(
+          context,
+          index,
+          measure,
+          mX,
+          rowY,
+          bgColor,
+          renderParams
+        );
+        // Fade not-selected
         if (
           selectedMeasureOfSection !== null &&
           index !== selectedMeasureOfSection
         ) {
-          // Fade not-selected
-          context.fillStyle = "rgba(255, 255, 255, 0.7)";
+          context.fillStyle = fadeColor;
           context.fillRect(mX, rowY, mWidthInner, rowHeight);
-        }
-        const scaleX = d3
-          .scaleLinear()
-          .domain([
-            d3.min(measure, (d) => d.start),
-            d3.max(measure, (d) => d.end),
-          ])
-          .range([mX, mX + mWidthInner]);
-        // Draw notes
-        if (showNotes) {
-          context.fillStyle =
-            Utils.getColorLightness(context.fillStyle) > 50 ? "black" : "white";
-          for (const note of measure) {
-            const x = scaleX(note.start);
-            const y = rowY + scaleY(isTab ? note.string : note.pitch);
-            const width = scaleX(note.end) - x;
-            drawFn(context, x, y, width, noteHeight, 0);
-          }
         }
       }
 
       // Harmonies
       hWidth = w / allHarmonies.length;
       const hWidthInner = hWidth > 3 ? hWidth - 0.5 : hWidth;
+      const hRenderer = mRenderer.setBarWidth(hWidthInner);
       // Connection measures-harmonies
       const y1h = rowY + rowHeight;
       const y2h = y1h + gapHeight;
@@ -296,22 +251,17 @@
       for (const [index, chord] of allHarmonies.entries()) {
         const col = index;
         const mX = col * hWidth;
+        const bgColor = harmonyColors[index];
         context.fillStyle = harmonyColors[index];
-        context.fillRect(mX, rowY, hWidthInner, rowHeight);
-        // Draw notes
-        if (showNotes) {
-          context.fillStyle =
-            Utils.getColorLightness(context.fillStyle) > 50 ? "black" : "white";
-          for (const note of chord) {
-            const y = rowY + scaleY(isTab ? note.string : note.pitch);
-            drawFn(context, mX, y, hWidthInner, noteHeight, 0);
-          }
-        }
+        hRenderer.render(context, index, chord, mX, rowY, bgColor, {
+          showFrets: hWidthInner > 10,
+        });
       }
 
       // Notes
       nWidth = w / notes.length;
       const nWidthInner = nWidth > 3 ? nWidth - 0.5 : nWidth;
+      const nRenderer = hRenderer.setBarWidth(nWidthInner);
       // Connection harmonies-notes
       const y1n = rowY + rowHeight;
       const y2n = y1n + gapHeight;
@@ -327,14 +277,10 @@
       for (const [index, note] of notes.entries()) {
         const col = index;
         const mX = col * nWidth;
-        context.fillStyle = noteColors[note.pitch % 12];
-        context.fillRect(mX, rowY, nWidthInner, rowHeight);
-        if (showNotes) {
-          context.fillStyle =
-            Utils.getColorLightness(context.fillStyle) > 50 ? "black" : "white";
-          const y = rowY + scaleY(isTab ? note.string : note.pitch);
-          drawFn(context, mX, y, nWidthInner, noteHeight, 0);
-        }
+        const bgColor = noteColors[note.pitch % 12];
+        nRenderer.render(context, index, [note], mX, rowY, bgColor, {
+          showFrets: nWidthInner > 10,
+        });
       }
     }
     draw();

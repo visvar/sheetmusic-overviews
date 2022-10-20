@@ -6,6 +6,7 @@
 
   export let width;
   export let height = 100;
+  export let encoding;
   export let measures;
   export let measureDists;
   export let measureColors;
@@ -46,7 +47,7 @@
 
     // Setup renderer
     const renderer = new BarRenderer(
-      "tab",
+      encoding,
       measures.flat(),
       blockWidth - 2,
       barHeight
@@ -93,7 +94,7 @@
         }
         const bgColor =
           notes.length === 0 ? "#f8f8f8" : colors[currentBarIndex] ?? "#f8f8f8";
-        renderer.render(context, 0, notes, x, y, bgColor, {});
+        renderer.render(context, 0, notes, x, y, bgColor, { showFrets: true });
         x += blockWidth;
       }
       return;

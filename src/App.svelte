@@ -276,6 +276,7 @@
             <Compressed
               width={overviewWidth}
               height={compressedHeight}
+              {encoding}
               {measures}
               {measureDists}
               {measureColors}

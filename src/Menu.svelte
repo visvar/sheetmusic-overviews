@@ -64,7 +64,14 @@
     submitFile(musicxml, musicpiece);
   };
 
-  let encodings = ["Tab", "Tab (simple)", "Pianoroll", "Drums"];
+  let encodings = [
+    "Tab",
+    "Tab (simple)",
+    "Pianoroll",
+    "Drums",
+    "Staff",
+    "None",
+  ];
   export let selectedEncoding = "Tab";
 
   let colorings = ["DR", "Clustering", "Compression"];
@@ -154,7 +161,11 @@
     {/each}
   </Select>
 
-  <Select bind:value={selectedEncoding} label="Encoding" disabled={!musicpiece}>
+  <Select
+    bind:value={selectedEncoding}
+    label="Note encoding"
+    disabled={!musicpiece}
+  >
     {#each encodings as encoding}
       <Option value={encoding}>
         {encoding}

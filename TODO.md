@@ -16,6 +16,7 @@
   - tab (should support different numbers of strings)
   - future: staff
 - draw measures with rounded corners to show where they end
+- highlight section in tracks view
 
 ## Features
 

@@ -48,7 +48,7 @@
 
     // Setup BarRenderer
     const renderer = new BarRenderer(
-      encoding.toLowerCase(),
+      encoding,
       measures.flat(),
       mWidthInner,
       mHeightInner

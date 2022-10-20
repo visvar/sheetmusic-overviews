@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { Canvas, Utils } from 'musicvis-lib'
+import { Canvas, Midi, Utils } from 'musicvis-lib'
 
 class BarRenderer {
   constructor(
@@ -15,12 +15,13 @@ class BarRenderer {
     // Scales
     this.scaleX = d3.scaleLinear().range([0, barWidth])
     this.scaleY = d3.scaleLinear().range([0, barHeight])
+    let pitchExtent
     switch (mode) {
       case 'None':
         break
 
       case 'Pianoroll':
-        const pitchExtent = d3.extent(notes, (d) => d.pitch)
+        pitchExtent = d3.extent(notes, (d) => d.pitch)
         this.scaleY.domain([pitchExtent[1], pitchExtent[0] - 1])
         this.pitchCount = pitchExtent[1] - pitchExtent[0] + 2
         // Remember which Cs occur within the pitch range
@@ -39,11 +40,19 @@ class BarRenderer {
         break
 
       case 'Drums':
-        // TODO:
+        this.scaleY.domain([0, 4])
         break
 
       case 'Staff':
-        // TODO:
+        const transpose = 0
+        // Y scale
+        pitchExtent = d3.extent(notes, (d) => d.pitch)
+        const lineExtent = pitchExtent.map((d) => pitchToStaffLine(d + transpose))
+        // console.log(lineExtent)
+        const [minLine, maxLine] = d3.extent([0, 4, ...lineExtent])
+        // console.log(minLine)
+        this.scaleY.domain([minLine - 1, maxLine + 1])
+        this.noteRadius = Math.abs(this.scaleY(0) - this.scaleY(0.5))
         break
 
       default:
@@ -149,15 +158,19 @@ class BarRenderer {
         break
 
       case 'Drums':
-        // TODO:
+        // For drums, draw row separators
+        for (let row = 0; row < 6; ++row) {
+          context.fillRect(x, y + this.scaleY(row), this.barWidth, 1)
+        }
         break
       case 'Staff':
-        // TODO:
+        // For staff, draw staff lines
+        for (const row of [0, 1, 2, 3, 4]) {
+          context.fillRect(x, y + this.scaleY(row), this.barWidth, 1);
+        }
         break
     }
 
-    // TODO: for drums, draw row bands
-    // TODO: for staff, draw staff lines
 
     // scaleX
     if (!params.displayLeadingRests || !params.measureTimes) {
@@ -183,7 +196,6 @@ class BarRenderer {
         context.font = '7px sans-serif'
         context.textBaseline = 'middle'
         // Draw notes
-
         for (const [index, note] of notes.entries()) {
           let nx = this.scaleX(note.start)
           const width = this.scaleX(note.end) - nx
@@ -221,10 +233,56 @@ class BarRenderer {
         break
 
       case 'Drums':
-        // TODO:
+        context.textAlign = 'left'
+        context.textBaseline = 'middle'
+        // TODO: adjust to bar size
+        context.font = '7px sans-serif'
+        noteHeight = this.barHeight / 4
+        const noteHeight2 = noteHeight * 0.8
+        for (const note of notes) {
+          const drumInfo = guitarProDrumReplacementMap.get(note.pitch)
+          let nx = this.scaleX(note.start)
+          const width = this.scaleX(note.end) - nx
+          nx = x + nx
+          const ny = y + this.scaleY(drumInfo?.y ?? 0)
+          context.fillStyle = darkBg ? '#eee' : '#333'
+          drawFn(
+            context,
+            nx,
+            ny,
+            width,
+            noteHeight,
+            noteHeight2
+          )
+          // Draw labels
+          if (params.showFrets && drumInfo) {
+            context.fillStyle = darkBg ? 'black' : 'white'
+            context.fillText(drumInfo.label, nx + 1, ny + noteHeight / 2 + 1)
+          }
+        }
         break
       case 'Staff':
-        // TODO:
+        // TODO: make sure it works fine with different pieces
+        const transpose = 0
+        context.textAlign = 'center'
+        context.textBaseline = 'middle'
+        context.font = `${this.noteRadius * 1.5}px sans-serif`
+        // Map pitches to note lines
+        const noteLines = notes.map((d) => pitchToStaffLine(d.pitch + transpose))
+        for (const [index, note] of notes.entries()) {
+          let nx = this.scaleX(note.start)
+          const width = this.scaleX(note.end) - nx
+          nx = x + nx
+          const ny = y + this.scaleY(noteLines[index])
+          context.fillStyle = darkBg ? '#eee' : '#333'
+          Canvas.drawFilledCircle(context, nx + this.noteRadius, ny, this.noteRadius)
+          context.fillRect(nx, ny - 1, width - 3, 2)
+          // Mark sharps
+          if (Midi.isSharp(note.pitch)) {
+            context.fillStyle = darkBg ? '#333' : '#eee'
+            context.fillText('#', nx + this.noteRadius, ny)
+          }
+        }
         break
     }
     context.restore()
@@ -232,3 +290,53 @@ class BarRenderer {
 }
 
 export default BarRenderer
+
+/**
+ * @type {Map<number,object>} maps MIDI number to y position, symbol, label
+ */
+const guitarProDrumReplacementMap = new Map([
+  // Crash
+  [49, { y: 0, symbol: 'C', label: 'C1' }],
+  [55, { y: 0, symbol: 'C', label: 'Cs' }],
+  [42, { y: 0, symbol: 'C', label: 'C2' }],
+  [57, { y: 0, symbol: 'C', label: 'C2' }],
+  [56, { y: 0, symbol: 'B', label: 'B' }],
+  [99, { y: 0, symbol: 'B', label: 'Bl' }],
+  [100, { y: 0, symbol: 'B', label: 'Bh' }],
+  // Ride
+  [52, { y: 0, symbol: 'C', label: 'Ch' }],
+  [51, { y: 0, symbol: 'R', label: 'Rm' }],
+  [53, { y: 0, symbol: 'R', label: 'Rb' }],
+  [59, { y: 0, symbol: 'R', label: 'R' }],
+  [93, { y: 0, symbol: 'R', label: 'Re' }],
+  // Hi-Hat
+  [42, { y: 0, symbol: 'H', label: 'Hc' }],
+  [44, { y: 0, symbol: 'H', label: 'Hh' }],
+  [92, { y: 0, symbol: 'H', label: 'Hh' }],
+  [46, { y: 0, symbol: 'H', label: 'Ho' }],
+  // Toms
+  [48, { y: 1, symbol: 'T', label: 'T1' }],
+  [47, { y: 1, symbol: 'T', label: 'T2' }],
+  [45, { y: 1, symbol: 'T', label: 'T3' }],
+  [43, { y: 1, symbol: 'T', label: 'T4' }],
+  [50, { y: 1, symbol: 'T', label: 'T5' }],
+  // Snare
+  [37, { y: 2, symbol: 'S', label: 'Ss' }],
+  [38, { y: 2, symbol: 'S', label: 'S' }],
+  [91, { y: 2, symbol: 'S', label: 'Sr' }],
+  // Bass
+  [35, { y: 3, symbol: 'K', label: 'K' }],
+  [36, { y: 3, symbol: 'K', label: 'K' }]
+])
+
+/**
+ * Maps a MIDI number to a staff line
+ * @param {number} pitch pitch
+ * @returns {number} staff line
+ */
+function pitchToStaffLine(pitch) {
+  const pitchLine = [-1, -1, -0.5, -0.5, 0, 0.5, 0.5, 1, 1, 1.5, 1.5, 2.0]
+  const oct = Math.floor((pitch - 60) / 12)
+  const line = pitchLine[pitch % 12]
+  return oct * 3.5 + line
+}

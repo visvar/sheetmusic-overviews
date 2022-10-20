@@ -177,7 +177,12 @@
         : 'hidden'}"
     >
       <div>Identical</div>
-      <canvas bind:this={colorRampCanvas} width={50} height={10} />
+      <canvas
+        bind:this={colorRampCanvas}
+        width={50}
+        height={10}
+        style="border-radius: 3px"
+      />
       <div>Different</div>
     </div>
     <div>

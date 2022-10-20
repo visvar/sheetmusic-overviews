@@ -9,6 +9,7 @@
   export let musicpiece;
   export let sectionInfo;
   export let selectedMeasure = null;
+  export let selectedSection = null;
 
   let canvas;
 
@@ -38,7 +39,6 @@
     context.font = `${fontSize}px sans-serif`;
 
     // Sections
-    // console.log("track: sections", sectionInfo);
     for (const section of sectionInfo) {
       const { name, startMeasure, length } = section;
       const x = marginLeft + startMeasure * mWidth + 1;
@@ -91,6 +91,15 @@
       const x = marginLeft + selectedMeasure * mWidth;
       context.fillStyle = "rgba(128, 128, 128, 0.2)";
       context.fillRect(x - 1, 0, mWidth - 2, height);
+    }
+
+    // Highlight for selected section
+    if (selectedSection !== null && selectedSection !== undefined) {
+      const { startMeasure, length } = sectionInfo[selectedSection];
+      const mx = marginLeft + startMeasure * mWidth + 1;
+      const sectionWidth = length * mWidth - 2;
+      context.fillStyle = "rgba(128, 128, 128, 0.1)";
+      context.fillRect(mx - 1, 0, sectionWidth - 2, height);
     }
 
     // Click to select measure, ...

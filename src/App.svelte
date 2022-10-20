@@ -254,6 +254,7 @@
               {musicpiece}
               {sectionInfo}
               bind:selectedMeasure
+              bind:selectedSection
             />
           {/if}
           {#if currentViews.has("Tree") && sections && sections.length > 0}

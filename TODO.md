@@ -10,13 +10,10 @@
 ## Urgent
 
 - rename score to full
-- allow using any encoding (e.g, piano roll and tab) everywhere
-  - none (notes hidden)
-  - piano roll
-  - tab (should support different numbers of strings)
-  - future: staff
+- new note encodings
+  - drums
+  - staff
 - draw measures with rounded corners to show where they end
-- highlight section in tracks view
 
 ## Features
 

@@ -18,7 +18,7 @@
   export let sectionInfo;
   export let sectionColors;
   export let encoding;
-  export let displayLeadingRests = false;
+  export let displayLeadingRests = true;
 
   const chromScaleForDistance = (d) => d3.interpolateBlues(1 - d);
 
@@ -71,7 +71,7 @@
       encoding.toLowerCase(),
       measures.flat(),
       mHeightInner,
-      mWidth,
+      mWidthInner,
       compactRepeatedNotes
     );
 
@@ -151,70 +151,82 @@
         }
         // If selected, draw border
         if (index === selectedMeasure) {
-          context.save();
-          context.strokeStyle = "#333";
-          context.lineWidth = 4;
-          context.strokeRect(mX, mY, mWidthInner, mHeightInner);
-          context.restore();
-        }
-        // Background
-        let bgColor = "#f8f8f8";
-        if (!measureOrSectMode || measure.length === 0) {
-        } else {
-          bgColor = cols[index] ?? "#f8f8f8";
-        }
-        context.fillStyle = bgColor;
-        context.fillRect(mX, mY, mWidthInner, mHeightInner);
-        if (measure.length === 0) {
-          continue;
-        }
-        const scaleX = d3.scaleLinear().range([mX, mX + mWidthInner]);
-        if (!displayLeadingRests || !measureTimes) {
-          scaleX.domain([
-            d3.min(measure, (d) => +d.start),
-            d3.max(measure, (d) => +d.end),
-          ]);
-        } else {
-          scaleX.domain([measureTimes[index - 1] ?? 0, measureTimes[index]]);
-        }
-        // Draw strings
-        if (isTab && showStrings) {
-          context.fillStyle =
-            colorMode === "bars" ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 0.05)";
-          for (let string = 1.5; string < 7; ++string) {
-            context.fillRect(mX, mY + scaleY(string), mWidthInner, 1);
-          }
+          renderer.drawHighlightBorder(context, mX, mY);
         }
 
-        // Draw notes
-        const drawFn = Canvas.drawNoteTrapezoid;
-        const darkBg = Utils.getColorLightness(bgColor) < 50;
-        context.font = `7px sans-serif`;
-        for (const [index, note] of measure.entries()) {
-          const x = scaleX(note.start);
-          const y = mY + scaleY(isTab ? note.string : note.pitch);
-          const width = scaleX(note.end) - x;
-          context.fillStyle = "#333";
-          if (measureOrSectMode && darkBg) {
-            context.fillStyle = "#eee";
+        renderer.render(
+          context,
+          index,
+          measure,
+          mX,
+          mY,
+          cols[index] ?? "#f8f8f8",
+          {
+            showFrets: true,
+            displayLeadingRests,
+            measureTimes,
+            compactRepeatedNotes,
           }
-          if (colorMode === "Notes") {
-            context.fillStyle = cols[note.pitch % 12];
-          }
-          drawFn(context, x, y, width, noteHeight, noteEndHeight);
-          // Draw fret numbers
-          if (isTab && showFrets) {
-            context.fillStyle = darkBg ? "black" : "white";
-            const lastNote = measure[index - 1];
-            if (
-              !compactRepeatedNotes ||
-              note.fret !== lastNote?.fret ||
-              note.string !== lastNote?.string
-            ) {
-              context.fillText(note.fret, x + 1, y + noteHeight / 2 + 1);
-            }
-          }
-        }
+        );
+
+        // Background
+        // let bgColor = "#f8f8f8";
+        // if (!measureOrSectMode || measure.length === 0) {
+        // } else {
+        //   bgColor = cols[index] ?? "#f8f8f8";
+        // }
+        // context.fillStyle = bgColor;
+        // context.fillRect(mX, mY, mWidthInner, mHeightInner);
+        // if (measure.length === 0) {
+        //   continue;
+        // }
+        // const scaleX = d3.scaleLinear().range([mX, mX + mWidthInner]);
+        // if (!displayLeadingRests || !measureTimes) {
+        //   scaleX.domain([
+        //     d3.min(measure, (d) => +d.start),
+        //     d3.max(measure, (d) => +d.end),
+        //   ]);
+        // } else {
+        //   scaleX.domain([measureTimes[index - 1] ?? 0, measureTimes[index]]);
+        // }
+        // // Draw strings
+        // if (isTab && showStrings) {
+        //   context.fillStyle =
+        //     colorMode === "bars" ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 0.05)";
+        //   for (let string = 1.5; string < 7; ++string) {
+        //     context.fillRect(mX, mY + scaleY(string), mWidthInner, 1);
+        //   }
+        // }
+
+        // // Draw notes
+        // const drawFn = Canvas.drawNoteTrapezoid;
+        // const darkBg = Utils.getColorLightness(bgColor) < 50;
+        // context.font = `7px sans-serif`;
+        // for (const [index, note] of measure.entries()) {
+        //   const x = scaleX(note.start);
+        //   const y = mY + scaleY(isTab ? note.string : note.pitch);
+        //   const width = scaleX(note.end) - x;
+        //   context.fillStyle = "#333";
+        //   if (measureOrSectMode && darkBg) {
+        //     context.fillStyle = "#eee";
+        //   }
+        //   if (colorMode === "Notes") {
+        //     context.fillStyle = cols[note.pitch % 12];
+        //   }
+        //   drawFn(context, x, y, width, noteHeight, noteEndHeight);
+        //   // Draw fret numbers
+        //   if (isTab && showFrets) {
+        //     context.fillStyle = darkBg ? "black" : "white";
+        //     const lastNote = measure[index - 1];
+        //     if (
+        //       !compactRepeatedNotes ||
+        //       note.fret !== lastNote?.fret ||
+        //       note.string !== lastNote?.string
+        //     ) {
+        //       context.fillText(note.fret, x + 1, y + noteHeight / 2 + 1);
+        //     }
+        //   }
+        // }
       }
     };
     draw();

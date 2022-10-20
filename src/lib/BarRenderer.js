@@ -22,7 +22,7 @@ class BarRenderer {
 
       case 'pianoroll':
         const pitchExtent = d3.extent(notes, (d) => d.pitch)
-        this.scaleY.domain([pitchExtent[0] - 1, pitchExtent[1] + 1])
+        this.scaleY.domain([pitchExtent[1], pitchExtent[0] - 1])
         this.pitchCount = pitchExtent[1] - pitchExtent[0] + 2
         // Remember which Cs occur within the pitch range
         const minC = Math.ceil(pitchExtent[0] / 12) * 12
@@ -30,6 +30,7 @@ class BarRenderer {
         break
 
       case 'tab':
+      case 'tab (simple)':
         const stringExtent = d3.extent(notes, (d) => d.string)
         // console.log(stringExtent)
         // this.stringCount = stringExtent[1] - stringExtent[0] + 1
@@ -47,6 +48,22 @@ class BarRenderer {
       default:
         throw new Error('Invalid render mode')
     }
+  }
+
+  /**
+   * Draws a colored rectangular border around the bar to indicate highlighting
+   * @param {CanvasRenderingContext2D} context canvas context
+   * @param {number} x x position of the bar
+   * @param {number} y y position of the bar
+   * @param {number} [lineWidth=4] width of the border
+   * @param {string} [stroke='#333'] stroke color
+   */
+  drawHighlightBorder(context, x, y, lineWidth = 4, stroke = '#333') {
+    context.save()
+    context.strokeStyle = stroke
+    context.lineWidth = lineWidth
+    context.strokeRect(x, y, this.barWidth, this.barHeight)
+    context.restore()
   }
 
   render(
@@ -75,6 +92,7 @@ class BarRenderer {
     context.fillStyle = 'rgba(0, 0, 0, 0.1)'
     switch (this.mode) {
       case 'tab':
+      case 'tab (simple)':
         // For tabs, draw strings
         for (let string = 1.5; string < 7; ++string) {
           context.fillRect(
@@ -113,18 +131,19 @@ class BarRenderer {
     if (!params.displayLeadingRests || !params.measureTimes) {
       this.scaleX.domain([
         d3.min(notes, (d) => +d.start),
-        d3.max(notes, (d) => +d.end),
+        d3.max(notes, (d) => +d.end)
       ])
     } else {
       this.scaleX.domain([params.measureTimes[index - 1] ?? 0, params.measureTimes[index]])
     }
 
-
     // Render notes
     let noteHeight
     const drawFn = Canvas.drawNoteTrapezoid
     switch (this.mode) {
+      case 'tab (simple)':
       case 'tab':
+        params.showFrets = this.mode === 'tab (simple)' ? false : params.showFrets
         // Params: showFrets, displayLeadingRests, measureTimes, compactRepeatedNotes
         noteHeight = this.barHeight / this.stringCount
         const noteEndHeight = params.showFrets ? noteHeight * 0.8 : 0
@@ -133,9 +152,10 @@ class BarRenderer {
         // Draw notes
 
         for (const [index, note] of notes.entries()) {
-          const nx = this.scaleX(note.start)
-          const ny = y + this.scaleY(note.string)
+          let nx = this.scaleX(note.start)
           const width = this.scaleX(note.end) - nx
+          nx = x + nx
+          const ny = y + this.scaleY(note.string)
           context.fillStyle = darkBg ? '#eee' : '#333'
           drawFn(context, nx, ny, width, noteHeight, noteEndHeight)
           // Draw fret numbers
@@ -158,9 +178,10 @@ class BarRenderer {
         noteHeight = this.barHeight / this.pitchCount
         // Draw notes
         for (const note of notes) {
-          const nx = this.scaleX(note.start)
-          const ny = y + this.scaleY(note.pitch)
+          let nx = this.scaleX(note.start)
           const width = this.scaleX(note.end) - nx
+          nx = x + nx
+          const ny = y + this.scaleY(note.pitch)
           context.fillStyle = darkBg ? '#eee' : '#333'
           drawFn(context, nx, ny, width, noteHeight, 0)
         }

@@ -2,7 +2,6 @@
   import { afterUpdate } from "svelte";
   import Select, { Option } from "@smui/select";
   import * as d3 from "d3";
-  import { Canvas, Utils } from "musicvis-lib";
   import { drawColorRamp } from "../lib.js";
   import BarRenderer from "../lib/BarRenderer.js";
 
@@ -36,11 +35,6 @@
   const drawVis = () => {
     // console.log("draw sheet", height, canvasHeight);
     // Canvas.setupCanvas(canvas);
-    const isTab = encoding === "Tab" || encoding === "Tab (simple)";
-    // Show for Tab but not Tab (simple)
-    let showStrings = encoding === "Tab";
-    let showFrets = showStrings;
-
     const context = canvas.getContext("2d");
     const w = width;
     const h = canvasHeight;
@@ -51,28 +45,13 @@
       Math.floor((h - 10) / Math.ceil(measures.length / mPerRow))
     );
     const mHeightInner = mHeight - 10;
-    const pitchExtent = d3.extent(measures.flat(), (d) => d.pitch);
-    const noteHeight = isTab
-      ? mHeightInner / 6
-      : mHeightInner / (pitchExtent[1] - pitchExtent[0]);
-    const noteEndHeight = isTab && showFrets ? noteHeight * 0.8 : 0;
 
-    let scaleY = d3.scaleLinear().range([0, mHeightInner]);
-    if (isTab) {
-      scaleY.domain([1, 7]);
-    } else {
-      scaleY.domain([pitchExtent[0] - 1, pitchExtent[1] + 1]);
-    }
-
-    const measureOrSectMode = ["bars", "sections"].includes(colorMode);
-
-    // TODO:
+    // Setup BarRenderer
     const renderer = new BarRenderer(
       encoding.toLowerCase(),
       measures.flat(),
-      mHeightInner,
       mWidthInner,
-      compactRepeatedNotes
+      mHeightInner
     );
 
     // Onclick handler
@@ -95,11 +74,7 @@
     const draw = () => {
       // If a measure was selected, change colors to reflect distance to selected measure
       let cols;
-      if (
-        measureOrSectMode &&
-        selectedMeasure !== null &&
-        selectedColoring !== "default"
-      ) {
+      if (selectedMeasure !== null && selectedColoring !== "default") {
         // Distance of all measures to the currently selected one
         let dists = measureDists[selectedMeasure];
         if (selectedColoring === "identical") {
@@ -168,65 +143,6 @@
             compactRepeatedNotes,
           }
         );
-
-        // Background
-        // let bgColor = "#f8f8f8";
-        // if (!measureOrSectMode || measure.length === 0) {
-        // } else {
-        //   bgColor = cols[index] ?? "#f8f8f8";
-        // }
-        // context.fillStyle = bgColor;
-        // context.fillRect(mX, mY, mWidthInner, mHeightInner);
-        // if (measure.length === 0) {
-        //   continue;
-        // }
-        // const scaleX = d3.scaleLinear().range([mX, mX + mWidthInner]);
-        // if (!displayLeadingRests || !measureTimes) {
-        //   scaleX.domain([
-        //     d3.min(measure, (d) => +d.start),
-        //     d3.max(measure, (d) => +d.end),
-        //   ]);
-        // } else {
-        //   scaleX.domain([measureTimes[index - 1] ?? 0, measureTimes[index]]);
-        // }
-        // // Draw strings
-        // if (isTab && showStrings) {
-        //   context.fillStyle =
-        //     colorMode === "bars" ? "rgba(0, 0, 0, 0.1)" : "rgba(0, 0, 0, 0.05)";
-        //   for (let string = 1.5; string < 7; ++string) {
-        //     context.fillRect(mX, mY + scaleY(string), mWidthInner, 1);
-        //   }
-        // }
-
-        // // Draw notes
-        // const drawFn = Canvas.drawNoteTrapezoid;
-        // const darkBg = Utils.getColorLightness(bgColor) < 50;
-        // context.font = `7px sans-serif`;
-        // for (const [index, note] of measure.entries()) {
-        //   const x = scaleX(note.start);
-        //   const y = mY + scaleY(isTab ? note.string : note.pitch);
-        //   const width = scaleX(note.end) - x;
-        //   context.fillStyle = "#333";
-        //   if (measureOrSectMode && darkBg) {
-        //     context.fillStyle = "#eee";
-        //   }
-        //   if (colorMode === "Notes") {
-        //     context.fillStyle = cols[note.pitch % 12];
-        //   }
-        //   drawFn(context, x, y, width, noteHeight, noteEndHeight);
-        //   // Draw fret numbers
-        //   if (isTab && showFrets) {
-        //     context.fillStyle = darkBg ? "black" : "white";
-        //     const lastNote = measure[index - 1];
-        //     if (
-        //       !compactRepeatedNotes ||
-        //       note.fret !== lastNote?.fret ||
-        //       note.string !== lastNote?.string
-        //     ) {
-        //       context.fillText(note.fret, x + 1, y + noteHeight / 2 + 1);
-        //     }
-        //   }
-        // }
       }
     };
     draw();

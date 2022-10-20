@@ -1,17 +1,17 @@
 <script>
-  import { MusicPiece } from 'musicvis-lib';
-  import * as d3 from 'd3';
-  import JSZip from 'jszip';
-  import { createEventDispatcher } from 'svelte';
-  import Select, { Option } from '@smui/select';
-  import Button from '@smui/button';
-  import Slider from '@smui/slider';
-  import FormField from '@smui/form-field';
-  import { drawColorRamp } from './lib.js';
+  import { MusicPiece } from "musicvis-lib";
+  import * as d3 from "d3";
+  import JSZip from "jszip";
+  import { createEventDispatcher } from "svelte";
+  import Select, { Option } from "@smui/select";
+  import Button from "@smui/button";
+  import Slider from "@smui/slider";
+  import FormField from "@smui/form-field";
+  import { drawColorRamp } from "./lib.js";
 
   const dispatch = createEventDispatcher();
   const submitFile = (musicxml, musicpiece) =>
-    dispatch('fileopened', { musicxml, musicpiece });
+    dispatch("fileopened", { musicxml, musicpiece });
 
   export let musicxml = null;
   export let musicpiece = null;
@@ -19,7 +19,7 @@
   export let selectedMeasure = null;
   export let selectedSection = null;
 
-  let fileName = '';
+  let fileName = "";
   let tracks = [];
   let fileInput;
   let colorRampCanvas;
@@ -28,12 +28,12 @@
   const handleFileInput = async (event) => {
     const file = event.target.files[0];
     if (!file) {
-      console.log('Menu: emptied musicpiece', musicpiece);
+      console.log("Menu: emptied musicpiece", musicpiece);
       submitFile(musicxml, musicpiece);
       return;
     }
     // Reset only now that there is valid file, to avoid user mistakes
-    fileName = '';
+    fileName = "";
     musicxml = null;
     musicpiece = null;
     tracks = [];
@@ -41,90 +41,90 @@
     selectedMeasure = null;
     selectedSection = null;
     const n = file.name;
-    if (n.endsWith('.xml') || n.endsWith('.musicxml')) {
+    if (n.endsWith(".xml") || n.endsWith(".musicxml")) {
       // MusicXML
       musicxml = await file.text();
-    } else if (n.endsWith('.mxl')) {
+    } else if (n.endsWith(".mxl")) {
       // Compressed MusicXML
       const compressed = await file.arrayBuffer();
       const extracted = await JSZip.loadAsync(compressed);
       // Get XML file with score from archive
       const scoreFile = Object.keys(extracted.files).filter(
-        (d) => !d.startsWith('META')
+        (d) => !d.startsWith("META")
       )[0];
-      musicxml = await extracted.file(scoreFile).async('string');
+      musicxml = await extracted.file(scoreFile).async("string");
     } else {
-      alert('Invalid file');
+      alert("Invalid file");
       return;
     }
     fileName = n;
     musicpiece = MusicPiece.fromMusicXml(n, musicxml);
     tracks = musicpiece.tracks;
-    console.log('Menu: loaded musicpiece', musicpiece, tracks);
+    console.log("Menu: loaded musicpiece", musicpiece, tracks);
     submitFile(musicxml, musicpiece);
   };
 
-  let encodings = ['Tab', 'Tab (simple)', 'Pianoroll', 'Drums'];
-  export let selectedEncoding = 'Tab';
+  let encodings = ["Tab", "Tab (simple)", "Pianoroll", "Drums"];
+  export let selectedEncoding = "Tab";
 
-  let colorings = ['DR', 'Clustering', 'Compression'];
-  // export let selectedColoring = 'DR';
-  export let selectedColoring = 'Compression';
+  let colorings = ["DR", "Clustering", "Compression"];
+  export let selectedColoring = "DR";
+  // export let selectedColoring = 'Compression';
   export let clusterThreshold = 0;
   export let compressionDepth = 2;
 
-  export let selectedColorMode = 'bars';
+  export let selectedColorMode = "bars";
 
   let colormaps = [
     {
-      name: 'Spectral',
-      description: 'many hues, not cyclical',
+      name: "Spectral",
+      description: "many hues, not cyclical",
       map: d3.interpolateSpectral,
     },
     {
-      name: 'Warm',
-      description: 'left half of interpolateRainbow',
+      name: "Warm",
+      description: "left half of interpolateRainbow",
       map: d3.interpolateWarm,
     },
     {
-      name: 'Cool',
-      description: 'right half of interpolateRainbow',
+      name: "Cool",
+      description: "right half of interpolateRainbow",
       map: d3.interpolateCool,
     },
     {
-      name: 'Rainbow',
-      description: 'many hues, similar brightness, but cyclical',
+      name: "Rainbow",
+      description: "many hues, similar brightness, but cyclical",
       map: (d) => d3.interpolateRainbow(d * 0.9),
     },
     {
-      name: 'Sinebow',
-      description: 'many hues, but cyclical',
+      name: "Sinebow",
+      description: "many hues, but cyclical",
       map: (d) => d3.interpolateSinebow(d * 0.9),
     },
     {
-      name: 'Turbo',
-      description: 'many hues',
+      name: "Turbo",
+      description: "many hues",
       map: (d) => d3.interpolateTurbo(d),
     },
     {
-      name: 'Viridis',
-      description: 'dark-to-bright, colorblind-friendly',
+      name: "Viridis",
+      description: "dark-to-bright, colorblind-friendly",
       map: d3.interpolateViridis,
     },
     {
-      name: 'Cividis',
-      description: 'dark-to-bright, colorblind-friendly',
+      name: "Cividis",
+      description: "dark-to-bright, colorblind-friendly",
       map: d3.interpolateCividis,
     },
     {
-      name: 'Blues',
-      description: 'single-hue, easier to perceive distances',
+      name: "Blues",
+      description: "single-hue, easier to perceive distances",
       map: d3.interpolateBlues,
     },
     {
-      name: 'White',
-      description: 'White, no coloring',
-      map: () => 'rgb(238, 238, 238)',
+      name: "White",
+      description: "White, no coloring",
+      map: () => "rgb(238, 238, 238)",
     },
   ];
   export let selectedColormap = colormaps[0];
@@ -139,7 +139,8 @@
     accept=".xml,.musicxml,.mxl"
     style="display: none"
     bind:this={fileInput}
-    on:input={handleFileInput} />
+    on:input={handleFileInput}
+  />
   <div class="fileName">
     {fileName}
   </div>
@@ -169,7 +170,7 @@
     {/each}
   </Select>
 
-  {#if selectedColoring === 'Clustering'}
+  {#if selectedColoring === "Clustering"}
     <FormField align="end" style="width: 220px; display: flex;">
       <Slider
         style="flex-grow: 1;"
@@ -177,15 +178,17 @@
         min={0}
         max={1}
         step={0.01}
-        input$aria-label="Cluster threshold" />
+        input$aria-label="Cluster threshold"
+      />
       <span
         slot="label"
-        style="padding-right: 0; width: max-content; display: block;">
+        style="padding-right: 0; width: max-content; display: block;"
+      >
         Threshold
       </span>
     </FormField>
   {/if}
-  {#if selectedColoring === 'Compression'}
+  {#if selectedColoring === "Compression"}
     <FormField align="end" style="width: 200px; display: flex;">
       <Slider
         style="flex-grow: 1;"
@@ -193,10 +196,12 @@
         min={0}
         max={4}
         step={1}
-        input$aria-label="Compression depth" />
+        input$aria-label="Compression depth"
+      />
       <span
         slot="label"
-        style="padding-right: 0; width: max-content; display: block;">
+        style="padding-right: 0; width: max-content; display: block;"
+      >
         Depth
       </span>
       <span>{compressionDepth}</span>
@@ -206,7 +211,8 @@
   <Select
     bind:value={selectedColorMode}
     label="Color mode"
-    disabled={!musicpiece}>
+    disabled={!musicpiece}
+  >
     <Option value="bars" title="bars">Bars</Option>
     <Option value="sections" title="sections">Sections</Option>
   </Select>
@@ -230,7 +236,8 @@
       on:click={() => {
         selectedSection = null;
         selectedMeasure = null;
-      }}>
+      }}
+    >
       Reset selection
     </Button>
   </div>

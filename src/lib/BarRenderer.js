@@ -5,9 +5,8 @@ class BarRenderer {
   constructor(
     mode = 'pianoroll',
     notes = [],
-    barHeight = 100,
     barWidth = 100,
-    compactRepeatedNotes = true
+    barHeight = 100
   ) {
     this.mode = mode
     this.notes = notes
@@ -76,7 +75,6 @@ class BarRenderer {
     params = {}
   ) {
     context.save()
-
     // Background
     context.fillStyle = bgColor
     context.fillRect(x, y, this.barWidth, this.barHeight)
@@ -149,6 +147,7 @@ class BarRenderer {
         const noteEndHeight = params.showFrets ? noteHeight * 0.8 : 0
         // TODO: adjust to bar size
         context.font = '7px sans-serif'
+        context.textBaseline = 'middle'
         // Draw notes
 
         for (const [index, note] of notes.entries()) {

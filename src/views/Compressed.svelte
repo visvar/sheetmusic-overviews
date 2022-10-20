@@ -2,6 +2,7 @@
   import { afterUpdate } from "svelte";
   import * as d3 from "d3";
   import { Canvas, Utils, StringBased } from "musicvis-lib";
+  import BarRenderer from "../lib/BarRenderer";
 
   export let width;
   export let height = 100;
@@ -14,6 +15,7 @@
   let container;
   let canvas;
   let canvasHeight = height - 35;
+  const barHeight = 80;
 
   $: repeatedIndices = Utils.findRepeatedIndices(
     d3.range(0, measures.length),
@@ -24,102 +26,14 @@
   $: blockWidth = hierarchy ? (width / (hierarchy.length + 1)) * zoom : 0;
 
   /**
-   *
-   * @param context
-   * @param tree
-   * @param x
-   * @param y
-   * @param blockWidth
-   * @param colors
+   * Draws the compressed tree
+   * @param {object} tree hierarchy tree
+   * @param {number} blockWidth with of a bar
+   * @param {string[]} colors bar colors
    */
-  const drawTreeNode = (context, tree, x, y, blockWidth, colors) => {
-    if (!tree) {
-      return;
-    }
-    // This is a leaf
-    const offset = blockWidth / 2;
-    const height = 80;
-    const scaleY = d3.scaleLinear().domain([1, 7]).range([0, height]);
-    const noteHeight = scaleY(1) - scaleY(0);
-    const noteHeight2 = 0.5 * noteHeight;
-    if (tree.join) {
-      for (const currentBarIndex of tree) {
-        if (blockWidth > 20) {
-          context.fillText(currentBarIndex, x + offset, y);
-        }
-        const notes = measures[currentBarIndex];
-        // Draw measure
-        context.save();
-        // To know if highlighted, we have to check if any identical is selected
-        let highlight = false;
-        for (const [index, v] of measureDists[currentBarIndex].entries()) {
-          if (v === 0 && index === selectedMeasure) {
-            highlight = true;
-            break;
-          }
-        }
-        if (highlight) {
-          context.fillStyle = "black";
-          context.fillRect(x, y, blockWidth, height + 4);
-        }
-        const bgColor =
-          notes.length === 0 ? "#f8f8f8" : colors[currentBarIndex] ?? "#f8f8f8";
-        context.fillStyle = bgColor;
-        context.fillRect(x + 1, y + 2, blockWidth - 2, height);
-        // Draw notes
-        context.textAlign = "left";
-        context.textBaseline = "middle";
-        context.font = `7px sans-serif`;
-        const scaleX = d3
-          .scaleLinear()
-          .domain([d3.min(notes, (d) => d.start), d3.max(notes, (d) => d.end)])
-          .range([x + 1, x + blockWidth - 2]);
-        const drawFn = Canvas.drawNoteTrapezoid;
-        const darkBg = Utils.getColorLightness(bgColor) < 50;
-        for (const note of notes) {
-          const nx = scaleX(note.start);
-          const ny = y + scaleY(note.string);
-          const width = scaleX(note.end) - nx;
-          context.fillStyle = darkBg ? "#eee" : "#333";
-          drawFn(context, nx, ny, width, noteHeight, noteHeight2);
-          // Draw fret numbers
-          // if (isTab && showFretsToggle) {
-          context.fillStyle = darkBg ? "black" : "white";
-          context.fillText(note.fret, nx + 1, ny + noteHeight / 2 + 1);
-          // }
-        }
-        context.restore();
-        x += blockWidth;
-      }
-      return;
-    }
-    // This is not a leaf
-    // Pre
-    if (tree.pre) {
-      drawTreeNode(context, tree.pre, x, y, blockWidth, colors);
-      x += tree.pre.length * blockWidth;
-    }
-    // Repetition
-    const treeWidth = tree.seq.length * blockWidth;
-    context.fillText(`${tree.rep} x`, x + treeWidth / 2, y);
-    Canvas.drawBracketH(context, x + 3, y + 5, treeWidth - 6, 5, true);
-    drawTreeNode(context, tree.seq, x, y + 25, blockWidth, colors);
-
-    // Post
-    if (tree.post) {
-      x += tree.seq.length * blockWidth;
-      drawTreeNode(context, tree.post, x, y, blockWidth, colors);
-    }
-  };
-
-  /**
-   *
-   * @param context
-   * @param tree
-   * @param blockWidth
-   * @param colors
-   */
-  const drawTreeGraph = (context, tree, blockWidth = 30, colors) => {
+  const drawTreeGraph = (tree, blockWidth = 30, colors) => {
+    // Canvas.setupCanvas(canvas);
+    const context = canvas.getContext("2d");
     const w = tree.length * blockWidth + 10;
     const h = (tree.depth + 1) * 30 + 100;
     context.font = "13px sans-serif";
@@ -130,18 +44,80 @@
     context.fillRect(0, 0, w, h);
     context.fillStyle = "black";
 
+    // Setup renderer
+    const renderer = new BarRenderer(
+      "tab",
+      measures.flat(),
+      blockWidth - 2,
+      barHeight
+    );
+
     // Draw tree
     const x = 10;
     const y = 10;
-    drawTreeNode(context, tree, x, y, blockWidth, colors);
+    drawTreeNode(context, tree, x, y, blockWidth, colors, renderer);
   };
 
-  const drawVis = () => {
-    // Canvas.setupCanvas(canvas);
-    const context = canvas.getContext("2d");
-    drawTreeGraph(context, hierarchy, blockWidth, measureColors);
+  /**
+   *
+   * @param context
+   * @param tree
+   * @param x
+   * @param y
+   * @param blockWidth
+   * @param colors
+   * @param {BarRenderer} renderer bar renderer
+   */
+  const drawTreeNode = (context, tree, x, y, blockWidth, colors, renderer) => {
+    if (!tree) {
+      return;
+    }
+    // This is a leaf
+    const offset = blockWidth / 2;
+    if (tree.join) {
+      for (const currentBarIndex of tree) {
+        if (blockWidth > 20) {
+          context.fillText(currentBarIndex, x + offset, y);
+        }
+        const notes = measures[currentBarIndex];
+        // To know if highlighted, we have to check if any identical is selected
+        let highlight = false;
+        for (const [index, v] of measureDists[currentBarIndex].entries()) {
+          if (v === 0 && index === selectedMeasure) {
+            highlight = true;
+            break;
+          }
+        }
+        if (highlight) {
+          renderer.drawHighlightBorder(context, x, y);
+        }
+        const bgColor =
+          notes.length === 0 ? "#f8f8f8" : colors[currentBarIndex] ?? "#f8f8f8";
+        renderer.render(context, 0, notes, x, y, bgColor, {});
+        x += blockWidth;
+      }
+      return;
+    }
+    // This is not a leaf
+    // Pre
+    if (tree.pre) {
+      drawTreeNode(context, tree.pre, x, y, blockWidth, colors, renderer);
+      x += tree.pre.length * blockWidth;
+    }
+    // Repetition
+    const treeWidth = tree.seq.length * blockWidth;
+    context.fillText(`${tree.rep} x`, x + treeWidth / 2, y);
+    Canvas.drawBracketH(context, x + 3, y + 5, treeWidth - 6, 5, true);
+    drawTreeNode(context, tree.seq, x, y + 25, blockWidth, colors, renderer);
+
+    // Post
+    if (tree.post) {
+      x += tree.seq.length * blockWidth;
+      drawTreeNode(context, tree.post, x, y, blockWidth, colors, renderer);
+    }
   };
 
+  // On click select clicked bar
   const onClick = (event) => {
     event.preventDefault();
     const column = Math.floor((event.offsetX - 10) / blockWidth);
@@ -158,7 +134,7 @@
     container.scrollLeft += 2 * event.deltaY;
   };
 
-  afterUpdate(drawVis);
+  afterUpdate(() => drawTreeGraph(hierarchy, blockWidth, measureColors));
 </script>
 
 <main style={`height: ${height}px`}>

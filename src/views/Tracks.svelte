@@ -70,11 +70,11 @@
         const x = marginLeft + mIndex * mWidth;
         if (measure.length > 0) {
           context.fillStyle = d3.schemeTableau10[tIndex % 10];
-          context.fillRect(x, y, mWidthInner, mHeightInner);
         } else {
           context.fillStyle = "#eee";
-          context.fillRect(x, y, mWidthInner, mHeightInner);
         }
+        Canvas.drawRoundedRect(context, x, y, mWidthInner, mHeightInner, 2);
+        context.fill();
       }
     }
 
@@ -98,8 +98,16 @@
       const { startMeasure, length } = sectionInfo[selectedSection];
       const mx = marginLeft + startMeasure * mWidth + 1;
       const sectionWidth = length * mWidth - 2;
-      context.fillStyle = "rgba(128, 128, 128, 0.1)";
-      context.fillRect(mx - 1, 0, sectionWidth - 2, height);
+      context.fillStyle = "rgba(128, 128, 128, 0.15)";
+      Canvas.drawRoundedRect(
+        context,
+        mx - 1,
+        -3,
+        sectionWidth + 2,
+        height + 3,
+        5
+      );
+      context.fill();
     }
 
     // Click to select measure, ...

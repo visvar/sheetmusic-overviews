@@ -137,6 +137,7 @@
           mY,
           cols[index] ?? "#f8f8f8",
           {
+            radius: 3,
             showFrets: true,
             displayLeadingRests,
             measureTimes,

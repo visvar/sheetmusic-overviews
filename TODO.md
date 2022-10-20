@@ -9,17 +9,13 @@
 
 ## Urgent
 
-- rename score to full
-- new note encodings
-  - drums
-  - staff
-- draw measures with rounded corners to show where they end
-
 ## Features
 
 - make clustering more performant by not reclustering on threshold change
 - get colors from compressed blocks: each block that is repeated or in between reps gets its own color
-  - add encodings for drum and general staff notation, see observable
+- new note encodings
+  - drums
+  - staff
 - support 7 string guitar, 4 string bass etc
   - check tuning pitches to get number of strings, then compute bbox of measures from that?
   - sheet

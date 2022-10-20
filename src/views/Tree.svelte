@@ -121,6 +121,7 @@
 
       // Config
       const renderParams = {
+        radius: 3,
         showFrets: true,
       };
 
@@ -254,6 +255,7 @@
         const bgColor = harmonyColors[index];
         context.fillStyle = harmonyColors[index];
         hRenderer.render(context, index, chord, mX, rowY, bgColor, {
+          ...renderParams,
           showFrets: hWidthInner > 10,
         });
       }
@@ -279,6 +281,7 @@
         const mX = col * nWidth;
         const bgColor = noteColors[note.pitch % 12];
         nRenderer.render(context, index, [note], mX, rowY, bgColor, {
+          ...renderParams,
           showFrets: nWidthInner > 10,
         });
       }

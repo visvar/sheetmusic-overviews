@@ -18,14 +18,26 @@
   <Content id="fullscreen-content">
     <h3>Getting Started</h3>
     <p>
-      In order to use this app, you have to get a MusicXML file of your sheet
-      music, for example by exporting from MuseScore or GuitarPro.
+      In order to use this app, you have to get a <a
+        href="https://www.musicxml.com/"
+        target="_blank">MusicXML</a
+      >
+      file of your sheet music, for example by exporting from
+      <a href="https://musescore.com/" target="_blank">MuseScore</a>
+      or <a href="https://www.guitar-pro.com/" target="_blank">GuitarPro</a>.
+      Exporting only the instrument(s) you are interested in will improve
+      performance.
     </p>
     <p>
       Open a file using the button on the sidebar on the left. You can select a
       track via the dropdown below.
     </p>
-    <p>You can change how colors are computed and mapped with options below.</p>
+
+    <h3>Colors</h3>
+    <p>
+      You can change how colors are computed and mapped with options in the menu
+      on the left.
+    </p>
 
     <h3>Navigation</h3>
     <p>
@@ -45,28 +57,28 @@
 
     <h3>Tracks</h3>
     <p>
-      The Tracks view shows all tracks (usually, there is one for each
-      instrument) in an overview. Colored rectangles indicate bars that contain
-      notes. Clicking on a bar will highlight it in other views.
+      The <i>Tracks</i> view shows all tracks (usually, there is one for each instrument)
+      in an overview. Colored rectangles indicate bars that contain notes. Clicking
+      on a bar will highlight it in other views.
     </p>
 
     <h3>Tree</h3>
     <p>
-      The Tree view shows the hierarchical structure, the rows display sections,
-      measures, harmonies, and single notes. Click on an item to select it and
-      only display its children in the row below.
+      The <i>Tree</i> view shows the hierarchical structure, the rows display sections,
+      measures, harmonies, and single notes. Click on an item to select it and only
+      display its children in the row below.
     </p>
 
-    <h3>Sheet</h3>
+    <h3>Compact</h3>
     <p>
-      Click on a measure in the Sheet view to select it. Colors will now now
-      indicate the similarity of other measures to it.
+      Click on a measure in the <i>Compact</i> view to select it. Colors will now
+      now indicate the similarity of other measures to it.
     </p>
 
     <h3>Score</h3>
     <p>
-      The Score view shows sheet music as you will probably know it best. When
-      selecting a measure in another view, the Score view will scroll to its
+      The <i>Score</i> view shows sheet music as you will probably know it best.
+      When selecting a measure in another view, the Score view will scroll to its
       position.
     </p>
   </Content>

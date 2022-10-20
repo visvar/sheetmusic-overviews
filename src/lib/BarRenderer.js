@@ -67,14 +67,20 @@ class BarRenderer {
    * @param {CanvasRenderingContext2D} context canvas context
    * @param {number} x x position of the bar
    * @param {number} y y position of the bar
+   * @param {number} [radius=3] corner rounding radius
    * @param {number} [lineWidth=4] width of the border
    * @param {string} [stroke='#333'] stroke color
    */
-  drawHighlightBorder(context, x, y, lineWidth = 4, stroke = '#333') {
+  drawHighlightBorder(context, x, y, radius = 3, lineWidth = 4, stroke = '#333') {
     context.save()
     context.strokeStyle = stroke
     context.lineWidth = lineWidth
-    context.strokeRect(x, y, this.barWidth, this.barHeight)
+    if (!radius) {
+      context.strokeRect(x, y, this.barWidth, this.barHeight)
+    } else {
+      Canvas.drawRoundedRect(context, x, y, this.barWidth, this.barHeight, radius)
+      context.stroke()
+    }
     context.restore()
   }
 
@@ -86,7 +92,7 @@ class BarRenderer {
    * @param {number} x x position of this bar
    * @param {number} y y position of this bar
    * @param {string} bgColor background color
-   * @param {object} params additional parameters, e.g., showFrets
+   * @param {object} params additional parameters, e.g., radius, showFrets
    */
   render(
     context,
@@ -100,7 +106,12 @@ class BarRenderer {
     context.save()
     // Background
     context.fillStyle = bgColor
-    context.fillRect(x, y, this.barWidth, this.barHeight)
+    if (!params.radius) {
+      context.fillRect(x, y, this.barWidth, this.barHeight)
+    } else {
+      Canvas.drawRoundedRect(context, x, y, this.barWidth, this.barHeight, params.radius)
+      context.fill()
+    }
     const darkBg = Utils.getColorLightness(bgColor) < 50
 
     if (this.mode === 'none' || notes.length === 0) {

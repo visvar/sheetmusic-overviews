@@ -94,7 +94,10 @@
         }
         const bgColor =
           notes.length === 0 ? "#f8f8f8" : colors[currentBarIndex] ?? "#f8f8f8";
-        renderer.render(context, 0, notes, x, y, bgColor, { showFrets: true });
+        renderer.render(context, 0, notes, x, y, bgColor, {
+          radius: 3,
+          showFrets: true,
+        });
         x += blockWidth;
       }
       return;

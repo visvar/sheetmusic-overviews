@@ -20,7 +20,6 @@
 
 ## Features
 
-
 - get colors from compressed blocks: each block that is repeated or in between reps gets its own color
 - new note encodings
   - drums
@@ -33,6 +32,11 @@
   - requires rendering chord for chord
 - allow to color bars by how often they occur identically
   - just count 0s in dist matrix, sort by occurence, map to blues
+- drum playback
+  - fix drum sound map
+  - allow to use custom map from pitch to sound
+- tree
+  - allow to compress only 1, 2, ... levels
 
 # Performance
 
@@ -43,6 +47,7 @@
 
 - does not work for some musicxml files
   - because of OSMD
+    - fafners gold
     - master of puppets
     - iron man
 

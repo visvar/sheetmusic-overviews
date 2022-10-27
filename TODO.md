@@ -9,6 +9,14 @@
 
 ## Urgent
 
+- make highlight in tracks clearer
+- compact viewdoes not work when another than the first track selected
+  - bar background overdraws notes??
+- metric that takes rhythm into account, maybe like simeon's ie levenshtein of both pitch and start, maybe also duration, differently weighted
+
+
+- show note color map in tree wehn notes are shown
+
 ## Features
 
 - make clustering more performant by not reclustering on threshold change
@@ -21,10 +29,16 @@
   - sheet
   - score
 - compact repeated notes should also work for repeated chords
+  - requires rendering chord for chord
+- allow to color bars by how often they occur identically
+  - just count 0s in dist matrix, sort by occurence, map to blues
 
 ## Bugs
 
 - does not work for some musicxml files
+  - because of OSMD
+    - master of puppets
+    - iron man
 
 ## Publication
 

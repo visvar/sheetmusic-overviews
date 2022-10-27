@@ -1,7 +1,6 @@
 <script>
   import { afterUpdate } from "svelte";
-  import * as d3 from "d3";
-  import { Canvas, Chords, Utils } from "musicvis-lib";
+  import { Canvas, Chords } from "musicvis-lib";
   import { drawVerticalText } from "../lib.js";
   import BarRenderer from "../lib/BarRenderer.js";
 
@@ -19,7 +18,7 @@
   export let harmonyColors;
   export let noteColors;
 
-  const fadeColor = "rgba(255, 255, 255, 0.5)";
+  let showHarmoniesAndNotes = false;
   let canvas;
 
   /**
@@ -54,7 +53,8 @@
     // Canvas.setupCanvas(canvas);
     const marginLeft = 15;
     const w = width - marginLeft;
-    const levelHeight = Math.floor((height - 20) / 7);
+    const rowCount = showHarmoniesAndNotes ? 7 : 3;
+    const levelHeight = Math.floor((height - 50) / rowCount);
     const rowHeight = levelHeight;
     const gapHeight = levelHeight;
 
@@ -170,11 +170,6 @@
           bgColor,
           renderParams
         );
-        // Fade not-selected sections
-        if (selectedSection !== null && index !== selectedSection) {
-          context.fillStyle = fadeColor;
-          context.fillRect(mX, rowY, sWidthInner, rowHeight);
-        }
       }
 
       // Measures
@@ -193,9 +188,11 @@
         }
       } else {
         const x1 = selectedSection * sWidth;
-        Canvas.drawBezierConnectorY(context, x1, y1, 0, y2);
         const x1b = (selectedSection + 1) * sWidth;
+        Canvas.drawBezierConnectorY(context, x1, y1, 0, y2);
         Canvas.drawBezierConnectorY(context, x1b, y1, w, y2);
+        context.fillStyle = "#88888822";
+        drawBezierFunnelY(context, y1, y2, x1, x1b, 0, w);
       }
       // Draw measures
       const mRenderer = sRenderer.setBarWidth(mWidthInner);
@@ -214,87 +211,130 @@
           bgColor,
           renderParams
         );
-        // Fade not-selected
-        if (
-          selectedMeasureOfSection !== null &&
-          index !== selectedMeasureOfSection
-        ) {
-          context.fillStyle = fadeColor;
-          context.fillRect(mX, rowY, mWidthInner, rowHeight);
+      }
+
+      if (showHarmoniesAndNotes) {
+        // Harmonies
+        hWidth = w / allHarmonies.length;
+        const hWidthInner = hWidth > 3 ? hWidth - 0.5 : hWidth;
+        const hRenderer = mRenderer.setBarWidth(hWidthInner);
+        // Connection measures-harmonies
+        const y1h = rowY + rowHeight;
+        const y2h = y1h + gapHeight;
+        if (selectedMeasure === null) {
+          let currentHarmony = 0;
+          for (const [index, measure] of currMeasures.entries()) {
+            const harmmoniesOfMeasure =
+              Chords.detectChordsByExactStart(measure);
+            const x1 = index * mWidth;
+            const x2 = currentHarmony * hWidth;
+            currentHarmony += harmmoniesOfMeasure.length;
+            Canvas.drawBezierConnectorY(context, x1, y1h, x2, y2h);
+          }
+        } else {
+          const x1 = selectedMeasureOfSection * mWidth;
+          const x1b = (selectedMeasureOfSection + 1) * mWidth;
+          Canvas.drawBezierConnectorY(context, x1, y1h, 0, y2h);
+          Canvas.drawBezierConnectorY(context, x1b, y1h, w, y2h);
+          context.fillStyle = "#88888822";
+          drawBezierFunnelY(context, y1h, y2h, x1, x1b, 0, w);
         }
-      }
 
-      // Harmonies
-      hWidth = w / allHarmonies.length;
-      const hWidthInner = hWidth > 3 ? hWidth - 0.5 : hWidth;
-      const hRenderer = mRenderer.setBarWidth(hWidthInner);
-      // Connection measures-harmonies
-      const y1h = rowY + rowHeight;
-      const y2h = y1h + gapHeight;
-      if (selectedMeasure === null) {
-        let currentHarmony = 0;
-        for (const [index, measure] of currMeasures.entries()) {
-          const harmmoniesOfMeasure = Chords.detectChordsByExactStart(measure);
-          const x1 = index * mWidth;
-          const x2 = currentHarmony * hWidth;
-          currentHarmony += harmmoniesOfMeasure.length;
-          Canvas.drawBezierConnectorY(context, x1, y1h, x2, y2h);
+        // Draw harmonies
+        rowY += rowHeight + gapHeight;
+        for (const [index, chord] of allHarmonies.entries()) {
+          const col = index;
+          const mX = col * hWidth;
+          const bgColor = harmonyColors[index];
+          context.fillStyle = harmonyColors[index];
+          hRenderer.render(context, index, chord, mX, rowY, bgColor, {
+            ...renderParams,
+            showFrets: hWidthInner > 10,
+          });
         }
-      } else {
-        const x1 = selectedMeasureOfSection * mWidth;
-        Canvas.drawBezierConnectorY(context, x1, y1h, 0, y2h);
-        const x1b = (selectedMeasureOfSection + 1) * mWidth;
-        Canvas.drawBezierConnectorY(context, x1b, y1h, w, y2h);
-      }
 
-      // Draw harmonies
-      rowY += rowHeight + gapHeight;
-      for (const [index, chord] of allHarmonies.entries()) {
-        const col = index;
-        const mX = col * hWidth;
-        const bgColor = harmonyColors[index];
-        context.fillStyle = harmonyColors[index];
-        hRenderer.render(context, index, chord, mX, rowY, bgColor, {
-          ...renderParams,
-          showFrets: hWidthInner > 10,
-        });
-      }
-
-      // Notes
-      nWidth = w / notes.length;
-      const nWidthInner = nWidth > 3 ? nWidth - 0.5 : nWidth;
-      const nRenderer = hRenderer.setBarWidth(nWidthInner);
-      // Connection harmonies-notes
-      const y1n = rowY + rowHeight;
-      const y2n = y1n + gapHeight;
-      let currentNote = 0;
-      for (const [index, harmony] of allHarmonies.entries()) {
-        const x1 = index * hWidth;
-        const x2 = currentNote * nWidth;
-        currentNote += harmony.length;
-        Canvas.drawBezierConnectorY(context, x1, y1n, x2, y2n);
-      }
-      // Draw notes
-      rowY += rowHeight + gapHeight;
-      for (const [index, note] of notes.entries()) {
-        const col = index;
-        const mX = col * nWidth;
-        const bgColor = noteColors[note.pitch % 12];
-        nRenderer.render(context, index, [note], mX, rowY, bgColor, {
-          ...renderParams,
-          showFrets: nWidthInner > 10,
-        });
+        // Notes
+        nWidth = w / notes.length;
+        const nWidthInner = nWidth > 3 ? nWidth - 0.5 : nWidth;
+        const nRenderer = hRenderer.setBarWidth(nWidthInner);
+        // Connection harmonies-notes
+        const y1n = rowY + rowHeight;
+        const y2n = y1n + gapHeight;
+        let currentNote = 0;
+        for (const [index, harmony] of allHarmonies.entries()) {
+          const x1 = index * hWidth;
+          const x2 = currentNote * nWidth;
+          currentNote += harmony.length;
+          Canvas.drawBezierConnectorY(context, x1, y1n, x2, y2n);
+        }
+        // Draw notes
+        rowY += rowHeight + gapHeight;
+        for (const [index, note] of notes.entries()) {
+          const col = index;
+          const mX = col * nWidth;
+          const bgColor = noteColors[note.pitch % 12];
+          nRenderer.render(context, index, [note], mX, rowY, bgColor, {
+            ...renderParams,
+            showFrets: nWidthInner > 10,
+          });
+        }
       }
     }
     draw();
   };
 
   afterUpdate(drawVis);
+
+  /**
+   * Draws a funnel to indicate that horizontal span relates to another one below
+   *
+   * @todo move to mvlib, add X version
+   * @param {CanvasRenderingContext2D} context canvas rendering context
+   * @param {number} y1 top y position
+   * @param {number} y2 bottom y position
+   * @param {number} x1left top left x position
+   * @param {number} x1right top right x position
+   * @param {number} x2left bottom left x position
+   * @param {number} x2right bottom right x position
+   */
+  function drawBezierFunnelY(
+    context,
+    y1,
+    y2,
+    x1left,
+    x1right,
+    x2left,
+    x2right
+  ) {
+    const deltaY = (y2 - y1) / 2;
+    context.beginPath();
+    context.moveTo(x1left, y1);
+    context.bezierCurveTo(x1left, y1 + deltaY, x2left, y1 + deltaY, x2left, y2);
+    context.lineTo(x2right, y2);
+    context.bezierCurveTo(
+      x2right,
+      y1 + deltaY,
+      x1right,
+      y1 + deltaY,
+      x1right,
+      y1
+    );
+    context.closePath();
+    context.fill();
+  }
 </script>
 
 <main style={`height: ${height}px`}>
   <div class="overviewTitle">Tree</div>
-  <canvas {width} {height} bind:this={canvas} />
+  <div class="control">
+    <div>
+      <label>
+        Show harmonies and notes
+        <input type="checkbox" bind:checked={showHarmoniesAndNotes} />
+      </label>
+    </div>
+  </div>
+  <canvas {width} height={height - 30} bind:this={canvas} />
 </main>
 
 <style>
@@ -302,5 +342,14 @@
     padding: 10px;
     border-radius: 4px;
     box-shadow: 0 0 10px #ccc;
+  }
+
+  .control {
+    height: 26px;
+    margin-bottom: 4px;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    justify-items: center;
+    align-items: center;
   }
 </style>

@@ -80,8 +80,13 @@
     // osmd.Zoom = zoom;
     // Load
     console.log("osmd loading");
-    await osmd.load(musicxml);
-    console.log("osmd loaded");
+    try {
+      await osmd.load(musicxml);
+      console.log("osmd loaded");
+    } catch (e) {
+      console.error(e);
+      console.log(musicxml);
+    }
   };
 
   const renderOSMD = async () => {

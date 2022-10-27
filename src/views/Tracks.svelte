@@ -90,7 +90,7 @@
     if (selectedMeasure !== null && selectedMeasure !== undefined) {
       const x = marginLeft + selectedMeasure * mWidth;
       context.fillStyle = "rgba(128, 128, 128, 0.2)";
-      context.fillRect(x - 1, 0, mWidth - 2, height);
+      context.fillRect(x, 0, mWidth, height);
     }
 
     // Highlight for selected section
@@ -98,13 +98,13 @@
       const { startMeasure, length } = sectionInfo[selectedSection];
       const mx = marginLeft + startMeasure * mWidth + 1;
       const sectionWidth = length * mWidth - 2;
-      context.fillStyle = "rgba(128, 128, 128, 0.15)";
+      context.fillStyle = "rgba(128, 128, 128, 0.12)";
       Canvas.drawRoundedRect(
         context,
         mx - 1,
-        -3,
+        2,
         sectionWidth + 2,
-        height + 3,
+        height - 4,
         5
       );
       context.fill();

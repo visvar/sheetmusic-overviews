@@ -171,7 +171,6 @@ class BarRenderer {
         break
     }
 
-
     // scaleX
     if (!params.displayLeadingRests || !params.measureTimes) {
       this.scaleX.domain([

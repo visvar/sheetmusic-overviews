@@ -155,7 +155,7 @@
 </script>
 
 <main>
-  <div class="overviewTitle">Sheet</div>
+  <div class="overviewTitle">Compact</div>
   <div class="control">
     <div>
       <Select bind:value={selectedColoring} label="Coloring when selected">

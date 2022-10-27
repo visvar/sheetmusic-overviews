@@ -68,6 +68,11 @@
       measures, harmonies, and single notes. Click on an item to select it and only
       display its children in the row below.
     </p>
+    <p>
+      The colors in each row are independent from those in other rows, they only
+      show similarity within a row. Notes have their own color map that is not
+      based on similarity.
+    </p>
 
     <h3>Compact</h3>
     <p>

@@ -1,4 +1,4 @@
-import { GuitarNote, Note, StringBased, Utils } from 'musicvis-lib'
+import { Chords, GuitarNote, Note, StringBased, Utils } from 'musicvis-lib'
 import * as druid from '@saehrimnir/druidjs/dist/druid.esm'
 import * as d3 from 'd3'
 
@@ -93,35 +93,65 @@ export function getSections(sectionInfo, measures) {
   return notesBySection
 }
 
+function mod12(p) { return p % 12 }
+
 /**
  * Calculates the pairwise distances between all elements of noteCollections
  * @param {Note[][]|GuitarNote[][]} noteCollections Note[][]
- * @param {'levenshteinPitch'|'levenshteinStringFret'|'jaccardPitch'} distanceMetric distance metric
+ * @param {'levenshteinPitchStart'|'levenshteinPitch'|'gotohPitch'|'levenshteinStringFret'|'jaccardPitch'|'chordJaccard'} distanceMetric distance metric
  * @returns {number[][]} distance matrix
  */
 export function getDistanceMatrix(noteCollections, distanceMetric) {
-  let preprocessed
-  if (distanceMetric === 'levenshteinPitch') {
-    preprocessed = noteCollections.map((m) => m.map((n) => n.pitch))
+  // Preprocess only once for better performance
+  let prepr
+  let prepr2
+  if (distanceMetric === 'levenshteinPitchStart') {
+    prepr = noteCollections.map((nc) => nc.map((n) => n.pitch))
+    prepr2 = noteCollections.map((nc) => nc.map((n) => n.start))
+  } else if (distanceMetric === 'levenshteinPitch' || distanceMetric === 'gotohPitch') {
+    prepr = noteCollections.map((nc) => nc.map((n) => n.pitch))
   } else if (distanceMetric === 'levenshteinStringFret') {
-    preprocessed = noteCollections.map((m) => m.map((n) => `${n.string} ${n.fret}`))
+    prepr = noteCollections.map((nc) => nc.map((n) => `${n.string} ${n.fret}`))
   } else if (distanceMetric === 'jaccardPitch') {
-    preprocessed = noteCollections.map((m) => m.map((n) => n.pitch % 12))
+    prepr = noteCollections.map((nc) => nc.map((n) => n.pitch % 12))
+  } else if (distanceMetric === 'chordJaccard') {
+    prepr = noteCollections.map((nc) => Chords.detectChordsByExactStart(nc))
+  } else {
+    console.error(`Invalid distanceMetric ${distanceMetric}`)
   }
-  const n = preprocessed.length
+  const gotohGapPenStart = 1
+  const gotohGapPenExt = 0.5
+  const n = prepr.length
   // Get distance matrix between all measures
   const distMatrix = new Array(n).fill(0).map(() => new Array(n).fill(0))
   for (let index1 = 0; index1 < n; index1++) {
     for (let index2 = index1; index2 < n; index2++) {
+      const a = prepr[index1]
+      const b = prepr[index2]
       let distance
-      if (distanceMetric === 'jaccardPitch') {
-        // Turn similarity into distance by taking negative
-        distance = -Utils.jaccardIndex(preprocessed[index1], preprocessed[index2])
-      } else {
-        distance = StringBased.Levenshtein.levenshtein(
-          preprocessed[index1],
-          preprocessed[index2]
-        )
+      if (distanceMetric === 'levenshteinPitchStart') {
+        // Weighted sum of separate Levenshtein for pitch and start
+        const weight = 0.5
+        const a2 = prepr2[index1]
+        const b2 = prepr2[index2]
+        const pitchDist = StringBased.Levenshtein.levenshtein(a, b)
+        const startDist = StringBased.Levenshtein.levenshtein(a2, b2)
+        distance = weight * pitchDist + (1 - weight) * startDist
+      } else if (distanceMetric === 'levenshteinPitch' || distanceMetric === 'levenshteinStringFret') {
+        distance = StringBased.Levenshtein.levenshtein(a, b)
+      } else if (distanceMetric === 'gotohPitch') {
+        // Gotoh of pitches
+        const simFn = StringBased.Gotoh.matchMissmatchSimilarity
+        distance = StringBased.Gotoh.gotoh(a, b, simFn, gotohGapPenStart, gotohGapPenExt)
+      } else if (distanceMetric === 'jaccardPitch') {
+        // Turn similarity into distance by taking JD=1-JS as Jaccard is always in [0,1]
+        distance = 1 - Utils.jaccardIndex(a, b)
+      } else if (distanceMetric === 'chordJaccard') {
+        // Gotoh of harmonies
+        const simFn = (h1, h2) => {
+          return Utils.jaccardIndex(h1, h2) + Utils.jaccardIndex(h1.map(mod12), h2.map(mod12))
+        }
+        distance = StringBased.Gotoh.gotoh(a, b, simFn, gotohGapPenStart, gotohGapPenExt)
       }
       distMatrix[index1][index2] = distance
       distMatrix[index2][index1] = distance
@@ -388,7 +418,7 @@ export function setOpacity(color, opacity = 1) {
 export function removeXmlElements(parsedXml, selectors) {
   for (const selector of selectors) {
     const elements = parsedXml.querySelectorAll(selector)
-    for (let element of elements) {
+    for (const element of elements) {
       element.remove()
     }
   }

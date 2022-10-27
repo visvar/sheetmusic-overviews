@@ -60,6 +60,7 @@
 
     const context = canvas.getContext('2d');
     context.font = `11px sans-serif`;
+    context.imageSmoothingQuality = 'high';
     context.lineWidth = 0.25;
 
     // Globals
@@ -127,13 +128,17 @@
 
       // Reset
       context.resetTransform();
-      context.imageSmoothingQuality = 'high';
       context.fillStyle = 'white';
       context.fillRect(0, 0, width, height);
 
-      // Draw labels for rows
+      // Draw labels for rows, also show counts
       let y = 10 + rowHeight / 2;
-      for (const label of ['Sections', 'Bars', 'Harmnonies', 'Notes']) {
+      for (const label of [
+        `Sections: ${sections.length}`,
+        `Bars: ${currMeasures.length}`,
+        `Harmnonies: ${allHarmonies.length}`,
+        `Notes: ${notes.length}`,
+      ]) {
         drawVerticalText(context, 0, y, label, '#333', 13, true);
         y += rowHeight * 2;
       }

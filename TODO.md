@@ -15,7 +15,6 @@
   - bar background overdraws notes??
 - metric that takes rhythm into account, maybe like simeon's ie levenshtein of both pitch and start, maybe also duration, differently weighted
 
-
 - show note color map in tree wehn notes are shown
 
 ## Features
@@ -71,3 +70,4 @@
 - MoshViz:
   - support same simplified encoding: each bar, display pitch range and mean (mean weighted by note duration)
   - include metrics as coloring source
+- try to add section labels to compressed as well

@@ -141,7 +141,7 @@
 
       // Draw sections
       sWidth = w / sections.length;
-      const sWidthInner = sWidth > 3 ? sWidth - 0.5 : sWidth;
+      const sWidthInner = sWidth > 3 ? sWidth - 1 : sWidth;
       const sRenderer = new BarRenderer(
         encoding,
         measures.flat(),
@@ -170,11 +170,14 @@
           bgColor,
           renderParams
         );
+        if (selectedSection === index) {
+          sRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, "#666");
+        }
       }
 
       // Measures
       mWidth = w / currMeasures.length;
-      const mWidthInner = mWidth > 3 ? mWidth - 0.5 : mWidth;
+      const mWidthInner = mWidth > 3 ? mWidth - 1 : mWidth;
       // Connection section-measures
       const y1 = rowY + rowHeight;
       const y2 = y1 + gapHeight;
@@ -211,12 +214,15 @@
           bgColor,
           renderParams
         );
+        if (selectedMeasureOfSection === index) {
+          mRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, "#666");
+        }
       }
 
       if (showHarmoniesAndNotes) {
         // Harmonies
         hWidth = w / allHarmonies.length;
-        const hWidthInner = hWidth > 3 ? hWidth - 0.5 : hWidth;
+        const hWidthInner = hWidth > 3 ? hWidth - 1 : hWidth;
         const hRenderer = mRenderer.setBarWidth(hWidthInner);
         // Connection measures-harmonies
         const y1h = rowY + rowHeight;
@@ -255,7 +261,7 @@
 
         // Notes
         nWidth = w / notes.length;
-        const nWidthInner = nWidth > 3 ? nWidth - 0.5 : nWidth;
+        const nWidthInner = nWidth > 3 ? nWidth - 1 : nWidth;
         const nRenderer = hRenderer.setBarWidth(nWidthInner);
         // Connection harmonies-notes
         const y1n = rowY + rowHeight;

@@ -3,13 +3,14 @@
 1. [TODO](#todo)
    1. [Urgent](#urgent)
    2. [Features](#features)
-   3. [Bugs](#bugs)
-   4. [Publication](#publication)
-   5. [Future work](#future-work)
+2. [Performance](#performance)
+   1. [Bugs](#bugs)
+   2. [Publication](#publication)
+   3. [Future work](#future-work)
 
 ## Urgent
 
-- make highlight in tracks clearer
+
 - compact viewdoes not work when another than the first track selected
   - bar background overdraws notes??
 - metric that takes rhythm into account, maybe like simeon's ie levenshtein of both pitch and start, maybe also duration, differently weighted
@@ -19,7 +20,7 @@
 
 ## Features
 
-- make clustering more performant by not reclustering on threshold change
+
 - get colors from compressed blocks: each block that is repeated or in between reps gets its own color
 - new note encodings
   - drums
@@ -32,6 +33,11 @@
   - requires rendering chord for chord
 - allow to color bars by how often they occur identically
   - just count 0s in dist matrix, sort by occurence, map to blues
+
+# Performance
+
+- make clustering more performant by not reclustering on threshold change
+- only remap colors when changing scale, do not recompute DR etc!
 
 ## Bugs
 

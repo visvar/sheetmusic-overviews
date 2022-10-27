@@ -11,6 +11,7 @@
     getColorsViaClusteringFromDistances,
     getColorsViaCompression,
     getColorsViaMDSFromDistances,
+    getColorsViaOccurence,
     getDistanceMatrix,
     getMeasures,
     getSectionInfo,
@@ -53,16 +54,6 @@
   $: measures = track ? getMeasures(track) : [];
   $: measureDists = getDistanceMatrix(measures, "levenshteinPitch");
   let measureColors;
-  // $: measureColors =
-  //   coloring === 'DR'
-  //     ? getColorsViaMDSFromDistances(measureDists, colormap?.map)
-  //     : getColorsViaClusteringFromDistances(
-  //         measureDists,
-  //         colormap?.map,
-  //         clusterThreshold
-  //       );
-  // $: measureColors = getColors(coloring, measureDists, colormap?.map, );
-
   $: {
     if (coloring === "DR") {
       measureColors = getColorsViaMDSFromDistances(measureDists, colormap?.map);
@@ -78,6 +69,8 @@
         colormap?.map,
         compressionDepth
       );
+    } else if (coloring === "Occurence") {
+      measureColors = getColorsViaOccurence(measureDists, colormap?.map);
     }
   }
 
@@ -86,14 +79,26 @@
   $: console.log("app: secInfo", sectionInfo);
   $: sections = track ? getSections(sectionInfo, measures) : [];
   $: sectionDists = getDistanceMatrix(sections, "levenshteinPitch");
-  $: sectionColors =
-    coloring === "DR"
-      ? getColorsViaMDSFromDistances(sectionDists, colormap?.map)
-      : getColorsViaClusteringFromDistances(
-          sectionDists,
-          colormap?.map,
-          clusterThreshold
-        );
+  let sectionColors;
+  $: {
+    if (coloring === "DR") {
+      sectionColors = getColorsViaMDSFromDistances(sectionDists, colormap?.map);
+    } else if (coloring === "Clustering") {
+      sectionColors = getColorsViaClusteringFromDistances(
+        sectionDists,
+        colormap?.map,
+        clusterThreshold
+      );
+    } else if (coloring === "Compression") {
+      sectionColors = getColorsViaCompression(
+        sectionDists,
+        colormap?.map,
+        compressionDepth
+      );
+    } else if (coloring === "Occurence") {
+      sectionColors = getColorsViaOccurence(sectionDists, colormap?.map);
+    }
+  }
 
   // Harmonies
   $: harmonies = Chords.detectChordsByExactStart(notes);

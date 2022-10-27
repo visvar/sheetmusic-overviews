@@ -74,7 +74,7 @@
   ];
   export let selectedEncoding = "Tab";
 
-  let colorings = ["DR", "Clustering", "Compression"];
+  let colorings = ["DR", "Clustering", "Compression", "Occurence"];
   export let selectedColoring = "DR";
   // export let selectedColoring = 'Compression';
   export let clusterThreshold = 0;

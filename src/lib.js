@@ -1,4 +1,4 @@
-import { Chords, GuitarNote, Note, StringBased, Utils } from 'musicvis-lib'
+import { Chords, StringBased, Utils } from 'musicvis-lib'
 import * as druid from '@saehrimnir/druidjs/dist/druid.esm'
 import * as d3 from 'd3'
 
@@ -381,9 +381,42 @@ export function getColorsViaCompression(distMatrix, colormap, depth = 2) {
 // }
 
 /**
+ * Assigns a color based on how often an item occurs (number of 0s in its
+ * distance matrix row)
+ *
+ * @param {number[][]} distMatrix distance matrix
+ * @param {function} colormap colormap [0,1]=>string
+ */
+export function getColorsViaOccurence(distMatrix, colormap) {
+  const occurences = distMatrix.map(row => count(row, 0))
+  // TODO: sort so colors are different
+  const scale = d3.scaleLinear().domain(d3.extent(occurences))
+  return occurences.map(d => colormap(scale(d)))
+}
+
+
+/**
+ * Counts hw often value appears in array
+ * @param {Array} array array
+ * @param {*} value value
+ * @returns {number} count
+ */
+function count(array, value) {
+  let count = 0
+  for (const v of array) {
+    if (v === value) {
+      count++
+    }
+  }
+  return count
+}
+
+
+/**
  * Allows to wait for a number of seconds with async/await
  * IMPORTANT: This it not exact, it will at *least* wait for X seconds
  *
+ * @todo use the one from mvlib
  * @param {number} seconds number of seconds to wait
  * @returns {Promise} empty Promise that will resolve after the specified amount
  *      of seconds
@@ -398,6 +431,7 @@ export function delay(seconds) {
  * Sets a color's opacity.
  * Does not support colors in rgba format.
  *
+ * @todo use the one from mvlib
  * @param {string} color valid HTML color identifier
  * @param {number} [opacity=1] opacity from 0 to 1
  * @returns

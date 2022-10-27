@@ -65,7 +65,7 @@ class BarRenderer {
    * @param {number} width new bar width
    * @returns {BarRenderer} this
    */
-  setBarWidth(width) {
+  setBarWidth (width) {
     this.barWidth = width
     this.scaleX.range([0, width])
     return this
@@ -80,7 +80,7 @@ class BarRenderer {
    * @param {number} [lineWidth=4] width of the border
    * @param {string} [stroke='#333'] stroke color
    */
-  drawHighlightBorder(context, x, y, radius = 3, lineWidth = 4, stroke = '#333') {
+  drawHighlightBorder (context, x, y, radius = 3, lineWidth = 4, stroke = '#333') {
     context.save()
     context.strokeStyle = stroke
     context.lineWidth = lineWidth
@@ -103,7 +103,7 @@ class BarRenderer {
    * @param {string} bgColor background color
    * @param {object} params additional parameters, e.g., radius, showFrets
    */
-  render(
+  render (
     context,
     index,
     notes,
@@ -114,6 +114,9 @@ class BarRenderer {
   ) {
     context.save()
     // Background
+    if (!params.fillEmptyBars && !notes.length) {
+      bgColor = '#f8f8f8'
+    }
     context.fillStyle = bgColor
     if (!params.radius) {
       context.fillRect(x, y, this.barWidth, this.barHeight)
@@ -166,7 +169,7 @@ class BarRenderer {
       case 'Staff':
         // For staff, draw staff lines
         for (const row of [0, 1, 2, 3, 4]) {
-          context.fillRect(x, y + this.scaleY(row), this.barWidth, 1);
+          context.fillRect(x, y + this.scaleY(row), this.barWidth, 1)
         }
         break
     }
@@ -333,7 +336,7 @@ const guitarProDrumReplacementMap = new Map([
  * @param {number} pitch pitch
  * @returns {number} staff line
  */
-function pitchToStaffLine(pitch) {
+function pitchToStaffLine (pitch) {
   const pitchLine = [-1, -1, -0.5, -0.5, 0, 0.5, 0.5, 1, 1, 1.5, 1.5, 2.0]
   const oct = Math.floor((pitch - 60) / 12)
   const line = pitchLine[pitch % 12]

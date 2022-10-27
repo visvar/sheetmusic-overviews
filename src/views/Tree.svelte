@@ -1,8 +1,8 @@
 <script>
-  import { afterUpdate } from "svelte";
-  import { Canvas, Chords } from "musicvis-lib";
-  import { drawVerticalText } from "../lib.js";
-  import BarRenderer from "../lib/BarRenderer.js";
+  import { afterUpdate } from 'svelte';
+  import { Canvas, Chords } from 'musicvis-lib';
+  import { drawVerticalText } from '../lib.js';
+  import BarRenderer from '../lib/BarRenderer.js';
 
   export let width;
   export let height;
@@ -58,7 +58,7 @@
     const rowHeight = levelHeight;
     const gapHeight = levelHeight;
 
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext('2d');
     context.font = `11px sans-serif`;
     context.lineWidth = 0.25;
 
@@ -111,8 +111,8 @@
       }
       allHarmonies = Chords.detectChordsByExactStart(currMeasures.flat());
       if (selectedMeasure !== null) {
-        console.log(currMeasures);
-        console.log(allHarmonies);
+        // console.log(currMeasures);
+        // console.log(allHarmonies);
         allHarmonies = Chords.detectChordsByExactStart(
           currMeasures[selectedMeasureOfSection]
         );
@@ -127,14 +127,14 @@
 
       // Reset
       context.resetTransform();
-      context.imageSmoothingQuality = "high";
-      context.fillStyle = "white";
+      context.imageSmoothingQuality = 'high';
+      context.fillStyle = 'white';
       context.fillRect(0, 0, width, height);
 
       // Draw labels for rows
       let y = 10 + rowHeight / 2;
-      for (const label of ["Sections", "Bars", "Harmnonies", "Notes"]) {
-        drawVerticalText(context, 0, y, label, "#333", 13, true);
+      for (const label of ['Sections', 'Bars', 'Harmnonies', 'Notes']) {
+        drawVerticalText(context, 0, y, label, '#333', 13, true);
         y += rowHeight * 2;
       }
       context.translate(marginLeft, 0);
@@ -153,12 +153,11 @@
         const col = index;
         const mX = col * sWidth;
         // Background
-        const bgColor =
-          sectionColors.length < 2 ? "#f8f8f8" : sectionColors[index];
+        const bgColor = sectionColors[index];
         // Section name
-        context.fillStyle = "white";
+        context.fillStyle = 'white';
         context.fillRect(mX - 5, rowY - 10, w, 10);
-        context.fillStyle = "black";
+        context.fillStyle = 'black';
         context.fillText(sectionInfo[index].name, mX, rowY - 2);
         // Notes
         sRenderer.render(
@@ -171,7 +170,7 @@
           renderParams
         );
         if (selectedSection === index) {
-          sRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, "#666");
+          sRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, '#666');
         }
       }
 
@@ -194,7 +193,7 @@
         const x1b = (selectedSection + 1) * sWidth;
         Canvas.drawBezierConnectorY(context, x1, y1, 0, y2);
         Canvas.drawBezierConnectorY(context, x1b, y1, w, y2);
-        context.fillStyle = "#88888822";
+        context.fillStyle = '#88888822';
         drawBezierFunnelY(context, y1, y2, x1, x1b, 0, w);
       }
       // Draw measures
@@ -203,11 +202,13 @@
       for (const [index, measure] of currMeasures.entries()) {
         const col = index;
         const mX = col * mWidth;
-        // Background
-        const bgColor = measure.length === 0 ? "#f8f8f8" : measureColors[index];
+        const globalIndex = selectedSection
+          ? sectionInfo[selectedSection].startMeasure + index
+          : index;
+        const bgColor = measureColors[globalIndex];
         mRenderer.render(
           context,
-          index,
+          globalIndex,
           measure,
           mX,
           rowY,
@@ -215,7 +216,7 @@
           renderParams
         );
         if (selectedMeasureOfSection === index) {
-          mRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, "#666");
+          mRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, '#666');
         }
       }
 
@@ -242,7 +243,7 @@
           const x1b = (selectedMeasureOfSection + 1) * mWidth;
           Canvas.drawBezierConnectorY(context, x1, y1h, 0, y2h);
           Canvas.drawBezierConnectorY(context, x1b, y1h, w, y2h);
-          context.fillStyle = "#88888822";
+          context.fillStyle = '#88888822';
           drawBezierFunnelY(context, y1h, y2h, x1, x1b, 0, w);
         }
 

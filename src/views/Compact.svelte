@@ -1,14 +1,14 @@
 <script>
-  import { afterUpdate } from "svelte";
-  import Select, { Option } from "@smui/select";
-  import * as d3 from "d3";
-  import { drawColorRamp } from "../lib.js";
-  import BarRenderer from "../lib/BarRenderer.js";
+  import { afterUpdate } from 'svelte';
+  import Select, { Option } from '@smui/select';
+  import * as d3 from 'd3';
+  import { drawColorRamp } from '../lib.js';
+  import BarRenderer from '../lib/BarRenderer.js';
 
   export let width;
   export let height;
   export let track;
-  export let colorMode = "bars";
+  export let colorMode = 'bars';
   export let measures;
   export let measureTimes;
   export let measureDists;
@@ -25,7 +25,7 @@
   /**
    * @type {'default'|'identical'|'distance'}
    */
-  let selectedColoring = "default";
+  let selectedColoring = 'default';
   let compactRepeatedNotes = true;
 
   let canvas;
@@ -33,9 +33,9 @@
   let colorRampCanvas;
 
   const drawVis = () => {
-    // console.log("draw sheet", height, canvasHeight);
     // Canvas.setupCanvas(canvas);
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext('2d');
+    context.imageSmoothingQuality = 'high';
     const w = width;
     const h = canvasHeight;
     const mWidth = (width - 8) / mPerRow;
@@ -74,13 +74,13 @@
     const draw = () => {
       // If a measure was selected, change colors to reflect distance to selected measure
       let cols;
-      if (selectedMeasure !== null && selectedColoring !== "default") {
+      if (selectedMeasure !== null && selectedColoring !== 'default') {
         // Distance of all measures to the currently selected one
         let dists = measureDists[selectedMeasure];
-        if (selectedColoring === "identical") {
+        if (selectedColoring === 'identical') {
           // Highlight identical measures
           cols = dists.map((d) =>
-            d === 0 ? "steelblue" : "rgb(238, 238, 238)"
+            d === 0 ? 'steelblue' : 'rgb(238, 238, 238)'
           );
         } else {
           // Color all measures by distance
@@ -92,7 +92,7 @@
             chromScaleForDistance(distColorScale(dist));
           cols = dists.map(distColor);
         }
-      } else if (colorMode === "sections") {
+      } else if (colorMode === 'sections') {
         cols = sectionInfo.flatMap((section, index) =>
           new Array(section.endMeasure - section.startMeasure + 1).fill(
             sectionColors[index]
@@ -103,19 +103,18 @@
       }
 
       // Reset background
-      context.fillStyle = "white";
+      context.fillStyle = 'white';
       context.fillRect(0, 0, w, h);
-      context.imageSmoothingQuality = "high";
       // Draw measures
-      context.strokeStyle = "black";
-      context.textBaseline = "middle";
+      context.strokeStyle = 'black';
+      context.textBaseline = 'middle';
       for (const [index, measure] of measures.entries()) {
         const col = index % mPerRow;
         const row = Math.floor(index / mPerRow);
         const mX = col * mWidth + 4;
         const mY = row * mHeight + 10;
         context.font = `9px sans-serif`;
-        context.fillStyle = "#666";
+        context.fillStyle = '#666';
         // Rehearsal / section name
         const rehearsal = track.measureRehearsalMap.get(index);
         if (rehearsal) {
@@ -135,7 +134,7 @@
           measure,
           mX,
           mY,
-          cols[index] ?? "#f8f8f8",
+          cols[index] ?? '#f8f8f8',
           {
             radius: 3,
             showFrets: true,
@@ -174,15 +173,13 @@
       class="legend"
       style="visibility: {selectedColoring === 'distance'
         ? 'visible'
-        : 'hidden'}"
-    >
+        : 'hidden'}">
       <div>Identical</div>
       <canvas
         bind:this={colorRampCanvas}
         width={50}
         height={10}
-        style="border-radius: 3px"
-      />
+        style="border-radius: 3px" />
       <div>Different</div>
     </div>
     <div>

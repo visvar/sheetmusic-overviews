@@ -20,6 +20,7 @@
 
 ## Features
 
+- make showTrailingRests global
 - get colors from compressed blocks: each block that is repeated or in between reps gets its own color
 - new note encodings
   - drums
@@ -36,7 +37,7 @@
   - fix drum sound map
   - allow to use custom map from pitch to sound
 - tree
-  - allow to compress only 1, 2, ... levels
+  - allow to compress only 1, 2, ... levels, has to be done in mvlib
 
 # Performance
 

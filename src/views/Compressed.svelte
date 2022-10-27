@@ -1,8 +1,8 @@
 <script>
-  import { afterUpdate } from "svelte";
-  import * as d3 from "d3";
-  import { Canvas, Utils, StringBased } from "musicvis-lib";
-  import BarRenderer from "../lib/BarRenderer";
+  import { afterUpdate } from 'svelte';
+  import * as d3 from 'd3';
+  import { Canvas, Utils, StringBased } from 'musicvis-lib';
+  import BarRenderer from '../lib/BarRenderer';
 
   export let width;
   export let height = 100;
@@ -34,16 +34,16 @@
    */
   const drawTreeGraph = (tree, blockWidth = 30, colors) => {
     // Canvas.setupCanvas(canvas);
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext('2d');
     const w = tree.length * blockWidth + 10;
     const h = (tree.depth + 1) * 30 + 100;
-    context.font = "13px sans-serif";
-    context.textAlign = "center";
+    context.font = '12px sans-serif';
+    context.textAlign = 'center';
 
     // Reset
-    context.fillStyle = "white";
+    context.fillStyle = 'white';
     context.fillRect(0, 0, w, h);
-    context.fillStyle = "black";
+    context.fillStyle = 'black';
 
     // Setup renderer
     const renderer = new BarRenderer(
@@ -92,8 +92,7 @@
         if (highlight) {
           renderer.drawHighlightBorder(context, x, y);
         }
-        const bgColor =
-          notes.length === 0 ? "#f8f8f8" : colors[currentBarIndex] ?? "#f8f8f8";
+        const bgColor = colors[currentBarIndex] ?? '#f8f8f8';
         renderer.render(context, 0, notes, x, y, bgColor, {
           radius: 3,
           showFrets: true,
@@ -143,7 +142,7 @@
 
 <main style={`height: ${height}px`}>
   <div class="overviewTitle">Compressed</div>
-  <div>
+  <div class="control">
     <label>
       Zoom
       <input type="range" bind:value={zoom} min={1} max={20} step={1} />
@@ -153,15 +152,13 @@
   <div
     class="canvasContainer"
     style={`max-width: ${width}px`}
-    bind:this={container}
-  >
+    bind:this={container}>
     <canvas
       width={width * zoom}
       height={canvasHeight}
       bind:this={canvas}
       on:click={onClick}
-      on:mousewheel={onMouseWheel}
-    />
+      on:mousewheel={onMouseWheel} />
   </div>
 </main>
 
@@ -170,6 +167,14 @@
     padding: 10px;
     border-radius: 4px;
     box-shadow: 0 0 10px #ccc;
+  }
+
+  .control {
+    margin-bottom: 4px;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    justify-items: center;
+    align-items: center;
   }
 
   .canvasContainer {

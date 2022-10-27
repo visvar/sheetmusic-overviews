@@ -114,7 +114,7 @@ class BarRenderer {
   ) {
     context.save()
     // Background
-    if (!params.fillEmptyBars && !notes.length) {
+    if (!bgColor || (!params.fillEmptyBars && !notes.length)) {
       bgColor = '#f8f8f8'
     }
     context.fillStyle = bgColor

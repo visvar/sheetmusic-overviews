@@ -1,11 +1,11 @@
 <script>
-  import "svelte-material-ui/bare.css";
+  import 'svelte-material-ui/bare.css';
 
-  import * as d3 from "d3";
-  import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
-  import IconButton from "@smui/icon-button";
-  import Button, { Label } from "@smui/button";
-  import { Chords } from "musicvis-lib";
+  import * as d3 from 'd3';
+  import TopAppBar, { Row, Section, Title } from '@smui/top-app-bar';
+  import IconButton from '@smui/icon-button';
+  import Button, { Label } from '@smui/button';
+  import { Chords } from 'musicvis-lib';
 
   import {
     getColorsViaClusteringFromDistances,
@@ -16,95 +16,97 @@
     getMeasures,
     getSectionInfo,
     getSections,
-  } from "./lib.js";
+  } from './lib.js';
 
-  import Menu from "./Menu.svelte";
-  import Tracks from "./views/Tracks.svelte";
-  import Tree from "./views/Tree.svelte";
-  import Compact from "./views/Compact.svelte";
-  import Compressed from "./views/Compressed.svelte";
-  import Score from "./views/Score.svelte";
-  import Help from "./modals/Help.svelte";
-  import About from "./modals/About.svelte";
-  import Player from "./Player.svelte";
+  import Menu from './Menu.svelte';
+  import Tracks from './views/Tracks.svelte';
+  import Tree from './views/Tree.svelte';
+  import Compact from './views/Compact.svelte';
+  import Compressed from './views/Compressed.svelte';
+  import Score from './views/Score.svelte';
+  import Help from './modals/Help.svelte';
+  import About from './modals/About.svelte';
+  import Player from './Player.svelte';
 
   // View
-  let views = ["Tracks", "Tree", "Compressed", "Compact", "Score"];
+  let views = ['Tracks', 'Tree', 'Compressed', 'Compact', 'Score'];
   // let currentViews = new Set([...views]);
-  let currentViews = new Set(["Tracks", "Tree", "Compressed", "Compact"]);
+  let currentViews = new Set(['Tracks', 'Tree', 'Compressed', 'Compact']);
 
   // Data
   let musicxml = null;
   let musicpiece = null;
-  $: console.log("app: musicpiece", musicpiece);
-  // $: trackIndex = musicpiece ? 0 : 0;
+  $: console.log('app: musicpiece', musicpiece);
   let trackIndex = 0;
   $: trackIndex = trackIndex === undefined ? 0 : trackIndex;
   $: track = musicpiece ? musicpiece.tracks[trackIndex] : null;
-  $: console.log("app: track", trackIndex, track);
+  $: console.log('app: track', trackIndex, track);
   let encoding;
+  let metric;
   let coloring;
   let clusterThreshold;
   let compressionDepth = 2;
   let colorMode;
   let colormap;
 
-  // Notes and measures
+  // Notes
   $: notes = track ? track.notes : [];
+
+  // Bars
   $: measures = track ? getMeasures(track) : [];
-  $: measureDists = getDistanceMatrix(measures, "levenshteinPitch");
+  $: measureDists = metric ? getDistanceMatrix(measures, metric.value) : [];
   let measureColors;
   $: {
-    if (coloring === "DR") {
+    if (coloring === 'DR') {
       measureColors = getColorsViaMDSFromDistances(measureDists, colormap?.map);
-    } else if (coloring === "Clustering") {
+    } else if (coloring === 'Clustering') {
       measureColors = getColorsViaClusteringFromDistances(
         measureDists,
         colormap?.map,
         clusterThreshold
       );
-    } else if (coloring === "Compression") {
+    } else if (coloring === 'Compression') {
       measureColors = getColorsViaCompression(
         measureDists,
         colormap?.map,
         compressionDepth
       );
-    } else if (coloring === "Occurence") {
+    } else if (coloring === 'Occurence') {
       measureColors = getColorsViaOccurence(measureDists, colormap?.map);
     }
   }
 
   // Sections
   $: sectionInfo = track ? getSectionInfo(track) : null;
-  $: console.log("app: secInfo", sectionInfo);
+  $: console.log('app: secInfo', sectionInfo);
   $: sections = track ? getSections(sectionInfo, measures) : [];
-  $: sectionDists = getDistanceMatrix(sections, "levenshteinPitch");
+  $: sectionDists = metric ? getDistanceMatrix(sections, metric.value) : [];
   let sectionColors;
   $: {
-    if (coloring === "DR") {
+    if (coloring === 'DR') {
       sectionColors = getColorsViaMDSFromDistances(sectionDists, colormap?.map);
-    } else if (coloring === "Clustering") {
+    } else if (coloring === 'Clustering') {
       sectionColors = getColorsViaClusteringFromDistances(
         sectionDists,
         colormap?.map,
         clusterThreshold
       );
-    } else if (coloring === "Compression") {
+    } else if (coloring === 'Compression') {
       sectionColors = getColorsViaCompression(
         sectionDists,
         colormap?.map,
         compressionDepth
       );
-    } else if (coloring === "Occurence") {
+    } else if (coloring === 'Occurence') {
       sectionColors = getColorsViaOccurence(sectionDists, colormap?.map);
     }
   }
 
   // Harmonies
   $: harmonies = Chords.detectChordsByExactStart(notes);
-  $: harmonyDists = getDistanceMatrix(harmonies, "jaccardPitch");
+  $: harmonyDists = getDistanceMatrix(harmonies, 'jaccardPitch');
   $: harmonyColors =
-    coloring === "DR"
+    coloring === 'DR'
       ? getColorsViaMDSFromDistances(harmonyDists, colormap?.map)
       : getColorsViaClusteringFromDistances(
           harmonyDists,
@@ -113,13 +115,13 @@
         );
 
   $: noteColors = colormap
-    ? d3.range(0, 12).map((d) => "" + colormap.map(d / 12))
-    : d3.range(12).fill("white");
+    ? d3.range(0, 12).map((d) => '' + colormap.map(d / 12))
+    : d3.range(12).fill('white');
 
   // Sizes without nav and menu
   let windowWidth;
   let windowHeight;
-  $: overviewWidth = currentViews.has("Score")
+  $: overviewWidth = currentViews.has('Score')
     ? (windowWidth - 340) / 2
     : windowWidth - 320;
   $: contentHeight = windowHeight - 80;
@@ -130,13 +132,13 @@
 
   const getSheetHeight = (currentViews, contentHeight, gap = 40) => {
     let height = contentHeight - 40;
-    if (currentViews.has("Tracks")) {
+    if (currentViews.has('Tracks')) {
       height -= tracksHeight + gap;
     }
-    if (currentViews.has("Tree")) {
+    if (currentViews.has('Tree')) {
       height -= treeHeight + gap;
     }
-    if (currentViews.has("Compressed")) {
+    if (currentViews.has('Compressed')) {
       height -= compressedHeight + gap;
     }
     return height;
@@ -153,20 +155,20 @@
   // Keyboard input
   const handleKeydown = (event) => {
     console.log(event);
-    if (event.code === "ArrowRight") {
+    if (event.code === 'ArrowRight') {
       // Next measure
       event.preventDefault();
       selectedMeasure = Math.min((selectedMeasure ?? 0) + 1, measures.length);
-    } else if (event.code === "ArrowLeft") {
+    } else if (event.code === 'ArrowLeft') {
       // previous measure
       event.preventDefault();
       selectedMeasure = Math.max((selectedMeasure ?? 0) - 1, 0);
-    } else if (event.code === "ArrowDown") {
+    } else if (event.code === 'ArrowDown') {
       // Next section
       event.preventDefault();
       selectedSection = Math.min((selectedSection ?? 0) + 1, sections.length);
       selectedMeasure = sectionInfo[selectedSection].startMeasure;
-    } else if (event.code === "ArrowUp") {
+    } else if (event.code === 'ArrowUp') {
       // Previous section
       event.preventDefault();
       selectedSection = Math.max((selectedSection ?? 0) - 1, 0);
@@ -178,14 +180,12 @@
 <svelte:window
   bind:innerWidth={windowWidth}
   bind:innerHeight={windowHeight}
-  on:keydown={handleKeydown}
-/>
+  on:keydown={handleKeydown} />
 
 <div class="flexy">
   <div
     class="top-app-bar-container flexor"
-    style={`height:${window.innerHeight}px`}
-  >
+    style={`height:${window.innerHeight}px`}>
     <TopAppBar variant="static" prominent={false} dense={true} color="primary">
       <Row>
         <Section>
@@ -201,8 +201,7 @@
                   ? currentViews.delete(view)
                   : currentViews.add(view);
                 currentViews = new Set(currentViews);
-              }}
-            >
+              }}>
               <div style="opacity: {currentViews.has(view) ? 1 : 0.5}">
                 <Label>{view}</Label>
               </div>
@@ -216,8 +215,7 @@
             {musicpiece}
             {trackIndex}
             {selectedSection}
-            bind:selectedMeasure
-          />
+            bind:selectedMeasure />
         </Section>
 
         <!-- Info and help modal butons -->
@@ -244,25 +242,24 @@
             bind:selectedSection
             bind:selectedMeasure
             bind:selectedEncoding={encoding}
+            bind:selectedMetric={metric}
             bind:selectedColoring={coloring}
             bind:clusterThreshold
             bind:compressionDepth
             bind:selectedColorMode={colorMode}
-            bind:selectedColormap={colormap}
-          />
+            bind:selectedColormap={colormap} />
         </div>
         <div class="overviewContainer" style={`width: ${overviewWidth}px`}>
-          {#if currentViews.has("Tracks") && musicpiece}
+          {#if currentViews.has('Tracks') && musicpiece}
             <Tracks
               width={overviewWidth}
               height={tracksHeight}
               {musicpiece}
               {sectionInfo}
               bind:selectedMeasure
-              bind:selectedSection
-            />
+              bind:selectedSection />
           {/if}
-          {#if currentViews.has("Tree") && sections && sections.length > 0}
+          {#if currentViews.has('Tree') && sections && sections.length > 0}
             <Tree
               width={overviewWidth}
               height={treeHeight}
@@ -275,10 +272,9 @@
               {measureColors}
               bind:selectedMeasure
               {harmonyColors}
-              {noteColors}
-            />
+              {noteColors} />
           {/if}
-          {#if currentViews.has("Compressed") && notes && notes.length > 0}
+          {#if currentViews.has('Compressed') && notes && notes.length > 0}
             <Compressed
               width={overviewWidth}
               height={compressedHeight}
@@ -286,10 +282,9 @@
               {measures}
               {measureDists}
               {measureColors}
-              bind:selectedMeasure
-            />
+              bind:selectedMeasure />
           {/if}
-          {#if currentViews.has("Compact") && notes && notes.length > 0}
+          {#if currentViews.has('Compact') && notes && notes.length > 0}
             <Compact
               width={overviewWidth}
               height={compactSheetHeight}
@@ -302,12 +297,11 @@
               {encoding}
               colors={measureColors}
               {sectionInfo}
-              {sectionColors}
-            />
+              {sectionColors} />
           {/if}
         </div>
         <div class="scoreContainer">
-          {#if currentViews.has("Score") && musicxml && musicpiece && track && measureColors.length > 0}
+          {#if currentViews.has('Score') && musicxml && musicpiece && track && measureColors.length > 0}
             <Score
               width={overviewWidth}
               height={contentHeight}
@@ -319,8 +313,7 @@
               {measureColors}
               {sectionInfo}
               {sectionColors}
-              bind:selectedMeasure
-            />
+              bind:selectedMeasure />
           {/if}
         </div>
       </main>

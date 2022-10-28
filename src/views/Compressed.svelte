@@ -13,6 +13,7 @@
   export let selectedMeasure;
 
   let zoom = 1;
+  let showBarIndices = true;
   let container;
   let canvas;
   let canvasHeight = height - 35;
@@ -77,8 +78,9 @@
     const offset = blockWidth / 2;
     if (tree.join) {
       for (const currentBarIndex of tree) {
-        if (blockWidth > 20) {
-          context.fillText(currentBarIndex, x + offset, y);
+        if (showBarIndices && blockWidth > 20) {
+          // Bar index, where this bar first appeared in the track
+          context.fillText(currentBarIndex, x + offset, y - 1);
         }
         const notes = measures[currentBarIndex];
         // To know if highlighted, we have to check if any identical is selected
@@ -148,6 +150,11 @@
       <input type="range" bind:value={zoom} min={1} max={20} step={1} />
       {zoom}x
     </label>
+    <label
+      title="Index of the first occurrence of each bar in the track. Only shown when enough space (zoom in when not visible).">
+      Bar indices
+      <input type="checkbox" bind:checked={showBarIndices} />
+    </label>
   </div>
   <div
     class="canvasContainer"
@@ -172,7 +179,7 @@
   .control {
     margin-bottom: 4px;
     display: grid;
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     justify-items: center;
     align-items: center;
   }

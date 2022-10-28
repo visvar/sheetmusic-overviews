@@ -165,15 +165,10 @@
         context.fillStyle = 'black';
         context.fillText(sectionInfo[index].name, mX, rowY - 2);
         // Notes
-        sRenderer.render(
-          context,
-          index,
-          section,
-          mX,
-          rowY,
-          bgColor,
-          renderParams
-        );
+        sRenderer.render(context, index, section, mX, rowY, bgColor, {
+          ...renderParams,
+          showFrets: false,
+        });
         if (selectedSection === index) {
           sRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, '#666');
         }

@@ -17,7 +17,7 @@
   export let sectionInfo;
   export let sectionColors;
   export let encoding;
-  export let displayLeadingRests = true;
+  export let displayLeadingRests = false;
 
   const chromScaleForDistance = (d) => d3.interpolateBlues(1 - d);
 
@@ -72,6 +72,9 @@
     };
 
     const draw = () => {
+      console.log(measures);
+      console.log(measureTimes);
+
       // If a measure was selected, change colors to reflect distance to selected measure
       let cols;
       if (selectedMeasure !== null && selectedColoring !== 'default') {
@@ -108,13 +111,13 @@
       // Draw measures
       context.strokeStyle = 'black';
       context.textBaseline = 'middle';
+      context.font = `9px sans-serif`;
+      context.fillStyle = '#666';
       for (const [index, measure] of measures.entries()) {
         const col = index % mPerRow;
         const row = Math.floor(index / mPerRow);
         const mX = col * mWidth + 4;
         const mY = row * mHeight + 10;
-        context.font = `9px sans-serif`;
-        context.fillStyle = '#666';
         // Rehearsal / section name
         const rehearsal = track.measureRehearsalMap.get(index);
         if (rehearsal) {
@@ -128,21 +131,13 @@
           renderer.drawHighlightBorder(context, mX, mY);
         }
 
-        renderer.render(
-          context,
-          index,
-          measure,
-          mX,
-          mY,
-          cols[index] ?? '#f8f8f8',
-          {
-            radius: 3,
-            showFrets: true,
-            displayLeadingRests,
-            measureTimes,
-            compactRepeatedNotes,
-          }
-        );
+        renderer.render(context, index, measure, mX, mY, cols[index], {
+          radius: 3,
+          showFrets: true,
+          displayLeadingRests,
+          measureTimes,
+          compactRepeatedNotes,
+        });
       }
     };
     draw();
@@ -156,19 +151,17 @@
 <main>
   <div class="overviewTitle">Compact</div>
   <div class="control">
-    <div>
-      <Select bind:value={selectedColoring} label="Coloring when selected">
-        <Option value="default" title="Draw as if nothing was selected">
-          Default
-        </Option>
-        <Option value="identical" title="Highlight identical bars">
-          Identical
-        </Option>
-        <Option value="distance" title="Distance to selected bar">
-          Distance
-        </Option>
-      </Select>
-    </div>
+    <Select bind:value={selectedColoring} label="Coloring when selected">
+      <Option value="default" title="Draw as if nothing was selected">
+        Default
+      </Option>
+      <Option value="identical" title="Highlight identical bars">
+        Identical
+      </Option>
+      <Option value="distance" title="Distance to selected bar">
+        Distance
+      </Option>
+    </Select>
     <div
       class="legend"
       style="visibility: {selectedColoring === 'distance'
@@ -182,18 +175,14 @@
         style="border-radius: 3px" />
       <div>Different</div>
     </div>
-    <div>
-      <label>
-        Compact repeated notes
-        <input type="checkbox" bind:checked={compactRepeatedNotes} />
-      </label>
-    </div>
-    <div>
-      <label>
-        Leading/trailing rests
-        <input type="checkbox" bind:checked={displayLeadingRests} />
-      </label>
-    </div>
+    <label>
+      Compact repeated notes
+      <input type="checkbox" bind:checked={compactRepeatedNotes} />
+    </label>
+    <label>
+      Leading/trailing rests
+      <input type="checkbox" bind:checked={displayLeadingRests} />
+    </label>
     <!-- <div>
       <label>
         Bars per row

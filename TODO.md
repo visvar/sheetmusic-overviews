@@ -7,15 +7,22 @@
    1. [Bugs](#bugs)
    2. [Publication](#publication)
    3. [Future work](#future-work)
+   4. [Minor ideas](#minor-ideas)
 
 ## Urgent
 
 
 - compact viewdoes not work when another than the first track selected
+  - leading rests causes it,probably wrong measure times
   - bar background overdraws notes??
+  - is switching the bug? try hardcoding track 2
 - metric that takes rhythm into account, maybe like simeon's ie levenshtein of both pitch and start, maybe also duration, differently weighted
 
 - show note color map in tree wehn notes are shown
+
+- fix menu freeze at 51:00
+
+- allow coloring compressed by sections
 
 ## Features
 
@@ -30,8 +37,6 @@
   - score
 - compact repeated notes should also work for repeated chords
   - requires rendering chord for chord
-- allow to color bars by how often they occur identically
-  - just count 0s in dist matrix, sort by occurence, map to blues
 - drum playback
   - fix drum sound map
   - allow to use custom map from pitch to sound
@@ -71,3 +76,9 @@
   - support same simplified encoding: each bar, display pitch range and mean (mean weighted by note duration)
   - include metrics as coloring source
 - try to add section labels to compressed as well
+
+## Minor ideas
+
+- Add tempo curve to tracks view
+- And time signature labels
+- allow to jump between sections when pressing pgup pgdown

@@ -509,12 +509,12 @@ export function drawColorRamp (canvas, width, height, colorMap) {
 /**
  * Draws text horizontally rotated 90 degrees clock-wise
  * @param {*} context
- * @param {*} x
- * @param {*} y
- * @param {*} text
- * @param {*} color
- * @param {*} size
- * @param {*} centered
+ * @param {number} x x position
+ * @param {number} y y position
+ * @param {string} text text
+ * @param {number} color HTML color string
+ * @param {number} size font size in px
+ * @param {boolean} [centered=false] center text?
  */
 export function drawVerticalText (
   context,

@@ -1,6 +1,6 @@
 <script>
-  import Dialog, { Header, Title, Content } from "@smui/dialog";
-  import IconButton from "@smui/icon-button";
+  import Dialog, { Header, Title, Content } from '@smui/dialog';
+  import IconButton from '@smui/icon-button';
 
   export let open = false;
 </script>
@@ -9,8 +9,7 @@
   bind:open
   fullscreen
   aria-labelledby="fullscreen-title"
-  aria-describedby="fullscreen-content"
->
+  aria-describedby="fullscreen-content">
   <Header>
     <Title id="fullscreen-title">Help</Title>
     <IconButton action="close" class="material-icons">close</IconButton>
@@ -20,12 +19,15 @@
     <p>
       In order to use this app, you have to get a <a
         href="https://www.musicxml.com/"
-        target="_blank">MusicXML</a
-      >
+        target="_blank"
+        rel="noreferrer">MusicXML</a>
       file of your sheet music, for example by exporting from
-      <a href="https://musescore.com/" target="_blank">MuseScore</a>
-      or <a href="https://www.guitar-pro.com/" target="_blank">GuitarPro</a>.
-      Exporting only the instrument(s) you are interested in will improve
+      <a href="https://musescore.com/" target="_blank" rel="noreferrer"
+        >MuseScore</a>
+      or
+      <a href="https://www.guitar-pro.com/" target="_blank" rel="noreferrer"
+        >GuitarPro</a
+      >. Exporting only the instrument(s) you are interested in will improve
       performance.
     </p>
     <p>

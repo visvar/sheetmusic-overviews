@@ -11,6 +11,7 @@
 
 ## Urgent
 
+- OSMD does not work when tab has notes removed
 
 - compact viewdoes not work when another than the first track selected
   - leading rests causes it,probably wrong measure times

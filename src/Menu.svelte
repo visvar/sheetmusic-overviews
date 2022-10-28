@@ -68,8 +68,8 @@
     'Tab',
     'Tab (simple)',
     'Pianoroll',
-    'Drums',
-    'Staff',
+    // 'Drums',
+    // 'Staff',
     'None',
   ];
   export let selectedEncoding = 'Tab';
@@ -86,7 +86,8 @@
   ];
   export let selectedMetric = metrics[0];
 
-  let colorings = ['DR', 'Clustering', 'Compression', 'Occurence'];
+  // let colorings = ['DR', 'Clustering', 'Compression', 'Occurence'];
+  let colorings = ['DR', 'Clustering', 'Occurence'];
   export let selectedColoring = 'DR';
   // export let selectedColoring = 'Compression';
   export let clusterThreshold = 0;

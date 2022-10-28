@@ -72,8 +72,8 @@
     };
 
     const draw = () => {
-      console.log(measures);
-      console.log(measureTimes);
+      // console.log(measures);
+      // console.log(measureTimes);
 
       // If a measure was selected, change colors to reflect distance to selected measure
       let cols;

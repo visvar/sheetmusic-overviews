@@ -1,99 +1,8 @@
-import { Chords, StringBased, Utils } from 'musicvis-lib'
+import { Chords, StringBased, Utils, Note } from 'musicvis-lib'
 import * as druid from '@saehrimnir/druidjs/dist/druid.esm'
 import * as d3 from 'd3'
 
-export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-
-/**
- * Allows to sort notes by time, notes with equal start time will be sorted by
- * pitch.
- *
- * @param {Note} a a note to compare
- * @param {Note} b a note to compare
- * @returns {number} negative for smaller, positive for greater, 0 for euqal
- */
-export function sortTimePitchComparator (a, b) {
-  return a.start !== b.start ? a.start - b.start : a.pitch - b.pitch
-}
-
-/**
- * Returns the notes of a track grouped by their measure
- * @param {object} track MusicPiece Track
- * @returns {Note[][]} notes grouped by measures
- */
-export function getMeasures (track) {
-  // Get notes by measures
-  const indices = [0, ...track.measureIndices]
-  const allNotes = track.notes
-  const measures = []
-  for (let index = 1; index < indices.length; ++index) {
-    const notes = allNotes.slice(indices[index - 1], indices[index])
-    // Sort notes uniformly
-    notes.sort(sortTimePitchComparator)
-    measures.push(notes)
-  }
-  return measures
-}
-
-/**
- * For each section of a piece, returns information on startMeasure, endMeasure,
- * and length.
- *
- * @param {object} track MusicPiece Track
- * @returns {object[]} section information
- */
-export function getSectionInfo (track) {
-  const sections = []
-  for (const [startMeasure, name] of track.measureRehearsalMap.entries()) {
-    sections.push({ name, startMeasure, endMeasure: null })
-  }
-  for (let index = 1; index < sections.length; ++index) {
-    sections[index - 1].endMeasure = sections[index].startMeasure - 1
-  }
-  // Last section ends with piece
-  if (sections.length > 0) {
-    const last = sections[sections.length - 1]
-    last.endMeasure = track.measureIndices.length - 1
-  }
-  // Add first empty section when first does not start at measure 0
-  if (sections.length > 0 && sections[0].startMeasure > 0) {
-    const first = {
-      name: '',
-      startMeasure: 0,
-      endMeasure: sections[0].startMeasure - 1
-    }
-    sections.unshift(first)
-  }
-  // No sections found? Just create a single one for the entire piece
-  if (sections.length === 0) {
-    sections.push({
-      name: '<No sections>',
-      startMeasure: 0,
-      endMeasure: track.measureIndices.length - 1,
-    })
-  }
-  // Add lengths to each
-  for (const section of sections) {
-    // @ts-ignore
-    section.length = section.endMeasure - section.startMeasure + 1
-  }
-  return sections
-}
-
-export function getSections (sectionInfo, measures) {
-  // Get notes by measures
-  const indices = sectionInfo.map((d) => d.startMeasure)
-  const notesBySection = []
-  for (let index = 1; index < indices.length + 1; ++index) {
-    const notes = measures
-      .slice(indices[index - 1], indices[index])
-      .flat()
-    notesBySection.push(notes)
-  }
-  return notesBySection
-}
-
-function mod12 (p) { return p % 12 }
+function mod12(p) { return p % 12 }
 
 /**
  * Calculates the pairwise distances between all elements of noteCollections
@@ -101,7 +10,7 @@ function mod12 (p) { return p % 12 }
  * @param {'levenshteinPitchStart'|'levenshteinPitch'|'gotohPitch'|'levenshteinStringFret'|'jaccardPitch'|'chordJaccard'} distanceMetric distance metric
  * @returns {number[][]} distance matrix
  */
-export function getDistanceMatrix (noteCollections, distanceMetric) {
+export function getDistanceMatrix(noteCollections, distanceMetric) {
   // Preprocess only once for better performance
   let prepr
   let prepr2
@@ -158,7 +67,7 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
     }
   }
   // Normalize
-  return normalizeNdArray(distMatrix)
+  return Utils.normalizeNdArrayNegative(distMatrix)
 }
 
 /**
@@ -167,7 +76,7 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
  * @param {function} colormap colormap [0,1]=>string
  * @returns {string[]} colors
  */
-export function getColorsViaMDSFromDistances (distMatrix, colormap) {
+export function getColorsViaMDSFromDistances(distMatrix, colormap) {
   if (distMatrix.length === 0) { return [] }
   // DR
   const DR = new druid.MDS(distMatrix)
@@ -192,7 +101,7 @@ export function getColorsViaMDSFromDistances (distMatrix, colormap) {
  * cut-off
  * @returns {string[]} colors
  */
-export function getColorsViaClusteringFromDistances (
+export function getColorsViaClusteringFromDistances(
   distMatrix,
   colormap,
   clusterThreshold = 0,
@@ -214,7 +123,7 @@ export function getColorsViaClusteringFromDistances (
    * @param {object} node tree node
    * @returns {object[]} nodes
    */
-  function preOrderTraverse (node) {
+  function preOrderTraverse(node) {
     const nodes = []
     // Next node always at last position
     const todo = [node]
@@ -280,7 +189,7 @@ export function getColorsViaClusteringFromDistances (
  * @param {function} colormap colormap [0,1]=>string
  * @param {number} [depth=2] determines the depth where to cut the hierachy
  */
-export function getColorsViaCompression (distMatrix, colormap, depth = 2) {
+export function getColorsViaCompression(distMatrix, colormap, depth = 2) {
   if (distMatrix.length === 0) { return [] }
   const repeatedIndices = Utils.findRepeatedIndices(
     d3.range(0, distMatrix.length),
@@ -291,6 +200,11 @@ export function getColorsViaCompression (distMatrix, colormap, depth = 2) {
 
   // Segmentation
   let currentCluster = 1
+  /**
+   *
+   * @param {object} node
+   * @param {object} parent
+   */
   const recurse = (node, parent) => {
     if (node.pre) {
       recurse(node.pre, node)
@@ -389,7 +303,7 @@ export function getColorsViaCompression (distMatrix, colormap, depth = 2) {
  * @param {number[][]} distMatrix distance matrix
  * @param {function} colormap colormap [0,1]=>string
  */
-export function getColorsViaOccurence (distMatrix, colormap) {
+export function getColorsViaOccurence(distMatrix, colormap) {
   const occurences = distMatrix.map((row, i) => [i, count(row, 0)])
   occurences.sort((a, b) => a[1] - b[1])
   const scale = d3.scaleLinear().domain([0, occurences.length])
@@ -400,51 +314,33 @@ export function getColorsViaOccurence (distMatrix, colormap) {
   return colors
 }
 
-
 /**
- * Counts hw often value appears in array
- * @param {Array} array array
+ * Counts how often value appears in array
+ * @todo use the one from mvlib, already moved there
+ * @param {Array<*>} array array
  * @param {*} value value
+ * @param {function} [comparator] comparator function, can be undefined to just
+ * use ===. Comparator has to return true when values are regarded as equal
  * @returns {number} count
  */
-function count (array, value) {
+function count(array, value, comparator) {
   let count = 0
-  for (const v of array) {
-    if (v === value) {
-      count++
+  if (!comparator) {
+    // Use ===
+    for (const v of array) {
+      if (v === value) {
+        count++
+      }
+    }
+  } else {
+    // Use comparator function
+    for (const v of array) {
+      if (comparator(v, value)) {
+        count++
+      }
     }
   }
   return count
-}
-
-
-/**
- * Allows to wait for a number of seconds with async/await
- * IMPORTANT: This it not exact, it will at *least* wait for X seconds
- *
- * @todo use the one from mvlib
- * @param {number} seconds number of seconds to wait
- * @returns {Promise} empty Promise that will resolve after the specified amount
- *      of seconds
- */
-export function delay (seconds) {
-  return new Promise(resolve => {
-    setTimeout(resolve, seconds * 1000)
-  })
-}
-
-/**
- * Sets a color's opacity.
- * Does not support colors in rgba format.
- *
- * @todo use the one from mvlib
- * @param {string} color valid HTML color identifier
- * @param {number} [opacity=1] opacity from 0 to 1
- * @returns
- */
-export function setOpacity (color, opacity = 1) {
-  const { r, g, b } = d3.color(color).rgb()
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
 
 /**
@@ -455,7 +351,7 @@ export function setOpacity (color, opacity = 1) {
  * @param {string[]} selectors e.g., ['mytag', '.myclass', '#myid']
  * @returns {XMLDocument} the changed input document
  */
-export function removeXmlElements (parsedXml, selectors) {
+export function removeXmlElements(parsedXml, selectors) {
   for (const selector of selectors) {
     const elements = parsedXml.querySelectorAll(selector)
     for (const element of elements) {
@@ -465,34 +361,16 @@ export function removeXmlElements (parsedXml, selectors) {
   return parsedXml
 }
 
-
 /**
- * Normalizes by dividing scaling all values to [0, 1] linearly.
+ * Draws a color ramp to visualize a color scale
+ * Not imported from musicvis-lib, since it takes canvas and performs checks
  *
- * @todo move to musicvis-lib and test
- * @param {Array} array nD array with arbitrary depth and structure, containing
- *  only numbers
- * @returns {Array} normalized array
- */
-export function normalizeNdArray (array) {
-  const extent = d3.extent(array.flat(Number.POSITIVE_INFINITY))
-  const scale = d3.scaleLinear().domain(extent)
-  const normalize = (array_) =>
-    array_.map((d) => {
-      return d.length !== undefined ? normalize(d) : scale(d)
-    })
-  return normalize(array)
-}
-
-
-/**
- * @todo import from mvlib
  * @param canvas
  * @param width
  * @param height
  * @param colorMap
  */
-export function drawColorRamp (canvas, width, height, colorMap) {
+export function drawColorRamp(canvas, width, height, colorMap) {
   if (!canvas || !colorMap) {
     return
   }
@@ -500,38 +378,8 @@ export function drawColorRamp (canvas, width, height, colorMap) {
   context.fillStyle = 'white'
   context.fillRect(0, 0, width, height)
   const scaleColor = d3.scaleLinear().domain([0, width])
-  for (let hue = 0; hue < width; ++hue) {
-    context.fillStyle = colorMap(scaleColor(hue))
-    context.fillRect(hue, 0, 2, height)
+  for (let x = 0; x < width; ++x) {
+    context.fillStyle = colorMap(scaleColor(x))
+    context.fillRect(x, 0, 2, height)
   }
-}
-
-/**
- * Draws text horizontally rotated 90 degrees clock-wise
- * @param {*} context
- * @param {number} x x position
- * @param {number} y y position
- * @param {string} text text
- * @param {number} color HTML color string
- * @param {number} size font size in px
- * @param {boolean} [centered=false] center text?
- */
-export function drawVerticalText (
-  context,
-  x,
-  y,
-  text,
-  color,
-  size,
-  centered = false
-) {
-  context.save()
-  context.rotate((90 * Math.PI) / 180)
-  if (centered) {
-    context.textAlign = 'center'
-  }
-  context.fillStyle = color
-  context.font = `${size}px sans-serif`
-  context.fillText(text, y, -x)
-  context.restore()
 }

@@ -1,7 +1,8 @@
 <script>
   import * as opensheetmusicdisplay from "opensheetmusicdisplay";
   import * as d3 from "d3";
-  import { delay, removeXmlElements } from "../lib.js";
+  import { removeXmlElements } from "../lib.js";
+  import { Utils } from "musicvis-lib";
 
   export let width;
   export let height;
@@ -300,7 +301,7 @@
     loadOSMD();
   }
   $: if (true || width || osmd) {
-    renderOSMD().then(() => delay(0.1).then(colorizeSvg));
+    renderOSMD().then(() => Utils.delay(0.1).then(colorizeSvg));
   }
   $: if (true || colors) {
     colorizeSvg();

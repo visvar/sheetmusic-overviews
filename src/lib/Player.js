@@ -13,38 +13,37 @@ import { NoteArray, Note } from 'musicvis-lib'
  *     .onTimeChange(handleTimeChange)
  *     .onStop(handleStop)
  *     .setVolume(3)
- *     .setLogging(true);
+ *     .setLogging(true)
  * // List available instruments
- * player.getAvailableInstruments();
+ * player.getAvailableInstruments()
  * // Play an Array of Note objects
- * player.playNotes(notes);
+ * player.playNotes(notes)
  */
 class Player {
-
   // Callbacks
-  #playerTimeCallback = null;
-  #onStopCallback = null;
+  #playerTimeCallback = null
+  #onStopCallback = null
   // Settings
-  #sound = null;
-  #volume = 1;
-  #speed = null;
-  #loop = false;
-  #log = false;
+  #sound = null
+  #volume = 1
+  #speed = null
+  #loop = false
+  #log = false
   // Internal state
-  currentPlayTime = null;
-  #instrument = null;
-  #audioCtx = new AudioContext();
-  #timerID = null;
-  #startTimeStamp = null;
-  #startAt = 0;
-  #endAt = -1;
-  #notes = [];
-  #notesLeftToPlay = [];
-  #songDuration = null;
-  #isPlaying = false;
-  #isPaused = false;
+  currentPlayTime = null
+  #instrument = null
+  #audioCtx = new AudioContext()
+  #timerID = null
+  #startTimeStamp = null
+  #startAt = 0
+  #endAt = -1
+  #notes = []
+  #notesLeftToPlay = []
+  #songDuration = null
+  #isPlaying = false
+  #isPaused = false
   // Cache info
-  #lastSoundName = null;
+  #lastSoundName = null
   // Valid instrument / sound names
   // For soundfont instruments see: https://github.com/danigb/soundfont-player/blob/master/INSTRUMENTS.md
   static validInstruments = new Map([
@@ -59,7 +58,7 @@ class Player {
     // ['overdriven_guitar', { value: 'overdriven_guitar', label: 'Overdriven guitar' }],
     ['kalimba', { value: 'kalimba', label: 'Kalimba' }],
     ['percussion', { value: 'percussion', label: 'Percussion' }],
-  ]);
+  ])
 
   /**
    * Register a callback for player time change
@@ -71,7 +70,7 @@ class Player {
   onTimeChange = (callback) => {
     this.#playerTimeCallback = callback
     return this
-  };
+  }
 
   /**
    * Register a callback for player stop
@@ -82,7 +81,7 @@ class Player {
   onStop = (callback) => {
     this.#onStopCallback = callback
     return this
-  };
+  }
 
   /**
    * Returns an array with the supported instrument soundfont names
@@ -91,7 +90,7 @@ class Player {
    */
   getAvailableInstruments = () => {
     return [...Player.validInstruments.values()]
-  };
+  }
 
   /**
    * Changes the volume (loudness)
@@ -102,7 +101,7 @@ class Player {
   setVolume = (volume) => {
     this.#volume = volume
     return this
-  };
+  }
 
   /**
    * Changes the logging flag to enable or disable logging of note events.
@@ -113,11 +112,11 @@ class Player {
   setLogging = (log) => {
     this.#log = log
     return this
-  };
+  }
 
-  isPlaying = () => this.#isPlaying;
+  isPlaying = () => this.#isPlaying
 
-  isPaused = () => this.#isPaused;
+  isPaused = () => this.#isPaused
 
   /**
    * Plays a set of notes.
@@ -187,7 +186,7 @@ class Player {
       this.preloadInstrument(sound)
         .then(this._start)
     }
-  };
+  }
 
   /**
    * Loads an instrument (soundfont) in advance so the player can start
@@ -195,7 +194,7 @@ class Player {
    *
    * @param {string} sound instrument name
    */
-  async preloadInstrument (sound) {
+  async preloadInstrument(sound) {
     const file = `soundfonts/${sound}-mp3.js`
     if (this.#log) {
       console.log(`[Player] Pre-loading sound font from ${file}`)
@@ -209,9 +208,9 @@ class Player {
     const options = {
       from: '',
       // soundfont: this.#validInstruments.get(sound).font || 'FluidR3_GM',
-      gain: this.#volume,
+      gain: this.#volume
     }
-    // const instrument = await Soundfont.instrument(this.#audioCtx, sound, options);
+    // const instrument = await Soundfont.instrument(this.#audioCtx, sound, options)
     const instrument = await Soundfont.instrument(this.#audioCtx, file, options)
     this.#lastSoundName = sound
     this.#instrument = instrument
@@ -231,7 +230,7 @@ class Player {
     this.#isPaused = false
     this.#startTimeStamp = this.#audioCtx.currentTime
     this._scheduler()
-  };
+  }
 
   /**
    * Update current time and call callback
@@ -245,7 +244,7 @@ class Player {
     if (this.#playerTimeCallback) {
       this.#playerTimeCallback(current)
     }
-  };
+  }
 
   /**
    * Plays a single note
@@ -264,7 +263,7 @@ class Player {
     } catch (error) {
       console.error('[Player] Error for note', note, error)
     }
-  };
+  }
 
   /**
    * Scheduler runs every scheduleTimeout milliseconds to schedule notes
@@ -304,7 +303,7 @@ class Player {
       // Plan next scheduler run
       this.#timerID = setTimeout(this._scheduler, scheduleTimeout)
     }
-  };
+  }
 
   /**
    * Stops or loops the player depending on this.#loop
@@ -317,7 +316,7 @@ class Player {
     } else {
       this.stop()
     }
-  };
+  }
 
   /**
    * Stops the player
@@ -344,7 +343,7 @@ class Player {
       this.#onStopCallback()
     }
     return this
-  };
+  }
 
   /**
    * Pauses the player
@@ -357,7 +356,7 @@ class Player {
     this.#isPaused = true
     // TODO: onpause callback?
     return this
-  };
+  }
 
   /**
    * Resumes the player if paused
@@ -373,7 +372,7 @@ class Player {
     this.playNotes(this.#notes, this.#sound, this.currentPlayTime, this.#endAt, this.#speed, this.#loop)
     // TODO: on resume callback?
     return this
-  };
+  }
 
   /**
    * Will either pause or resume depending on player state
@@ -391,8 +390,7 @@ class Player {
       this.pause()
     }
     return this
-  };
+  }
 }
-
 
 export default Player

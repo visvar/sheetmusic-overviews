@@ -88,5 +88,10 @@
       When selecting a measure in another view, the Score view will scroll to its
       position.
     </p>
+
+    <h3>Privacy</h3>
+    <p>
+      No data leaves your device and no data (such as cookies) is stored on it.
+    </p>
   </Content>
 </Dialog>

@@ -25,6 +25,9 @@
 
 - allow coloring compressed by sections
 
+- player
+  - seems one bar ahead for muse - hysteria
+
 ## Features
 
 - make showTrailingRests global

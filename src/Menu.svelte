@@ -87,7 +87,8 @@
   export let selectedMetric = metrics[0];
 
   // let colorings = ['DR', 'Clustering', 'Compression', 'Occurence'];
-  let colorings = ['DR', 'Clustering', 'Occurence'];
+  // let colorings = ['DR', 'Clustering', 'Occurence'];
+  let colorings = ['DR', 'Clustering'];
   export let selectedColoring = 'DR';
   // export let selectedColoring = 'Compression';
   export let clusterThreshold = 0;
@@ -153,20 +154,21 @@
 </script>
 
 <main>
-  <Button on:click={() => fileInput.click()}>Open file</Button>
+  <Button on:click="{() => fileInput.click()}">Open file</Button>
   <input
     type="file"
     accept=".xml,.musicxml,.mxl"
     style="display: none"
-    bind:this={fileInput}
-    on:input={handleFileInput} />
+    bind:this="{fileInput}"
+    on:input="{handleFileInput}"
+  />
   <div class="fileName">
     {fileName}
   </div>
 
-  <Select bind:value={selectedTrack} label="Track" disabled={!musicpiece}>
+  <Select bind:value="{selectedTrack}" label="Track" disabled="{!musicpiece}">
     {#each tracks as track, i}
-      <Option value={i} title={`${i} ${track.name}`}>
+      <Option value="{i}" title="{`${i} ${track.name}`}">
         {i}
         {track.name.slice(0, 20)}
       </Option>
@@ -174,11 +176,12 @@
   </Select>
 
   <Select
-    bind:value={selectedEncoding}
+    bind:value="{selectedEncoding}"
     label="Note encoding"
-    disabled={!musicpiece}>
+    disabled="{!musicpiece}"
+  >
     {#each encodings as encoding}
-      <Option value={encoding}>
+      <Option value="{encoding}">
         {encoding}
       </Option>
     {/each}
@@ -192,9 +195,13 @@
     {/each}
   </Select> -->
 
-  <Select bind:value={selectedColoring} label="Coloring" disabled={!musicpiece}>
+  <Select
+    bind:value="{selectedColoring}"
+    label="Coloring"
+    disabled="{!musicpiece}"
+  >
     {#each colorings as coloring}
-      <Option value={coloring}>
+      <Option value="{coloring}">
         {coloring}
       </Option>
     {/each}
@@ -204,14 +211,16 @@
     <FormField align="end" style="width: 220px; display: flex;">
       <Slider
         style="flex-grow: 1;"
-        bind:value={clusterThreshold}
-        min={0}
-        max={1}
-        step={0.01}
-        input$aria-label="Cluster threshold" />
+        bind:value="{clusterThreshold}"
+        min="{0}"
+        max="{1}"
+        step="{0.01}"
+        input$aria-label="Cluster threshold"
+      />
       <span
         slot="label"
-        style="padding-right: 0; width: max-content; display: block;">
+        style="padding-right: 0; width: max-content; display: block;"
+      >
         Threshold
       </span>
     </FormField>
@@ -220,14 +229,16 @@
     <FormField align="end" style="width: 200px; display: flex;">
       <Slider
         style="flex-grow: 1;"
-        bind:value={compressionDepth}
-        min={0}
-        max={4}
-        step={1}
-        input$aria-label="Compression depth" />
+        bind:value="{compressionDepth}"
+        min="{0}"
+        max="{4}"
+        step="{1}"
+        input$aria-label="Compression depth"
+      />
       <span
         slot="label"
-        style="padding-right: 0; width: max-content; display: block;">
+        style="padding-right: 0; width: max-content; display: block;"
+      >
         Depth
       </span>
       <span>{compressionDepth}</span>
@@ -235,16 +246,21 @@
   {/if}
 
   <Select
-    bind:value={selectedColorMode}
+    bind:value="{selectedColorMode}"
     label="Color mode"
-    disabled={!musicpiece}>
+    disabled="{!musicpiece}"
+  >
     <Option value="bars" title="bars">Bars</Option>
     <Option value="sections" title="sections">Sections</Option>
   </Select>
 
-  <Select bind:value={selectedColormap} label="Colormap" disabled={!musicpiece}>
+  <Select
+    bind:value="{selectedColormap}"
+    label="Colormap"
+    disabled="{!musicpiece}"
+  >
     {#each colormaps as colormap}
-      <Option value={colormap} title={colormap.description}>
+      <Option value="{colormap}" title="{colormap.description}">
         {colormap.name}
       </Option>
     {/each}
@@ -252,20 +268,21 @@
 
   <div>
     <canvas
-      bind:this={colorRampCanvas}
-      width={200}
-      height={10}
-      style="border-radius: 3px" />
+      bind:this="{colorRampCanvas}"
+      width="{200}"
+      height="{10}"
+      style="border-radius: 3px"></canvas>
   </div>
 
   <div style="margin-top: 20px">
     <Button
-      disabled={!musicpiece ||
-        (selectedSection === null && selectedMeasure === null)}
-      on:click={() => {
+      disabled="{!musicpiece ||
+        (selectedSection === null && selectedMeasure === null)}"
+      on:click="{() => {
         selectedSection = null;
         selectedMeasure = null;
-      }}>
+      }}"
+    >
       Reset selection
     </Button>
   </div>

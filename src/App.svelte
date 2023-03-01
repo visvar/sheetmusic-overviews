@@ -27,8 +27,8 @@
 
   // View
   let views = ['Tracks', 'Tree', 'Compressed', 'Compact', 'Score'];
-  let currentViews = new Set([...views]);
-  // let currentViews = new Set(["Tracks", "Tree", "Compressed", "Compact"]);
+  // let currentViews = new Set([...views]);
+  let currentViews = new Set(['Tracks', 'Compact', 'Score']);
 
   // Data
   let musicxml = null;

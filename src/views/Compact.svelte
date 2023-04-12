@@ -151,7 +151,7 @@
 <main>
   <div class="overviewTitle">Compact</div>
   <div class="control">
-    <Select bind:value={selectedColoring} label="Coloring when selected">
+    <Select bind:value="{selectedColoring}" label="Coloring when selected">
       <Option value="default" title="Draw as if nothing was selected">
         Default
       </Option>
@@ -166,22 +166,23 @@
       class="legend"
       style="visibility: {selectedColoring === 'distance'
         ? 'visible'
-        : 'hidden'}">
+        : 'hidden'}"
+    >
       <div>Identical</div>
       <canvas
-        bind:this={colorRampCanvas}
-        width={50}
-        height={10}
-        style="border-radius: 3px" />
+        bind:this="{colorRampCanvas}"
+        width="{50}"
+        height="{10}"
+        style="border-radius: 3px"></canvas>
       <div>Different</div>
     </div>
     <label>
       Compact repeated notes
-      <input type="checkbox" bind:checked={compactRepeatedNotes} />
+      <input type="checkbox" bind:checked="{compactRepeatedNotes}" />
     </label>
     <label>
       Leading/trailing rests
-      <input type="checkbox" bind:checked={displayLeadingRests} />
+      <input type="checkbox" bind:checked="{displayLeadingRests}" />
     </label>
     <!-- <div>
       <label>
@@ -190,7 +191,7 @@
       </label>
     </div> -->
   </div>
-  <canvas {width} height={canvasHeight} bind:this={canvas} />
+  <canvas width="{width}" height="{canvasHeight}" bind:this="{canvas}"></canvas>
 </main>
 
 <style>

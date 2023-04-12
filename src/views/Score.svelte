@@ -1,15 +1,15 @@
 <script>
-  import * as opensheetmusicdisplay from "opensheetmusicdisplay";
-  import * as d3 from "d3";
-  import { removeXmlElements } from "../lib.js";
-  import { Utils } from "musicvis-lib";
+  import * as opensheetmusicdisplay from 'opensheetmusicdisplay';
+  import * as d3 from 'd3';
+  import { removeXmlElements } from '../lib.js';
+  import { Utils } from 'musicvis-lib';
 
   export let width;
   export let height;
   export let musicpiece;
   export let musicxml;
   export let trackIndex;
-  export let colorMode = "bars";
+  export let colorMode = 'bars';
   export let measures;
   export let measureColors;
   export let sectionInfo;
@@ -37,7 +37,7 @@
       : null;
 
   $: colors =
-    colorMode === "bars"
+    colorMode === 'bars'
       ? measureColors
       : sectionInfo.flatMap((section, index) =>
           new Array(section.endMeasure - section.startMeasure + 1).fill(
@@ -47,20 +47,20 @@
 
   const cleanXml = (stringXml) => {
     // Remove lyrics etc
-    console.log("cleaning up XML");
+    console.log('cleaning up XML');
     const parser = new DOMParser();
-    parsedXml = parser.parseFromString(stringXml, "text/xml");
+    parsedXml = parser.parseFromString(stringXml, 'text/xml');
     const newXml = removeXmlElements(parsedXml, [
-      "direction words",
-      "note lyric",
-      "dynamics",
+      'direction words',
+      'note lyric',
+      'dynamics',
     ]);
     const serializer = new XMLSerializer();
     return serializer.serializeToString(newXml);
   };
 
   const loadOSMD = async () => {
-    if (!container || !musicxml || musicxml === "" || measures?.length === 0) {
+    if (!container || !musicxml || musicxml === '' || measures?.length === 0) {
       return;
     }
     osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(container);
@@ -68,8 +68,8 @@
       autoResize: false,
       // autoResize: true,
       // backend: "canvas",
-      backend: "svg",
-      drawingParameters: "compacttight",
+      backend: 'svg',
+      drawingParameters: 'compacttight',
       drawLyrics: false,
       // renderSingleHorizontalStaffline: true,
       stretchLastSystemLine: true,
@@ -80,10 +80,10 @@
     // osmd.zoom = zoom;
     // osmd.Zoom = zoom;
     // Load
-    console.log("osmd loading");
+    console.log('osmd loading');
     try {
       await osmd.load(musicxml);
-      console.log("osmd loaded");
+      console.log('osmd loaded');
     } catch (e) {
       console.error(e);
       console.log(musicxml);
@@ -103,7 +103,7 @@
     }
     // Render
     await osmd.render();
-    console.log("osmd rendered");
+    console.log('osmd rendered');
   };
 
   /**
@@ -157,19 +157,19 @@
    * @returns {'notes'|'tab'|'notes-notes'|'notes-tab'}
    */
   const getStaffType = (parsedXml, trackIndex) => {
-    const part = parsedXml.querySelectorAll("part")[trackIndex];
-    const clefs = part.querySelectorAll("clef");
+    const part = parsedXml.querySelectorAll('part')[trackIndex];
+    const clefs = part.querySelectorAll('clef');
     const sign1 = clefs[0]
-      .querySelectorAll("sign")[0]
+      .querySelectorAll('sign')[0]
       .textContent.toLowerCase();
-    const type1 = sign1 === "tab" ? "tab" : "notes";
+    const type1 = sign1 === 'tab' ? 'tab' : 'notes';
     if (clefs.length === 1) {
       return type1;
     } else {
       const sign2 = clefs[1]
-        .querySelectorAll("sign")[0]
+        .querySelectorAll('sign')[0]
         .textContent.toLowerCase();
-      const type2 = sign2 === "tab" ? "tab" : "notes";
+      const type2 = sign2 === 'tab' ? 'tab' : 'notes';
       return `${type1}-${type2}`;
     }
   };
@@ -178,21 +178,21 @@
     if (!osmd || !measureColors || measureColors.length === 0) {
       return;
     }
-    console.log("osmd colorizing SVG");
-    const svg = d3.select(container.getElementsByTagName("svg")[0]);
+    console.log('osmd colorizing SVG');
+    const svg = d3.select(container.getElementsByTagName('svg')[0]);
     // TODO: remove old rects or better: add when rendered and then only change later
-    svg.selectAll(".coloredMeasure").remove();
+    svg.selectAll('.coloredMeasure').remove();
 
     const measureInfo = getMeasureInfo(osmd);
     // console.log("measureInfo", measureInfo);
     // const staffs = getStaffDetails();
     const staffType = getStaffType(parsedXml, trackIndex);
-    console.log("stafftype", staffType);
+    console.log('stafftype', staffType);
 
     for (const [index, measure] of measureInfo.entries()) {
       const parsedMIndex = musicpiece.xmlMeasureIndices.indexOf(index);
       // Empty measures should be transparent
-      if (measures[parsedMIndex].length === 0) {
+      if (measures[parsedMIndex]?.length === 0) {
         continue;
       }
       const x = measure.x * osmdScalingFactor;
@@ -203,55 +203,55 @@
       const m = osmd.graphic.measureList[index];
       // First staff
       const staffHeight1 =
-        staffType === "tab" ? tabStaffHeight : noteStaffHeight;
+        staffType === 'tab' ? tabStaffHeight : noteStaffHeight;
 
       svg
-        .append("rect")
-        .attr("class", `coloredMeasure measure${index}`)
-        .attr("x", x)
-        .attr("y", y)
-        .attr("width", w)
-        .attr("height", staffHeight1 * osmdScalingFactor)
-        .on("click", onClick)
+        .append('rect')
+        .attr('class', `coloredMeasure measure${index}`)
+        .attr('x', x)
+        .attr('y', y)
+        .attr('width', w)
+        .attr('height', staffHeight1 * osmdScalingFactor)
+        .on('click', onClick)
         .transition()
-        .style("fill", color)
-        .style("opacity", measureOpacity)
-        .style("mix-blend-mode", "multiply");
+        .style('fill', color)
+        .style('opacity', measureOpacity)
+        .style('mix-blend-mode', 'multiply');
       if (m.length > 1) {
         const y2 = m[1].boundingBox.absolutePosition.y;
         const staffHeight2 =
-          staffType === "notes-tab" ? tabStaffHeight : noteStaffHeight;
+          staffType === 'notes-tab' ? tabStaffHeight : noteStaffHeight;
         if (y2 > 0) {
           // Second staff
           svg
-            .append("rect")
-            .attr("class", `coloredMeasure measure${index}`)
-            .attr("x", x)
-            .attr("y", y2 * osmdScalingFactor)
-            .attr("width", w)
-            .attr("height", staffHeight2 * osmdScalingFactor)
-            .on("click", onClick)
+            .append('rect')
+            .attr('class', `coloredMeasure measure${index}`)
+            .attr('x', x)
+            .attr('y', y2 * osmdScalingFactor)
+            .attr('width', w)
+            .attr('height', staffHeight2 * osmdScalingFactor)
+            .on('click', onClick)
             .transition()
-            .style("fill", color)
-            .style("opacity", measureOpacity)
-            .style("mix-blend-mode", "multiply");
+            .style('fill', color)
+            .style('opacity', measureOpacity)
+            .style('mix-blend-mode', 'multiply');
         }
         const yGap = (measure.y + staffHeight1) * osmdScalingFactor;
         const gapHeight = (y2 - measure.y - staffHeight1) * osmdScalingFactor;
         if (gapHeight > 0) {
           // Gap
           svg
-            .append("rect")
-            .attr("class", `coloredMeasure gap measure${index}`)
-            .attr("x", x)
-            .attr("y", yGap)
-            .attr("width", w)
-            .attr("height", gapHeight)
-            .on("click", onClick)
+            .append('rect')
+            .attr('class', `coloredMeasure gap measure${index}`)
+            .attr('x', x)
+            .attr('y', yGap)
+            .attr('width', w)
+            .attr('height', gapHeight)
+            .on('click', onClick)
             .transition()
-            .style("fill", color)
-            .style("opacity", measureOpacity)
-            .style("mix-blend-mode", "multiply");
+            .style('fill', color)
+            .style('opacity', measureOpacity)
+            .style('mix-blend-mode', 'multiply');
         }
       }
     }
@@ -288,11 +288,11 @@
     // console.log(`Highlighting .measure${measureIndex}`);
     // Reset opacity of all measure backgrounds
     const measures = d3.select(container).selectAll(`.coloredMeasure`);
-    measures.transition().style("opacity", measureOpacity);
+    measures.transition().style('opacity', measureOpacity);
     if (measureIndex !== undefined && measureIndex !== null) {
       // Highlight selected measure elements
       const measures2 = measures.filter(`.measure${measureIndex}`);
-      measures2.transition().style("opacity", measureOpacityHighlighted);
+      measures2.transition().style('opacity', measureOpacityHighlighted);
     }
   };
 
@@ -301,7 +301,7 @@
     loadOSMD();
   }
   $: if (true || width || osmd) {
-    renderOSMD().then(() => Utils.delay(0.1).then(colorizeSvg));
+    renderOSMD().then(() => Utils.delay(0.2).then(colorizeSvg));
   }
   $: if (true || colors) {
     colorizeSvg();
@@ -312,11 +312,11 @@
   }
 </script>
 
-<main bind:this={main}>
+<main bind:this="{main}">
   <div
-    bind:this={container}
+    bind:this="{container}"
     style="width: {width - 25}px; height: {height}px"
-  />
+  ></div>
 </main>
 
 <style>

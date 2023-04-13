@@ -374,6 +374,7 @@
   }
 
   main {
+    min-width: 1500px;
     display: grid;
     grid-template-columns: 260px auto auto;
     gap: 25px;

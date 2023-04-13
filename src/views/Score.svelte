@@ -3,6 +3,8 @@
   import * as d3 from 'd3';
   import { removeXmlElements } from '../lib.js';
   import { Utils } from 'musicvis-lib';
+  import FormField from '@smui/form-field';
+  import Slider from '@smui/slider';
 
   export let width;
   export let height;
@@ -20,8 +22,8 @@
   let container;
   let osmd;
 
-  const measureOpacity = 0.3;
-  const measureOpacityHighlighted = 0.8;
+  let measureOpacity = 0.3;
+  const measureOpacityHighlighted = 1;
 
   // TODO: zoom does not work
   // const zoom = 0.5;
@@ -67,9 +69,11 @@
     osmd.setOptions({
       autoResize: false,
       // autoResize: true,
-      // backend: "canvas",
+      // backend: 'canvas',
       backend: 'svg',
       drawingParameters: 'compacttight',
+      drawTimeSignatures: true,
+      drawMetronomeMarks: true,
       drawLyrics: false,
       // renderSingleHorizontalStaffline: true,
       stretchLastSystemLine: true,
@@ -201,59 +205,68 @@
       const color = colors[parsedMIndex];
       const onClick = () => (selectedMeasure = parsedMIndex);
       const m = osmd.graphic.measureList[index];
-      // First staff
       const staffHeight1 =
         staffType === 'tab' ? tabStaffHeight : noteStaffHeight;
 
+      let h = staffHeight1;
+
+      if (m.length > 1) {
+        const y2 = m[1].boundingBox.absolutePosition.y;
+        const staffHeight2 =
+          staffType === 'notes-tab' ? tabStaffHeight : noteStaffHeight;
+        h += staffHeight2;
+        if (y2 > 0) {
+          // Second staff
+          // svg
+          //   .append('rect')
+          //   .attr('class', `coloredMeasure measure${index}`)
+          //   .attr('x', x)
+          //   .attr('y', y2 * osmdScalingFactor)
+          //   .attr('width', w)
+          //   .attr('height', staffHeight2 * osmdScalingFactor)
+          //   .on('click', onClick)
+          //   .transition()
+          //   .style('fill', color)
+          //   .style('stroke', 'black')
+          //   .style('opacity', measureOpacity)
+          //   .style('mix-blend-mode', 'multiply');
+        }
+        const yGap = (measure.y + staffHeight1) * osmdScalingFactor;
+        const gapHeight = (y2 - measure.y - staffHeight1) * osmdScalingFactor;
+        if (gapHeight > 0) {
+          h += y2 - measure.y - staffHeight1;
+          // Gap
+          // svg
+          //   .append('rect')
+          //   .attr('class', `coloredMeasure gap measure${index}`)
+          //   .attr('x', x)
+          //   .attr('y', yGap)
+          //   .attr('width', w)
+          //   .attr('height', gapHeight)
+          //   .on('click', onClick)
+          //   .transition()
+          //   .style('fill', color)
+          //   .style('stroke', 'black')
+          //   .style('opacity', measureOpacity)
+          //   .style('mix-blend-mode', 'multiply');
+        }
+      }
+
+      // First staff
       svg
         .append('rect')
         .attr('class', `coloredMeasure measure${index}`)
         .attr('x', x)
         .attr('y', y)
         .attr('width', w)
-        .attr('height', staffHeight1 * osmdScalingFactor)
+        .attr('height', h * osmdScalingFactor)
+        .attr('rx', 3)
         .on('click', onClick)
         .transition()
         .style('fill', color)
+        .style('stroke', 'black')
         .style('opacity', measureOpacity)
         .style('mix-blend-mode', 'multiply');
-      if (m.length > 1) {
-        const y2 = m[1].boundingBox.absolutePosition.y;
-        const staffHeight2 =
-          staffType === 'notes-tab' ? tabStaffHeight : noteStaffHeight;
-        if (y2 > 0) {
-          // Second staff
-          svg
-            .append('rect')
-            .attr('class', `coloredMeasure measure${index}`)
-            .attr('x', x)
-            .attr('y', y2 * osmdScalingFactor)
-            .attr('width', w)
-            .attr('height', staffHeight2 * osmdScalingFactor)
-            .on('click', onClick)
-            .transition()
-            .style('fill', color)
-            .style('opacity', measureOpacity)
-            .style('mix-blend-mode', 'multiply');
-        }
-        const yGap = (measure.y + staffHeight1) * osmdScalingFactor;
-        const gapHeight = (y2 - measure.y - staffHeight1) * osmdScalingFactor;
-        if (gapHeight > 0) {
-          // Gap
-          svg
-            .append('rect')
-            .attr('class', `coloredMeasure gap measure${index}`)
-            .attr('x', x)
-            .attr('y', yGap)
-            .attr('width', w)
-            .attr('height', gapHeight)
-            .on('click', onClick)
-            .transition()
-            .style('fill', color)
-            .style('opacity', measureOpacity)
-            .style('mix-blend-mode', 'multiply');
-        }
-      }
     }
   };
 
@@ -288,11 +301,17 @@
     // console.log(`Highlighting .measure${measureIndex}`);
     // Reset opacity of all measure backgrounds
     const measures = d3.select(container).selectAll(`.coloredMeasure`);
-    measures.transition().style('opacity', measureOpacity);
+    measures
+      .transition()
+      .style('opacity', measureOpacity)
+      .attr('stroke-width', 0);
     if (measureIndex !== undefined && measureIndex !== null) {
       // Highlight selected measure elements
       const measures2 = measures.filter(`.measure${measureIndex}`);
-      measures2.transition().style('opacity', measureOpacityHighlighted);
+      measures2
+        .transition()
+        .style('opacity', measureOpacityHighlighted)
+        .attr('stroke-width', 3);
     }
   };
 
@@ -313,6 +332,17 @@
 </script>
 
 <main bind:this="{main}">
+  <label>
+    <span> Opacity </span>
+    <input
+      type="range"
+      bind:value="{measureOpacity}"
+      on:input="{colorizeSvg}"
+      min="{0}"
+      max="{0.8}"
+      step="{0.1}"
+    />
+  </label>
   <div
     bind:this="{container}"
     style="width: {width - 25}px; height: {height}px"

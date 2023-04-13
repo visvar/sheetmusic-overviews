@@ -184,12 +184,18 @@
       Leading/trailing rests
       <input type="checkbox" bind:checked="{displayLeadingRests}" />
     </label>
-    <!-- <div>
+    <div>
       <label>
         Bars per row
-        <input type="range" bind:value={mPerRow} min={1} max={100} step={1} />
+        <input
+          type="range"
+          bind:value="{mPerRow}"
+          min="{1}"
+          max="{100}"
+          step="{1}"
+        />
       </label>
-    </div> -->
+    </div>
   </div>
   <canvas width="{width}" height="{canvasHeight}" bind:this="{canvas}"></canvas>
 </main>
@@ -204,7 +210,7 @@
   .control {
     margin-bottom: 4px;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     justify-items: center;
     align-items: center;
   }

@@ -1,7 +1,7 @@
 <script>
-  import { afterUpdate } from "svelte";
-  import { Canvas, Chords } from "musicvis-lib";
-  import BarRenderer from "../lib/BarRenderer.js";
+  import { afterUpdate } from 'svelte';
+  import { Canvas, Chords } from 'musicvis-lib';
+  import BarRenderer from '../lib/BarRenderer.js';
 
   export let width;
   export let height;
@@ -57,9 +57,9 @@
     const rowHeight = levelHeight;
     const gapHeight = levelHeight;
 
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext('2d');
     context.font = `11px sans-serif`;
-    context.imageSmoothingQuality = "high";
+    context.imageSmoothingQuality = 'high';
     context.lineWidth = 0.25;
 
     // Globals
@@ -127,7 +127,7 @@
 
       // Reset
       context.resetTransform();
-      context.fillStyle = "white";
+      context.fillStyle = 'white';
       context.fillRect(0, 0, width, height);
 
       // Draw labels for rows, also show counts
@@ -139,7 +139,7 @@
         `Harmnonies: ${allHarmonies.length}`,
         `Notes: ${notes.length}`,
       ]) {
-        Canvas.drawVerticalText(context, 0, y, label, "#333", font, true);
+        Canvas.drawVerticalText(context, 0, y, label, '#333', font, true);
         y += rowHeight * 2;
       }
       context.translate(marginLeft, 0);
@@ -160,9 +160,9 @@
         // Background
         const bgColor = sectionColors[index];
         // Section name
-        context.fillStyle = "white";
+        context.fillStyle = 'white';
         context.fillRect(mX - 5, rowY - 10, w, 10);
-        context.fillStyle = "black";
+        context.fillStyle = 'black';
         context.fillText(sectionInfo[index].name, mX, rowY - 2);
         // Notes
         sRenderer.render(context, index, section, mX, rowY, bgColor, {
@@ -170,7 +170,7 @@
           showFrets: false,
         });
         if (selectedSection === index) {
-          sRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, "#666");
+          sRenderer.drawHighlightBorder(context, mX, rowY, 5, 3, '#666');
         }
       }
 
@@ -193,7 +193,7 @@
         const x1b = (selectedSection + 1) * sWidth;
         Canvas.drawBezierConnectorY(context, x1, y1, 0, y2);
         Canvas.drawBezierConnectorY(context, x1b, y1, w, y2);
-        context.fillStyle = "#88888822";
+        context.fillStyle = '#88888822';
         Canvas.drawBezierFunnelY(context, y1, y2, x1, x1b, 0, w);
       }
       // Draw measures
@@ -216,7 +216,7 @@
           renderParams
         );
         if (selectedMeasureOfSection === index) {
-          mRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, "#666");
+          mRenderer.drawHighlightBorder(context, mX, rowY, 5, 2, '#666');
         }
       }
 
@@ -243,8 +243,8 @@
           const x1b = (selectedMeasureOfSection + 1) * mWidth;
           Canvas.drawBezierConnectorY(context, x1, y1h, 0, y2h);
           Canvas.drawBezierConnectorY(context, x1b, y1h, w, y2h);
-          context.fillStyle = "#88888822";
-         Canvas.drawBezierFunnelY(context, y1h, y2h, x1, x1b, 0, w);
+          context.fillStyle = '#88888822';
+          Canvas.drawBezierFunnelY(context, y1h, y2h, x1, x1b, 0, w);
         }
 
         // Draw harmonies
@@ -293,17 +293,17 @@
   afterUpdate(drawVis);
 </script>
 
-<main style={`height: ${height}px`}>
+<main style="{`height: ${height}px`}">
   <div class="overviewTitle">Tree</div>
   <div class="control">
     <div>
       <label>
         Show harmonies and notes
-        <input type="checkbox" bind:checked={showHarmoniesAndNotes} />
+        <input type="checkbox" bind:checked="{showHarmoniesAndNotes}" />
       </label>
     </div>
   </div>
-  <canvas {width} height={height - 30} bind:this={canvas} />
+  <canvas width="{width}" height="{height - 30}" bind:this="{canvas}"></canvas>
 </main>
 
 <style>

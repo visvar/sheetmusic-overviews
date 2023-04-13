@@ -1,5 +1,5 @@
 <script>
-  import { MusicPiece } from 'musicvis-lib';
+  import { Midi, MusicPiece } from 'musicvis-lib';
   import * as d3 from 'd3';
   import JSZip from 'jszip';
   import { createEventDispatcher } from 'svelte';
@@ -285,6 +285,17 @@
     >
       Reset selection
     </Button>
+  </div>
+
+  <div style="margin-top: 20px">
+    {#if tracks[selectedTrack]?.tuningPitches}
+      <div>
+        Tuning:
+        {tracks[selectedTrack]?.tuningPitches
+          ?.map((d) => Midi.getMidiNoteByNr(d).label)
+          .join(' ')}
+      </div>
+    {/if}
   </div>
 </main>
 

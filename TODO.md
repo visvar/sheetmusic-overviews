@@ -71,28 +71,27 @@
 ## minor
 
 - make borders around highlighted things thicker, eg in tree view
-    - also in score with border
-- score view does not update when track is changed
-- scrolling to current bar in score does sometimes not scrolls far enough
-    - make sure bar is completely within viewport
-    - next 2 3 rows should be in view port
-    - animate scrolling a bit, maybe ease-in
-- show guitar tuning (eg EADGBE), capo, ...
-    - maybe disable compacttight to show full meta info
 - show meter and tempo changes in tracks view
     - also draw ticks for bars numbers
+    - Add tempo curve to tracks view
+    - And time signature labels
 - metronome, mute player (or just gain slider)
 - remove color scales
     - rainbow, sinebow, warm, cool, blues
-- slider for score bar opacity
-- slider for bars per row in compact
-- make bars same width
+- score
+  - draw only one rect per bar, no matter how many staffs, simply span whole height
+  - show guitar capo, ...
+      - maybe disable compacttight to show full meta info
+  - score view does not update when track is changed
+  - make bars same width in score
+  - scrolling to current bar in score does sometimes not scrolls far enough
+      - make sure bar is completely within viewport
+      - next 2 3 rows should be in view port
+      - animate scrolling a bit, maybe ease-in
 - compressed should scroll to show current bar in center or left
 - speedup cluster threshold slider, or at least debounce
 - levenshtein on only rhythm, not pitch
 - replace inputs with custom ones
-- Add tempo curve to tracks view
-- And time signature labels
 - allow to jump between sections when pressing pgup pgdown
 
 ## major

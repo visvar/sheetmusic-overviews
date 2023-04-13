@@ -6,8 +6,9 @@
 2. [Performance](#performance)
    1. [Bugs](#bugs)
    2. [Publication](#publication)
-   3. [Future work](#future-work)
-   4. [Minor ideas](#minor-ideas)
+   3. [minor](#minor)
+   4. [major](#major)
+   5. [Future work](#future-work)
 
 ## Urgent
 
@@ -20,8 +21,6 @@
 - metric that takes rhythm into account, maybe like simeon's ie levenshtein of both pitch and start, maybe also duration, differently weighted
 
 - show note color map in tree wehn notes are shown
-
-- fix menu freeze at 51:00
 
 - allow coloring compressed by sections
 
@@ -68,6 +67,47 @@
 - publish https://observablehq.com/@fheyen/sequence-immediate-repetition-hierarchies
   - link to it from mvlib code
 
+
+## minor
+
+- make borders around highlighted things thicker, eg in tree view
+    - also in score with border
+- score view does not update when track is changed
+- scrolling to current bar in score does sometimes not scrolls far enough
+    - make sure bar is completely within viewport
+    - next 2 3 rows should be in view port
+    - animate scrolling a bit, maybe ease-in
+- show guitar tuning (eg EADGBE), capo, ...
+    - maybe disable compacttight to show full meta info
+- show meter and tempo changes in tracks view
+    - also draw ticks for bars numbers
+- metronome, mute player (or just gain slider)
+- remove color scales
+    - rainbow, sinebow, warm, cool, blues
+- slider for score bar opacity
+- slider for bars per row in compact
+- make bars same width
+- compressed should scroll to show current bar in center or left
+- speedup cluster threshold slider, or at least debounce
+- levenshtein on only rhythm, not pitch
+- replace inputs with custom ones
+- Add tempo curve to tracks view
+- And time signature labels
+- allow to jump between sections when pressing pgup pgdown
+
+## major
+
+- render with alphatab
+- allow to toggle notes (to only show tab)
+- to showcase, visualize 1D positions or clustering tree with bars as glyphs
+- segment into motifs, riffs
+   - most common ngrams, largest first
+clustering with brightness for within-cluster similarity
+  - colors for each cluster
+  - for bars within each cluster, assign brightness by leaf ordering
+colored line above section/motif, to better see when the same color comes twice in a row, where the new part starts
+
+
 ## Future work
 
 - allow to select multiple consecutive bars
@@ -80,9 +120,3 @@
   - support same simplified encoding: each bar, display pitch range and mean (mean weighted by note duration)
   - include metrics as coloring source
 - try to add section labels to compressed as well
-
-## Minor ideas
-
-- Add tempo curve to tracks view
-- And time signature labels
-- allow to jump between sections when pressing pgup pgdown

@@ -1,7 +1,7 @@
 <script>
   import * as opensheetmusicdisplay from 'opensheetmusicdisplay';
   import * as d3 from 'd3';
-  import { removeXmlElements } from '../lib.js';
+  import { removeXmlElements } from '../lib/lib.js';
   import { Utils } from 'musicvis-lib';
 
   export let width;

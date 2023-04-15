@@ -88,6 +88,7 @@
 ## major
 
 - render with alphatab
+  - [ ] parse .gp files with alphatab into a MusicPiece
   - [x] integrate alphatab and render an example
   - [ ] render musicxml
   - [ ] colorize bars

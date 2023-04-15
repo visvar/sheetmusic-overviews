@@ -2,7 +2,7 @@
   // @ts-nocheck
 
   import * as d3 from 'd3';
-  import { removeXmlElements } from '../lib.js';
+  import { formatDuration, removeXmlElements } from '../lib/lib.js';
   import { Utils } from 'musicvis-lib';
   import * as alphaTab from '@coderline/alphatab';
   import { onMount } from 'svelte';
@@ -21,9 +21,6 @@
 
   let api;
   let main;
-  let container;
-
-  console.log(alphaTab);
 
   const handleFileInput = async (event) => {
     const file = event.target.files[0];
@@ -44,22 +41,37 @@
       // TODO:
       console.log(score);
 
-      api.renderScore(score);
+      api.renderScore(score, [trackIndex]);
+      console.log(api);
+      colorizeBars();
     } else {
       alert('Invalid file');
       return;
     }
   };
 
+  const renderXml = async () => {
+    // convert to binary first for alphatab
+    const binary = new Blob([musicxml]);
+    const data = new Uint8Array(await binary.arrayBuffer());
+    const settings = new alphaTab.Settings();
+    const score = alphaTab.importer.ScoreLoader.loadScoreFromBytes(
+      data,
+      settings
+    );
+    api.renderScore(score, [trackIndex]);
+  };
+
   onMount(() => {
     const wrapper = document.querySelector('.at-wrap');
-    const main = wrapper.querySelector('.at-main');
+    main = wrapper.querySelector('.at-main');
 
     const settings = {
       // settings see https://www.alphatab.net/docs/reference/settings
       file: 'https://www.alphatab.net/files/canon.gp',
       core: {
         fontDirectory: './alphatabFont/',
+        // enableLazyLoading: false, // https://next.alphatab.net/docs/reference/settings/core/enablelazyloading/
       },
       // tracks: [0] // https://www.alphatab.net/docs/reference/settings/core/tracks/
       scale: 0.9, // https://www.alphatab.net/docs/reference/settings/display/scale/
@@ -72,12 +84,16 @@
       notation: {
         elements: {
           // https://www.alphatab.net/docs/reference/settings/notation/elements/
-          // scoreTitle: false,
+          scoreTitle: false,
           scoreSubTitle: false,
-          // scoreArtist: false,
+          scoreArtist: false,
           scoreAlbum: false,
           scoreWords: false,
           scoreMusic: false,
+          scoreWordsAndMusic: false,
+          scoreCopyright: false,
+          // guitarTuning: true,
+          guitarTuning: false,
           trackNames: false,
         },
       },
@@ -88,6 +104,7 @@
         scrollElement: wrapper.querySelector('.at-viewport'),
       },
     };
+
     api = new alphaTab.AlphaTabApi(main, settings);
 
     // overlay logic
@@ -190,13 +207,13 @@
     const playPause = wrapper.querySelector(
       '.at-controls .at-player-play-pause'
     );
-    const stop = wrapper.querySelector('.at-controls .at-player-stop');
     playPause.onclick = (e) => {
       if (e.target.classList.contains('disabled')) {
         return;
       }
       api.playPause();
     };
+    const stop = wrapper.querySelector('.at-controls .at-player-stop');
     stop.onclick = (e) => {
       if (e.target.classList.contains('disabled')) {
         return;
@@ -215,18 +232,6 @@
       }
     });
 
-    // song position
-    function formatDuration(milliseconds) {
-      let seconds = milliseconds / 1000;
-      const minutes = (seconds / 60) | 0;
-      seconds = (seconds - minutes * 60) | 0;
-      return (
-        String(minutes).padStart(2, '0') +
-        ':' +
-        String(seconds).padStart(2, '0')
-      );
-    }
-
     const songPosition = wrapper.querySelector('.at-song-position');
     let previousTime = -1;
     api.playerPositionChanged.on((e) => {
@@ -238,19 +243,51 @@
       songPosition.innerText =
         formatDuration(e.currentTime) + ' / ' + formatDuration(e.endTime);
     });
+
+    api.playedBeatChanged.on((beat) => {
+      console.log('player beat', beat);
+    });
+
+    api.activeBeatsChanged.on((args) => {
+      console.log(args.activeBeats);
+      console.log('player bar', args.activeBeats[0].voice.bar.index);
+      selectedMeasure = args.activeBeats[0].voice.bar.index;
+    });
   });
+
+  const colorizeBars = () => {
+    const divs = main.querySelectorAll('div:not([class])');
+    const svgs = main.querySelectorAll('svg');
+    // https://next.alphatab.net/docs/reference/scorerenderer/boundslookup/
+    const staveGroups = api.renderer.boundsLookup.staveGroups;
+    console.log({ divs, svgs, staveGroups });
+    console.log([...divs].slice(3));
+
+    const barBBoxes = staveGroups.map((d) => d.bars);
+    console.log(barBBoxes);
+
+    const barBBoxes2 = d3.group(
+      staveGroups.flatMap((d) => d.bars),
+      (d) => d.index
+    );
+    console.log(barBBoxes2);
+    // for (const [key, value] of barBBoxes) {
+
+    // }
+  };
 </script>
 
-<main bind:this="{main}">
+<main>
   tab
   <input
     type="file"
     accept=".xml,.musicxml,.mxl,.gp,.gp5"
     on:input="{handleFileInput}"
   />
+  <button on:click="{renderXml}">use musicxml</button>
   <div class="at-wrap" style="width: {width - 25}px; height: {height - 50}px">
     <div class="at-controls">
-      <span class="btn at-player-stop disabled"> backward </span>
+      <span class="btn at-player-stop disabled"> reset </span>
       <span class="btn at-player-play-pause disabled"> play/pause </span>
       <div class="at-song-position">00:00 / 00:00</div>
       <span class="btn toggle at-count-in">count-in</span>
@@ -295,9 +332,6 @@
 
   <template id="at-track-template">
     <div class="at-track">
-      <div class="at-track-icon">
-        <i class="fas fa-guitar"></i>
-      </div>
       <div class="at-track-details">
         <div class="at-track-name"></div>
       </div>

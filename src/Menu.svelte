@@ -7,7 +7,7 @@
   import Button from '@smui/button';
   import Slider from '@smui/slider';
   import FormField from '@smui/form-field';
-  import { drawColorRamp } from './lib.js';
+  import { drawColorRamp } from './lib/lib.js';
 
   const dispatch = createEventDispatcher();
   const submitFile = (musicxml, musicpiece) =>
@@ -18,6 +18,7 @@
   export let selectedTrack = 0;
   export let selectedMeasure = null;
   export let selectedSection = null;
+  export let sectionInfo = null;
 
   let fileName = '';
   let tracks = [];
@@ -112,16 +113,16 @@
       description: 'right half of interpolateRainbow',
       map: d3.interpolateCool,
     },
-    {
-      name: 'Rainbow',
-      description: 'many hues, similar brightness, but cyclical',
-      map: (d) => d3.interpolateRainbow(d * 0.9),
-    },
-    {
-      name: 'Sinebow',
-      description: 'many hues, but cyclical',
-      map: (d) => d3.interpolateSinebow(d * 0.9),
-    },
+    // {
+    //   name: 'Rainbow',
+    //   description: 'many hues, similar brightness, but cyclical',
+    //   map: (d) => d3.interpolateRainbow(d * 0.9),
+    // },
+    // {
+    //   name: 'Sinebow',
+    //   description: 'many hues, but cyclical',
+    //   map: (d) => d3.interpolateSinebow(d * 0.9),
+    // },
     {
       name: 'Turbo',
       description: 'many hues',
@@ -295,6 +296,10 @@
           ?.map((d) => Midi.getMidiNoteByNr(d).label)
           .join(' ')}
       </div>
+    {/if}
+    {#if sectionInfo && selectedSection !== null}
+      Current section: {selectedSection + 1} - {sectionInfo[selectedSection]
+        .name}
     {/if}
   </div>
 </main>

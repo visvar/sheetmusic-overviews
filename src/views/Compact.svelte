@@ -2,7 +2,7 @@
   import { afterUpdate } from 'svelte';
   import Select, { Option } from '@smui/select';
   import * as d3 from 'd3';
-  import { drawColorRamp } from '../lib.js';
+  import { drawColorRamp } from '../lib/lib.js';
   import BarRenderer from '../lib/BarRenderer.js';
 
   export let width;

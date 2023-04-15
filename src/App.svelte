@@ -13,7 +13,7 @@
     getColorsViaCompression,
     getColorsViaMDSFromDistances,
     getColorsViaOccurence,
-  } from './lib.js';
+  } from './lib/lib.js';
 
   import Menu from './Menu.svelte';
   import Tracks from './views/Tracks.svelte';
@@ -260,6 +260,7 @@
             bind:compressionDepth="{compressionDepth}"
             bind:selectedColorMode="{colorMode}"
             bind:selectedColormap="{colormap}"
+            sectionInfo="{sectionInfo}"
           />
         </div>
         <div class="overviewContainer" style="{`width: ${overviewWidth}px`}">

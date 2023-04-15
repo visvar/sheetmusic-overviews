@@ -153,7 +153,7 @@
         sWidthInner,
         rowHeight
       );
-      let rowY = 10;
+      let rowY = 12;
       for (const [index, section] of sections.entries()) {
         const col = index;
         const mX = col * sWidth;
@@ -161,9 +161,9 @@
         const bgColor = sectionColors[index];
         // Section name
         context.fillStyle = 'white';
-        context.fillRect(mX - 5, rowY - 10, w, 10);
+        context.fillRect(mX - 5, 0, w, 10);
         context.fillStyle = 'black';
-        context.fillText(sectionInfo[index].name, mX, rowY - 2);
+        context.fillText(sectionInfo[index].name, mX, rowY - 4);
         // Notes
         sRenderer.render(context, index, section, mX, rowY, bgColor, {
           ...renderParams,

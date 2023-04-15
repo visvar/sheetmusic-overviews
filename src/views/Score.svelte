@@ -3,8 +3,6 @@
   import * as d3 from 'd3';
   import { removeXmlElements } from '../lib.js';
   import { Utils } from 'musicvis-lib';
-  import FormField from '@smui/form-field';
-  import Slider from '@smui/slider';
 
   export let width;
   export let height;
@@ -345,7 +343,7 @@
   </label>
   <div
     bind:this="{container}"
-    style="width: {width - 25}px; height: {height}px"
+    style="width: {width - 25}px; height: {height - 60}px"
   ></div>
 </main>
 

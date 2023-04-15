@@ -24,11 +24,12 @@
   import Help from './modals/Help.svelte';
   import About from './modals/About.svelte';
   import Player from './Player.svelte';
+  import Tab from './views/Tab.svelte';
 
   // View
-  let views = ['Tracks', 'Tree', 'Compressed', 'Compact', 'Score'];
-  // let currentViews = new Set([...views]);
-  let currentViews = new Set(['Tracks', 'Compact', 'Score']);
+  let views = ['Tracks', 'Tree', 'Compressed', 'Compact', 'Score', 'Tab'];
+  let currentViews = new Set([...views]);
+  // let currentViews = new Set(['Tracks', 'Compact', 'Tab']);
 
   // Data
   let musicxml = null;
@@ -123,7 +124,7 @@
   $: overviewWidth = currentViews.has('Score')
     ? (windowWidth - 340) / 2
     : windowWidth - 320;
-  $: contentHeight = windowHeight - 80;
+  $: contentHeight = windowHeight - 125;
   $: tracksHeight = (musicpiece?.tracks.length ?? 0.1) * 14 + 40;
   const treeHeight = 400;
   const compressedHeight = 200;
@@ -317,6 +318,21 @@
           {/if}
         </div>
         <div class="scoreContainer">
+          {#if currentViews.has('Tab')}
+            <Tab
+              width="{overviewWidth}"
+              height="{contentHeight}"
+              musicpiece="{musicpiece}"
+              musicxml="{musicxml}"
+              trackIndex="{trackIndex}"
+              colorMode="{colorMode}"
+              measures="{measures}"
+              measureColors="{measureColors}"
+              sectionInfo="{sectionInfo}"
+              sectionColors="{sectionColors}"
+              bind:selectedMeasure="{selectedMeasure}"
+            />
+          {/if}
           {#if currentViews.has('Score') && musicxml && musicpiece && track && measureColors.length > 0}
             <Score
               width="{overviewWidth}"

@@ -20,7 +20,7 @@
   - is switching the bug? try hardcoding track 2
 - metric that takes rhythm into account, maybe like simeon's ie levenshtein of both pitch and start, maybe also duration, differently weighted
 
-- show note color map in tree wehn notes are shown
+- show note color legend in tree wehn notes are shown
 
 - allow coloring compressed by sections
 
@@ -30,19 +30,8 @@
 ## Features
 
 - make showTrailingRests global
-- get colors from compressed blocks: each block that is repeated or in between reps gets its own color
-- new note encodings
-  - drums
-  - staff
-- support 7 string guitar, 4 string bass etc
-  - check tuning pitches to get number of strings, then compute bbox of measures from that?
-  - sheet
-  - score
 - compact repeated notes should also work for repeated chords
   - requires rendering chord for chord
-- drum playback
-  - fix drum sound map
-  - allow to use custom map from pitch to sound
 - tree
   - allow to compress only 1, 2, ... levels, has to be done in mvlib
 
@@ -83,28 +72,34 @@
   - show guitar capo, ...
       - maybe disable compacttight to show full meta info
   - score view does not update when track is changed
-  - make bars same width in score
+  - make bars same width in score: https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1314
   - scrolling to current bar in score does sometimes not scrolls far enough
       - make sure bar is completely within viewport
       - next 2 3 rows should be in view port
       - animate scrolling a bit, maybe ease-in
+  - highlight individual chords and notes? https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/wiki/Exploring-the-Demo#drawing-overlay-lines-over-the-score-and-getting-a-notes-position
 - compressed should scroll to show current bar in center or left
 - speedup cluster threshold slider, or at least debounce
 - levenshtein on only rhythm, not pitch
 - replace inputs with custom ones
 - allow to jump between sections when pressing pgup pgdown
+- when only score is shown, make it full width
 
 ## major
 
 - render with alphatab
-- allow to toggle notes (to only show tab)
+  - [x] integrate alphatab and render an example
+  - [ ] render musicxml
+  - [ ] colorize bars
+  - [ ] highlighting and interaction
+  - [x] allow to toggle notes (to only show tab)
 - to showcase, visualize 1D positions or clustering tree with bars as glyphs
 - segment into motifs, riffs
    - most common ngrams, largest first
-clustering with brightness for within-cluster similarity
+- clustering with brightness for within-cluster similarity
   - colors for each cluster
   - for bars within each cluster, assign brightness by leaf ordering
-colored line above section/motif, to better see when the same color comes twice in a row, where the new part starts
+- colored line above section/motif, to better see when the same color comes twice in a row, where the new part starts
 
 
 ## Future work
@@ -119,3 +114,15 @@ colored line above section/motif, to better see when the same color comes twice 
   - support same simplified encoding: each bar, display pitch range and mean (mean weighted by note duration)
   - include metrics as coloring source
 - try to add section labels to compressed as well
+- get colors from compressed blocks: each block that is repeated or in between reps gets its own color
+- new note encodings
+  - drums
+  - staff
+- support 7 string guitar, 4 string bass etc
+  - check tuning pitches to get number of strings, then compute bbox of measures from that?
+  - sheet
+  - score
+- drum playback
+  - fix drum sound map
+  - allow to use custom map from pitch to sound
+- allow printing colored sheet music

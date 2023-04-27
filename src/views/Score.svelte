@@ -46,8 +46,12 @@
           )
         );
 
+  /**
+   * Removes certain things from the XML, e.g., lyrics
+   * @todo cache
+   * @param {string} stringXml MusicXML as string
+   */
   const cleanXml = (stringXml) => {
-    // Remove lyrics etc
     console.log('cleaning up XML');
     const parser = new DOMParser();
     parsedXml = parser.parseFromString(stringXml, 'text/xml');
@@ -213,9 +217,9 @@
         const staffHeight2 =
           staffType === 'notes-tab' ? tabStaffHeight : noteStaffHeight;
         h += staffHeight2;
-        const gapHeight = (y2 - measure.y - staffHeight1) * osmdScalingFactor;
+        const gapHeight = y2 - measure.y - staffHeight1;
         if (gapHeight > 0) {
-          h += y2 - measure.y - staffHeight1;
+          h += gapHeight;
         }
       }
 
@@ -304,7 +308,7 @@
     <input
       type="range"
       bind:value="{measureOpacity}"
-      on:input="{colorizeSvg}"
+      on:input="{() => highlightMeasure(selectedMeasure)}"
       min="{0}"
       max="{0.8}"
       step="{0.1}"

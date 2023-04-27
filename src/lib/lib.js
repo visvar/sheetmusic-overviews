@@ -46,15 +46,15 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
         break
       }
     }
-    // now simply copy values
     if (euqalItemDists) {
+      // Found identical? Now simply copy values
       for (let index2 = index1; index2 < n; index2++) {
         const distance = euqalItemDists[index2]
         distMatrix[index1][index2] = distance
         distMatrix[index2][index1] = distance
       }
-    }
-    if (!euqalItemDists) {
+    } else {
+      // Not found? We have to compute the row
       for (let index2 = index1; index2 < n; index2++) {
         const a = prepr[index1]
         const b = prepr[index2]

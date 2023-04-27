@@ -16,8 +16,8 @@
   export let musicxml = null;
   export let musicpiece = null;
   export let selectedTrack = 0;
-  export let selectedMeasure = null;
   export let selectedSection = null;
+  export let selectedMeasure = null;
   export let sectionInfo = null;
 
   let fileName = '';

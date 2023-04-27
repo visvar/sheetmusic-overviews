@@ -19,6 +19,7 @@
   let main;
   let container;
   let osmd;
+  let measureInfo;
 
   let measureOpacity = 0.3;
   const measureOpacityHighlighted = 1;
@@ -92,22 +93,6 @@
     }
   };
 
-  const renderOSMD = async () => {
-    if (!osmd) {
-      return;
-    }
-    console.log(`osmd rendering track ${trackIndex}`);
-    // Only show selected track
-    // See https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/wiki/Exploring-the-Demo#part-selection-not-rendering-individual-partsinstruments
-    for (let index = 0; index < osmd.sheet.Instruments.length; index++) {
-      const isVisible = index === trackIndex;
-      osmd.sheet.Instruments[index].Visible = isVisible;
-    }
-    // Render
-    await osmd.render();
-    console.log('osmd rendered');
-  };
-
   /**
    * Hack to get the measure bounding boxes from OSMD.
    *
@@ -130,6 +115,23 @@
           });
       })
       .map((d) => d[0]);
+  };
+
+  const renderOSMD = async () => {
+    if (!osmd) {
+      return;
+    }
+    console.log(`osmd rendering track ${trackIndex}`);
+    // Only show selected track
+    // See https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/wiki/Exploring-the-Demo#part-selection-not-rendering-individual-partsinstruments
+    for (let index = 0; index < osmd.sheet.Instruments.length; index++) {
+      const isVisible = index === trackIndex;
+      osmd.sheet.Instruments[index].Visible = isVisible;
+    }
+    // Render
+    await osmd.render();
+    measureInfo = getMeasureInfo(osmd);
+    console.log('osmd rendered');
   };
 
   /**
@@ -185,7 +187,6 @@
     // TODO: remove old rects or better: add when rendered and then only change later
     svg.selectAll('.coloredMeasure').remove();
 
-    const measureInfo = getMeasureInfo(osmd);
     // console.log("measureInfo", measureInfo);
     // const staffs = getStaffDetails();
     const staffType = getStaffType(parsedXml, trackIndex);
@@ -207,46 +208,14 @@
         staffType === 'tab' ? tabStaffHeight : noteStaffHeight;
 
       let h = staffHeight1;
-
       if (m.length > 1) {
         const y2 = m[1].boundingBox.absolutePosition.y;
         const staffHeight2 =
           staffType === 'notes-tab' ? tabStaffHeight : noteStaffHeight;
         h += staffHeight2;
-        if (y2 > 0) {
-          // Second staff
-          // svg
-          //   .append('rect')
-          //   .attr('class', `coloredMeasure measure${index}`)
-          //   .attr('x', x)
-          //   .attr('y', y2 * osmdScalingFactor)
-          //   .attr('width', w)
-          //   .attr('height', staffHeight2 * osmdScalingFactor)
-          //   .on('click', onClick)
-          //   .transition()
-          //   .style('fill', color)
-          //   .style('stroke', 'black')
-          //   .style('opacity', measureOpacity)
-          //   .style('mix-blend-mode', 'multiply');
-        }
-        const yGap = (measure.y + staffHeight1) * osmdScalingFactor;
         const gapHeight = (y2 - measure.y - staffHeight1) * osmdScalingFactor;
         if (gapHeight > 0) {
           h += y2 - measure.y - staffHeight1;
-          // Gap
-          // svg
-          //   .append('rect')
-          //   .attr('class', `coloredMeasure gap measure${index}`)
-          //   .attr('x', x)
-          //   .attr('y', yGap)
-          //   .attr('width', w)
-          //   .attr('height', gapHeight)
-          //   .on('click', onClick)
-          //   .transition()
-          //   .style('fill', color)
-          //   .style('stroke', 'black')
-          //   .style('opacity', measureOpacity)
-          //   .style('mix-blend-mode', 'multiply');
         }
       }
 
@@ -279,14 +248,14 @@
     if (measureIndex === null || !osmd) {
       return;
     }
-    // TODO: cache this in component state?
-    const measureInfo = getMeasureInfo(osmd);
     const y = measureInfo[measureIndex].y;
+    // pixel y position
     const py = (y + noteStaffHeight) * osmdScalingFactor - 60;
     const height = main.getBoundingClientRect().height;
     const top = main.scrollTop;
-    if (py < top || py > top + height) {
-      main.scrollTop = py;
+    const bottom = top + height;
+    if (py < top || py + 180 > bottom) {
+      main.scrollTop = py - 150;
     }
   };
 
@@ -314,7 +283,7 @@
   };
 
   // Update depending on prop change
-  $: if (true || musicxml || container) {
+  $: if (true || musicxml || container || trackIndex) {
     loadOSMD();
   }
   $: if (true || width || osmd) {

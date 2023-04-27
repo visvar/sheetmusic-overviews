@@ -1,36 +1,56 @@
 # TODO
 
 1. [TODO](#todo)
-2. [Performance](#performance)
-   1. [Publication](#publication)
-   2. [Future work](#future-work)
+   1. [Distance Metrics](#distance-metrics)
+   2. [Color Mapping](#color-mapping)
+   3. [UI](#ui)
+   4. [Views](#views)
+   5. [Publication](#publication)
+   6. [Future work](#future-work)
 
 
+## Distance Metrics
 
 - metric that takes rhythm into account, maybe like simeon's ie levenshtein of both pitch and start, maybe also duration, differently weighted
-- show note color legend in tree wehn notes are shown
-- allow coloring compressed by sections
+- levenshtein on only rhythm, not pitch
+
+## Color Mapping
+
+- [performance] make clustering more performant by not reclustering on threshold change
+  - or at least debounce
+- [performance] only remap colors when changing scale, do not recompute DR etc!
+- [feature] allow coloring compressed by sections
+- [feature] clustering with brightness for within-cluster similarity
+  - colors for each cluster
+  - for bars within each cluster, assign brightness by leaf ordering
+- [feature] segment into motifs, riffs
+   - most common ngrams, largest first
+
+## UI
+
+- show note color legend in tree when notes are shown
 - player
-  - seems one bar ahead for muse - hysteria
+  - [bug] seems one bar ahead for muse - hysteria
 - make showTrailingRests global
-- tree
-  - allow to compress only 1, 2, ... levels, has to be done in mvlib
-
-# Performance
-
-- make clustering more performant by not reclustering on threshold change
-- only remap colors when changing scale, do not recompute DR etc!
-
-
-
-- make borders around highlighted things thicker, eg in tree view
-
 - show meter and tempo changes in tracks view
     - also draw ticks for bars numbers
     - Add tempo curve to tracks view
     - And time signature labels
 - metronome, mute player (or just gain slider)
   - easy with alphatab
+
+- [usability] allow to jump between sections when pressing pgup pgdown
+- [style] replace inputs with custom ones
+
+
+## Views
+
+- when only score/tab is shown, make it full width
+
+- [readability] make borders around highlighted things thicker, eg in tree view
+
+- tree
+  - [feature] allow to compress only 1, 2, ... levels, has to be done in mvlib
 
 - score
   - OSMD does not work when tab has notes removed
@@ -46,25 +66,21 @@
   - scrolling to current bar in score does sometimes not scrolls far enough
       - animate scrolling a bit, maybe ease-in
   - highlight individual chords and notes? https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/wiki/Exploring-the-Demo#drawing-overlay-lines-over-the-score-and-getting-a-notes-position
-- compressed should scroll to show current bar in center or left
-- speedup cluster threshold slider, or at least debounce
-- levenshtein on only rhythm, not pitch
-- replace inputs with custom ones
-- allow to jump between sections when pressing pgup pgdown
 
-- when only score/tab is shown, make it full width
-
+- compressed
+  - should scroll to show current bar in center or left
 
 - compact
-  - compact view does not work when another than the first track selected
+  - [bug] compact view does not work when another than the first track selected
     - leading rests causes it, probably wrong measure times
     - bar background overdraws notes??
     - is switching the bug? try hardcoding track 2
-  - repeated notes should also work for repeated chords
+  - [readability] repeated notes should also work for repeated chords
     - requires rendering chord for chord
+  - colored line above section/motif, to better see when the same color comes twice in a row, where the new part starts
 
 - tab view
-  - render with alphatab
+  - [feature] render with alphatab
     - [ ] parse .gp files with alphatab into a MusicPiece
     - [x] integrate alphatab and render an example
     - [ ] render musicxml
@@ -72,20 +88,11 @@
     - [ ] highlighting and interaction
     - [x] allow to toggle notes (to only show tab)
 
-- to showcase, visualize 1D positions or clustering tree with bars as glyphs
-
-- segment into motifs, riffs
-   - most common ngrams, largest first
-
-- clustering with brightness for within-cluster similarity
-  - colors for each cluster
-  - for bars within each cluster, assign brightness by leaf ordering
-
-- colored line above section/motif, to better see when the same color comes twice in a row, where the new part starts
 
 
 ## Publication
 
+- [documentation] to showcase, visualize 1D positions or clustering tree with bars as glyphs
 - add about modal
 - update help model, explain every button and interaction
 - github pages: https://hrishikeshpathak.com/blog/svelte-gh-pages

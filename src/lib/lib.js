@@ -34,40 +34,82 @@ export function getDistanceMatrix (noteCollections, distanceMetric) {
   // Get distance matrix between all measures
   const distMatrix = new Array(n).fill(0).map(() => new Array(n).fill(0))
   for (let index1 = 0; index1 < n; index1++) {
-    for (let index2 = index1; index2 < n; index2++) {
-      const a = prepr[index1]
-      const b = prepr[index2]
-      let distance
-      if (distanceMetric === 'levenshteinPitchStart') {
-        // Weighted sum of separate Levenshtein for pitch and start
-        const weight = 0.5
-        const a2 = prepr2[index1]
-        const b2 = prepr2[index2]
-        const pitchDist = StringBased.Levenshtein.levenshtein(a, b)
-        const startDist = StringBased.Levenshtein.levenshtein(a2, b2)
-        distance = weight * pitchDist + (1 - weight) * startDist
-      } else if (distanceMetric === 'levenshteinPitch' || distanceMetric === 'levenshteinStringFret') {
-        distance = StringBased.Levenshtein.levenshtein(a, b)
-      } else if (distanceMetric === 'gotohPitch') {
-        // Gotoh of pitches
-        const simFn = StringBased.Gotoh.matchMissmatchSimilarity
-        distance = StringBased.Gotoh.gotoh(a, b, simFn, gotohGapPenStart, gotohGapPenExt)
-      } else if (distanceMetric === 'jaccardPitch') {
-        // Turn similarity into distance by taking JD=1-JS as Jaccard is always in [0,1]
-        distance = 1 - Utils.jaccardIndex(a, b)
-      } else if (distanceMetric === 'chordJaccard') {
-        // Gotoh of harmonies
-        const simFn = (h1, h2) => {
-          return Utils.jaccardIndex(h1, h2) + Utils.jaccardIndex(h1.map(mod12), h2.map(mod12))
-        }
-        distance = StringBased.Gotoh.gotoh(a, b, simFn, gotohGapPenStart, gotohGapPenExt)
+    let euqalItemDists = null
+    // Lookup of equal items, so we do not have to compute this row
+    // but can instead copy the values from an equal item.
+    // If one of the previous items is equal, we already know!
+    // Let's say index1 == 3, then equal items
+    // will have index k such that distMatrix[k][3] == 0
+    for (let k = 0; k < index1; k++) {
+      if (distMatrix[k][index1] === 0) {
+        euqalItemDists = distMatrix[k]
+        break
       }
-      distMatrix[index1][index2] = distance
-      distMatrix[index2][index1] = distance
+    }
+    // now simply copy values
+    if (euqalItemDists) {
+      for (let index2 = index1; index2 < n; index2++) {
+        const distance = euqalItemDists[index2]
+        distMatrix[index1][index2] = distance
+        distMatrix[index2][index1] = distance
+      }
+    }
+    if (!euqalItemDists) {
+      for (let index2 = index1; index2 < n; index2++) {
+        const a = prepr[index1]
+        const b = prepr[index2]
+        let distance
+        if (distanceMetric === 'levenshteinPitchStart') {
+          // Weighted sum of separate Levenshtein for pitch and start
+          const weight = 0.5
+          const a2 = prepr2[index1]
+          const b2 = prepr2[index2]
+          const pitchDist = StringBased.Levenshtein.levenshtein(a, b)
+          const startDist = StringBased.Levenshtein.levenshtein(a2, b2)
+          distance = weight * pitchDist + (1 - weight) * startDist
+        } else if (distanceMetric === 'levenshteinPitch' || distanceMetric === 'levenshteinStringFret') {
+          distance = StringBased.Levenshtein.levenshtein(a, b)
+        } else if (distanceMetric === 'gotohPitch') {
+          // Gotoh of pitches
+          const simFn = StringBased.Gotoh.matchMissmatchSimilarity
+          distance = StringBased.Gotoh.gotoh(a, b, simFn, gotohGapPenStart, gotohGapPenExt)
+        } else if (distanceMetric === 'jaccardPitch') {
+          // Turn similarity into distance by taking JD=1-JS as Jaccard is always in [0,1]
+          distance = 1 - Utils.jaccardIndex(a, b)
+        } else if (distanceMetric === 'chordJaccard') {
+          // Gotoh of harmonies
+          const simFn = (h1, h2) => {
+            return Utils.jaccardIndex(h1, h2) + Utils.jaccardIndex(h1.map(mod12), h2.map(mod12))
+          }
+          distance = StringBased.Gotoh.gotoh(a, b, simFn, gotohGapPenStart, gotohGapPenExt)
+        }
+        distMatrix[index1][index2] = distance
+        distMatrix[index2][index1] = distance
+      }
     }
   }
   // Normalize
   return Utils.normalizeNdArrayNegative(distMatrix)
+}
+
+/**
+ * @todo move to mvlib
+ * @param {Array} array1 an array
+ * @param {Array} array2 another array
+ * @returns {boolean} true if euqal
+ */
+export function flattenedArrayEquals (array1, array2) {
+  const flat1 = array1.flat(Infinity)
+  const flat2 = array2.flat(Infinity)
+  if (flat1.length !== flat2.length) {
+    return false
+  }
+  for (let i = 0; i < flat1.length; i++) {
+    if (flat1[i] !== flat2[i]) {
+      return false
+    }
+  }
+  return true
 }
 
 /**

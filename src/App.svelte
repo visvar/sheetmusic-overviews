@@ -13,6 +13,7 @@
     getColorsViaCompression,
     getColorsViaMDSFromDistances,
     getColorsViaOccurence,
+    flattenedArrayEquals,
   } from './lib/lib.js';
 
   import Menu from './Menu.svelte';

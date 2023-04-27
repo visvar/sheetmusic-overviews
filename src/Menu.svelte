@@ -39,8 +39,8 @@
     musicpiece = null;
     tracks = [];
     selectedTrack = 0;
-    selectedMeasure = null;
     selectedSection = null;
+    selectedMeasure = null;
     const n = file.name;
     if (n.endsWith('.xml') || n.endsWith('.musicxml')) {
       // MusicXML

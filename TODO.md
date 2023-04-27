@@ -14,6 +14,7 @@
 - metric that takes rhythm into account, maybe like simeon's ie levenshtein of both pitch and start, maybe also duration, differently weighted
 - levenshtein on only rhythm, not pitch
 
+
 ## Color Mapping
 
 - [performance] make clustering more performant by not reclustering on threshold change
@@ -25,6 +26,7 @@
   - for bars within each cluster, assign brightness by leaf ordering
 - [feature] segment into motifs, riffs
    - most common ngrams, largest first
+
 
 ## UI
 
@@ -42,6 +44,8 @@
 - [usability] allow to jump between sections when pressing pgup pgdown
 - [style] replace inputs with custom ones
 
+- tuning pitches parsed incorrectly when showing staff and tab
+- keyboard left and right arrows allow to select non-existent bars when there are repetitions
 
 ## Views
 
@@ -53,6 +57,7 @@
   - [feature] allow to compress only 1, 2, ... levels, has to be done in mvlib
 
 - score
+  - bounding boxes are wrong sometimes
   - OSMD does not work when tab has notes removed
   - does not work for some musicxml files
     - because of OSMD
@@ -60,12 +65,9 @@
       - master of puppets
       - iron man
   - show guitar capo, ...
-      - maybe disable compacttight to show full meta info
-  - score view does not update when track is changed
-  - make bars same width in score: https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1314
-  - scrolling to current bar in score does sometimes not scrolls far enough
-      - animate scrolling a bit, maybe ease-in
-  - highlight individual chords and notes? https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/wiki/Exploring-the-Demo#drawing-overlay-lines-over-the-score-and-getting-a-notes-position
+  - [readability] make bars same width in score: https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1314
+  - [feature] animate scrolling a bit, maybe ease-in
+  - [feature] highlight individual chords and notes? https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/wiki/Exploring-the-Demo#drawing-overlay-lines-over-the-score-and-getting-a-notes-position
 
 - compressed
   - should scroll to show current bar in center or left
@@ -83,11 +85,10 @@
   - [feature] render with alphatab
     - [ ] parse .gp files with alphatab into a MusicPiece
     - [x] integrate alphatab and render an example
-    - [ ] render musicxml
+    - [ ] render musicxml or .gp
     - [ ] colorize bars
     - [ ] highlighting and interaction
     - [x] allow to toggle notes (to only show tab)
-
 
 
 ## Publication

@@ -121,14 +121,16 @@
   // Sizes without nav and menu
   let windowWidth;
   let windowHeight;
-  $: overviewWidth = currentViews.has('Score')
-    ? (windowWidth - 340) / 2
-    : windowWidth - 320;
+  $: viewWidth =
+    currentViews.has('Score') && currentViews.size > 1
+      ? (windowWidth - 340) / 2
+      : windowWidth - 320;
   $: contentHeight = windowHeight - 125;
   $: tracksHeight = (musicpiece?.tracks.length ?? 0.1) * 14 + 40;
   const treeHeight = 400;
   const compressedHeight = 200;
   $: compactSheetHeight = getSheetHeight(currentViews, contentHeight);
+  $: onlyScoreShown = currentViews.has('Score') && currentViews.size === 1;
 
   const getSheetHeight = (currentViews, contentHeight, gap = 40) => {
     let height = contentHeight - 40;
@@ -263,10 +265,10 @@
             sectionInfo="{sectionInfo}"
           />
         </div>
-        <div class="overviewContainer" style="{`width: ${overviewWidth}px`}">
+        <div class="overviewContainer">
           {#if currentViews.has('Tracks') && musicpiece}
             <Tracks
-              width="{overviewWidth}"
+              width="{viewWidth}"
               height="{tracksHeight}"
               musicpiece="{musicpiece}"
               sectionInfo="{sectionInfo}"
@@ -276,7 +278,7 @@
           {/if}
           {#if currentViews.has('Tree') && sections && sections.length > 0}
             <Tree
-              width="{overviewWidth}"
+              width="{viewWidth}"
               height="{treeHeight}"
               encoding="{encoding}"
               sectionInfo="{sectionInfo}"
@@ -292,7 +294,7 @@
           {/if}
           {#if currentViews.has('Compressed') && notes && notes.length > 0}
             <Compressed
-              width="{overviewWidth}"
+              width="{viewWidth}"
               height="{compressedHeight}"
               encoding="{encoding}"
               measures="{measures}"
@@ -303,7 +305,7 @@
           {/if}
           {#if currentViews.has('Compact') && notes && notes.length > 0}
             <Compact
-              width="{overviewWidth}"
+              width="{viewWidth}"
               height="{compactSheetHeight}"
               track="{track}"
               colorMode="{colorMode}"
@@ -321,7 +323,7 @@
         <div class="scoreContainer">
           {#if currentViews.has('Tab')}
             <Tab
-              width="{overviewWidth}"
+              width="{viewWidth}"
               height="{contentHeight}"
               musicpiece="{musicpiece}"
               musicxml="{musicxml}"
@@ -336,7 +338,7 @@
           {/if}
           {#if currentViews.has('Score') && musicxml && musicpiece && track && measureColors.length > 0}
             <Score
-              width="{overviewWidth}"
+              width="{viewWidth}"
               height="{contentHeight}"
               musicpiece="{musicpiece}"
               musicxml="{musicxml}"

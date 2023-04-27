@@ -70,17 +70,28 @@
     }
     osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(container);
     osmd.setOptions({
-      autoResize: false,
       // autoResize: true,
+      autoResize: false,
       // backend: 'canvas',
       backend: 'svg',
       drawingParameters: 'compacttight',
+      // drawingParameters: 'compact',
+      // drawingParameters: 'preview',
       drawTimeSignatures: true,
       drawMetronomeMarks: true,
+      drawComposer: false,
+      drawCredits: false,
+      drawLyricist: false,
+      drawTitle: false,
+      drawSubtitle: false,
       drawLyrics: false,
+      drawFingerings: false,
+      drawPartNames: true,
+      drawPartAbbreviations: false,
       // renderSingleHorizontalStaffline: true,
       stretchLastSystemLine: true,
       autoGenerateMutipleRestMeasuresFromRestMeasures: false,
+      pageFormat: 'endless',
       onXMLRead: cleanXml,
     });
     // Set zoom
@@ -304,7 +315,7 @@
 
 <main bind:this="{main}">
   <label>
-    <span> Opacity </span>
+    <span>Color opacity</span>
     <input
       type="range"
       bind:value="{measureOpacity}"
@@ -316,11 +327,17 @@
   </label>
   <div
     bind:this="{container}"
-    style="width: {width - 25}px; height: {height - 60}px"
+    style="width: {width - 25}px; height: {height - 40}px"
   ></div>
 </main>
 
 <style>
+  label {
+    display: grid;
+    grid-template-columns: max-content min-content;
+    align-items: center;
+    gap: 10px;
+  }
   main {
     overflow-y: scroll;
   }

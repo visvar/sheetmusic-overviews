@@ -47,10 +47,9 @@
 - tuning pitches parsed incorrectly when showing staff and tab
 - keyboard left and right arrows allow to select non-existent bars when there are repetitions
 
-- [feature] PDF export of colored sheet music
-  - see lib/pdf.js
+- [feature] PDF export of colored sheet music (lib/pdf.js)
   - allow paged mode (currently messes up coloring)
-  - fix tab notes not being exported correctly
+  - fix tab notes not being exported correctly, see https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1371
 
 ## Views
 

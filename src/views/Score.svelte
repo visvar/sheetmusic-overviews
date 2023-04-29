@@ -3,7 +3,7 @@
   import * as d3 from 'd3';
   import { Utils } from 'musicvis-lib';
   import { removeXmlElements } from '../lib/lib.js';
-  import { createPdf } from '../lib/pdf.js';
+  import { createPng } from '../lib/expo../lib/export.js
 
   export let width;
   export let height;
@@ -97,6 +97,7 @@
       stretchLastSystemLine: true,
       autoGenerateMutipleRestMeasuresFromRestMeasures: false,
       pageFormat, // 'A4_P', 'endless'
+      pageBackgroundColor: 'white',
       onXMLRead: cleanXml,
     });
     // Set zoom
@@ -341,23 +342,21 @@
         step="{0.1}"
       />
     </label>
-    <button
-      on:click="{() => {
-        zoom *= 1.2;
-        scale();
-      }}"
-    >
-      +
-    </button>
-    <button
-      on:click="{() => {
-        zoom /= 1.2;
-        scale();
-      }}"
-    >
-      -
-    </button>
-    <button on:click="{() => createPdf(osmd, musicpiece.name)}">PDF</button>
+    <label>
+      Zoom
+      <select
+        bind:value="{zoom}"
+        on:change="{(e) => {
+          zoom = +e.target.value;
+          scale();
+        }}"
+      >
+        {#each [0.3, 0.4, 0.5, 0.6, 0.8, 1, 1.2] as zoomLevel}
+          <option value="{zoomLevel}">{zoomLevel * 100} %</option>
+        {/each}
+      </select>
+    </label>
+    <button on:click="{() => createPng(osmd, musicpiece.name)}">export</button>
     <!-- <button
       on:click="{() => {
         pageFormat = pageFormat === 'A4_P' ? 'endless' : 'A4_P';

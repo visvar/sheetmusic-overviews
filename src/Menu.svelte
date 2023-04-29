@@ -155,7 +155,7 @@
 </script>
 
 <main>
-  <Button on:click="{() => fileInput.click()}">Open file</Button>
+  <button on:click="{() => fileInput.click()}">Open file</button>
   <input
     type="file"
     accept=".xml,.musicxml,.mxl"
@@ -276,7 +276,7 @@
   </div>
 
   <div style="margin-top: 20px">
-    <Button
+    <button
       disabled="{!musicpiece ||
         (selectedSection === null && selectedMeasure === null)}"
       on:click="{() => {
@@ -285,7 +285,7 @@
       }}"
     >
       Reset selection
-    </Button>
+    </button>
   </div>
 
   <div style="margin-top: 20px">

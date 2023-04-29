@@ -1,8 +1,9 @@
 <script>
   import * as opensheetmusicdisplay from 'opensheetmusicdisplay';
   import * as d3 from 'd3';
-  import { removeXmlElements } from '../lib/lib.js';
   import { Utils } from 'musicvis-lib';
+  import { removeXmlElements } from '../lib/lib.js';
+  import { createPdf } from '../lib/pdf.js';
 
   export let width;
   export let height;
@@ -21,11 +22,15 @@
   let osmd;
   let measureInfo;
 
+  // color options
   let measureOpacity = 0.3;
   const measureOpacityHighlighted = 1;
 
+  // layout
+  let pageFormat = 'endless';
+
   // TODO: zoom does not work
-  // const zoom = 0.5;
+  let zoom = 1.0;
   const osmdScalingFactor = 10;
   const noteStaffHeight = 4;
   const tabStaffHeight = 6.6;
@@ -72,7 +77,7 @@
     osmd.setOptions({
       // autoResize: true,
       autoResize: false,
-      // backend: 'canvas',
+      // backend: 'canvas', // canvas does not work with colorign and PDF export
       backend: 'svg',
       drawingParameters: 'compacttight',
       // drawingParameters: 'compact',
@@ -86,17 +91,17 @@
       drawSubtitle: false,
       drawLyrics: false,
       drawFingerings: false,
-      drawPartNames: true,
+      drawPartNames: false,
       drawPartAbbreviations: false,
       // renderSingleHorizontalStaffline: true,
       stretchLastSystemLine: true,
       autoGenerateMutipleRestMeasuresFromRestMeasures: false,
-      pageFormat: 'endless',
+      pageFormat, // 'A4_P', 'endless'
       onXMLRead: cleanXml,
     });
     // Set zoom
     // osmd.zoom = zoom;
-    // osmd.Zoom = zoom;
+    osmd.Zoom = zoom;
     // Load
     console.log('osmd loading');
     try {
@@ -253,6 +258,16 @@
   };
 
   /**
+   * Updates zoom
+   */
+  const scale = () => {
+    window.setTimeout(() => {
+      osmd.Zoom = zoom;
+      osmd.render();
+    }, 0);
+  };
+
+  /**
    * Scrolls the view such that the selected measure is at the top.
    * Only scrolls when measure is not already in view.
    *
@@ -314,31 +329,65 @@
 </script>
 
 <main bind:this="{main}">
-  <label>
-    <span>Color opacity</span>
-    <input
-      type="range"
-      bind:value="{measureOpacity}"
-      on:input="{() => highlightMeasure(selectedMeasure)}"
-      min="{0}"
-      max="{0.8}"
-      step="{0.1}"
-    />
-  </label>
+  <div class="control">
+    <label>
+      <span>Color opacity</span>
+      <input
+        type="range"
+        bind:value="{measureOpacity}"
+        on:input="{() => highlightMeasure(selectedMeasure)}"
+        min="{0}"
+        max="{0.8}"
+        step="{0.1}"
+      />
+    </label>
+    <button
+      on:click="{() => {
+        zoom *= 1.2;
+        scale();
+      }}"
+    >
+      +
+    </button>
+    <button
+      on:click="{() => {
+        zoom /= 1.2;
+        scale();
+      }}"
+    >
+      -
+    </button>
+    <button on:click="{() => createPdf(osmd, musicpiece.name)}">PDF</button>
+    <!-- <button
+      on:click="{() => {
+        pageFormat = pageFormat === 'A4_P' ? 'endless' : 'A4_P';
+        loadOSMD();
+      }}">paged/endless</button
+    > -->
+  </div>
   <div
     bind:this="{container}"
-    style="width: {width - 25}px; height: {height - 40}px"
+    style="width: {width - 25}px; height: {height - 20}px"
   ></div>
 </main>
 
 <style>
+  main {
+    overflow-y: scroll;
+  }
+
+  .control {
+    height: 30px;
+    margin: 5px;
+    display: grid;
+    grid-template-columns: repeat(4, min-content);
+    gap: 20px;
+  }
+
   label {
     display: grid;
     grid-template-columns: max-content min-content;
     align-items: center;
     gap: 10px;
-  }
-  main {
-    overflow-y: scroll;
   }
 </style>

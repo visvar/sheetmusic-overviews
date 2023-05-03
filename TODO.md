@@ -1,13 +1,22 @@
 # TODO
 
 1. [TODO](#todo)
-   1. [Distance Metrics](#distance-metrics)
-   2. [Color Mapping](#color-mapping)
-   3. [UI](#ui)
-   4. [Views](#views)
-   5. [Publication](#publication)
-   6. [Future work](#future-work)
+   1. [Parsing](#parsing)
+   2. [Distance Metrics](#distance-metrics)
+   3. [Color Mapping](#color-mapping)
+   4. [UI](#ui)
+   5. [Views](#views)
+   6. [Publication](#publication)
+   7. [Future work](#future-work)
 
+## Parsing
+
+- [feature] parse .gp files with alphatab into a MusicPiece
+  - [x] basic parsing
+  - [ ] note timing
+  - [ ] fix duplicate notes
+  - [ ] handle repetitions by copying bars
+  - [ ] make sure tempi such as 6/8 work
 
 ## Distance Metrics
 
@@ -51,6 +60,10 @@
   - allow paged mode (currently messes up coloring)
   - fix tab notes not being exported correctly, see https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1371
 
+- [cleanup] remove smui
+  - view menu
+  - player
+
 ## Views
 
 - when only score/tab is shown, make it full width
@@ -87,7 +100,6 @@
 
 - tab view
   - [feature] render with alphatab
-    - [ ] parse .gp files with alphatab into a MusicPiece
     - [x] integrate alphatab and render an example
     - [ ] render musicxml or .gp
     - [ ] colorize bars

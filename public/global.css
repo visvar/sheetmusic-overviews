@@ -26,6 +26,16 @@ a:visited {
   color: rgb(0, 80, 160);
 }
 
+button,
+select,
+input {
+  border: 2px solid #e8e8e8;
+  background: #f0f0f0;
+  border-radius: 3px;
+  padding: 0.3em 0.6em;
+  font-size: 1em;
+}
+
 .overviewTitle {
   position: relative;
   width: 50px;

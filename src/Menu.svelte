@@ -3,17 +3,16 @@
   import * as d3 from 'd3';
   import JSZip from 'jszip';
   import { createEventDispatcher } from 'svelte';
-  import Select, { Option } from '@smui/select';
-  import Button from '@smui/button';
-  import Slider from '@smui/slider';
-  import FormField from '@smui/form-field';
   import { drawColorRamp } from './lib/lib.js';
+  import * as alphaTab from '@coderline/alphatab';
+  import { fromAlphaTab } from './lib/MusicPieceGp.js';
 
   const dispatch = createEventDispatcher();
   const submitFile = (musicxml, musicpiece) =>
     dispatch('fileopened', { musicxml, musicpiece });
 
   export let musicxml = null;
+  export let alphaTabScore = null;
   export let musicpiece = null;
   export let selectedTrack = 0;
   export let selectedSection = null;
@@ -24,6 +23,18 @@
   let tracks = [];
   let fileInput;
   let colorRampCanvas;
+
+  const musicXMlToAlphaTab = async (musicxml) => {
+    // convert to binary first for alphatab
+    const binary = new Blob([musicxml]);
+    const data = new Uint8Array(await binary.arrayBuffer());
+    const settings = new alphaTab.Settings();
+    const score = alphaTab.importer.ScoreLoader.loadScoreFromBytes(
+      data,
+      settings
+    );
+    return score;
+  };
 
   // Parse MusicXML into a MusicPiece
   const handleFileInput = async (event) => {
@@ -36,6 +47,7 @@
     // Reset only now that there is valid file, to avoid user mistakes
     fileName = '';
     musicxml = null;
+    alphaTabScore = null;
     musicpiece = null;
     tracks = [];
     selectedTrack = 0;
@@ -45,6 +57,7 @@
     if (n.endsWith('.xml') || n.endsWith('.musicxml')) {
       // MusicXML
       musicxml = await file.text();
+      musicpiece = MusicPiece.fromMusicXml(n, musicxml);
     } else if (n.endsWith('.mxl')) {
       // Compressed MusicXML
       const compressed = await file.arrayBuffer();
@@ -54,12 +67,21 @@
         (d) => !d.startsWith('META')
       )[0];
       musicxml = await extracted.file(scoreFile).async('string');
+      musicpiece = MusicPiece.fromMusicXml(n, musicxml);
+    } else if (n.endsWith('.gp')) {
+      // guitar pro
+      const data = new Uint8Array(await file.arrayBuffer());
+      const settings = new alphaTab.Settings();
+      alphaTabScore = alphaTab.importer.ScoreLoader.loadScoreFromBytes(
+        data,
+        settings
+      );
+      musicpiece = fromAlphaTab(n, alphaTabScore);
     } else {
       alert('Invalid file');
       return;
     }
     fileName = n;
-    musicpiece = MusicPiece.fromMusicXml(n, musicxml);
     tracks = musicpiece.tracks;
     console.log('Menu: loaded musicpiece', musicpiece, tracks);
     submitFile(musicxml, musicpiece);
@@ -158,7 +180,7 @@
   <button on:click="{() => fileInput.click()}">Open file</button>
   <input
     type="file"
-    accept=".xml,.musicxml,.mxl"
+    accept=".xml,.musicxml,.mxl,.gp"
     style="display: none"
     bind:this="{fileInput}"
     on:input="{handleFileInput}"
@@ -167,26 +189,28 @@
     {fileName}
   </div>
 
-  <Select bind:value="{selectedTrack}" label="Track" disabled="{!musicpiece}">
-    {#each tracks as track, i}
-      <Option value="{i}" title="{`${i} ${track.name}`}">
-        {i}
-        {track.name.slice(0, 20)}
-      </Option>
-    {/each}
-  </Select>
+  <label>
+    <span>Track</span>
+    <select bind:value="{selectedTrack}" disabled="{!musicpiece}">
+      {#each tracks as track, i}
+        <option value="{i}" title="{`${i} ${track.name}`}">
+          {i}
+          {track.name.slice(0, 20)}
+        </option>
+      {/each}
+    </select>
+  </label>
 
-  <Select
-    bind:value="{selectedEncoding}"
-    label="Note encoding"
-    disabled="{!musicpiece}"
-  >
-    {#each encodings as encoding}
-      <Option value="{encoding}">
-        {encoding}
-      </Option>
-    {/each}
-  </Select>
+  <label>
+    <span>Note encoding</span>
+    <select bind:value="{selectedEncoding}" disabled="{!musicpiece}">
+      {#each encodings as encoding}
+        <option value="{encoding}">
+          {encoding}
+        </option>
+      {/each}
+    </select>
+  </label>
 
   <!-- <Select bind:value={selectedMetric} label="Metric" disabled={!musicpiece}>
     {#each metrics as metric}
@@ -196,84 +220,62 @@
     {/each}
   </Select> -->
 
-  <Select
-    bind:value="{selectedColoring}"
-    label="Coloring"
-    disabled="{!musicpiece}"
-  >
-    {#each colorings as coloring}
-      <Option value="{coloring}">
-        {coloring}
-      </Option>
-    {/each}
-  </Select>
+  <label>
+    <span>Coloring</span>
+    <select bind:value="{selectedColoring}" disabled="{!musicpiece}">
+      {#each colorings as coloring}
+        <option ion value="{coloring}">
+          {coloring}
+        </option>
+      {/each}
+    </select>
+  </label>
 
   {#if selectedColoring === 'Clustering'}
-    <FormField align="end" style="width: 220px; display: flex;">
-      <Slider
-        style="flex-grow: 1;"
+    <label>
+      <span>Threshold</span>
+      <input
+        type="range"
         bind:value="{clusterThreshold}"
         min="{0}"
         max="{1}"
         step="{0.01}"
-        input$aria-label="Cluster threshold"
       />
-      <span
-        slot="label"
-        style="padding-right: 0; width: max-content; display: block;"
-      >
-        Threshold
-      </span>
-    </FormField>
+    </label>
   {/if}
   {#if selectedColoring === 'Compression'}
-    <FormField align="end" style="width: 200px; display: flex;">
-      <Slider
-        style="flex-grow: 1;"
+    <label>
+      <span>Depth</span>
+      <input
+        type="range"
         bind:value="{compressionDepth}"
         min="{0}"
         max="{4}"
         step="{1}"
-        input$aria-label="Compression depth"
       />
-      <span
-        slot="label"
-        style="padding-right: 0; width: max-content; display: block;"
-      >
-        Depth
-      </span>
       <span>{compressionDepth}</span>
-    </FormField>
+    </label>
   {/if}
 
-  <Select
-    bind:value="{selectedColorMode}"
-    label="Color mode"
-    disabled="{!musicpiece}"
-  >
-    <Option value="bars" title="bars">Bars</Option>
-    <Option value="sections" title="sections">Sections</Option>
-  </Select>
+  <label>
+    <span>Color mode</span>
+    <select bind:value="{selectedColorMode}" disabled="{!musicpiece}">
+      <option value="bars" title="bars">Bars</option>
+      <option value="sections" title="sections">Sections</option>
+    </select>
+  </label>
 
-  <Select
-    bind:value="{selectedColormap}"
-    label="Colormap"
-    disabled="{!musicpiece}"
-  >
-    {#each colormaps as colormap}
-      <Option value="{colormap}" title="{colormap.description}">
-        {colormap.name}
-      </Option>
-    {/each}
-  </Select>
-
-  <div>
-    <canvas
-      bind:this="{colorRampCanvas}"
-      width="{200}"
-      height="{10}"
-      style="border-radius: 3px"></canvas>
-  </div>
+  <label>
+    <span>Color map</span>
+    <select bind:value="{selectedColormap}" disabled="{!musicpiece}">
+      {#each colormaps as colormap}
+        <option value="{colormap}" title="{colormap.description}">
+          {colormap.name}
+        </option>
+      {/each}
+    </select>
+    <canvas bind:this="{colorRampCanvas}" width="{200}" height="{10}"></canvas>
+  </label>
 
   <div style="margin-top: 20px">
     <button
@@ -306,10 +308,23 @@
 
 <style>
   main {
-    width: 250px;
+    width: 230px;
   }
 
   .fileName {
     padding: 10px 0;
+  }
+
+  label {
+    display: grid;
+    margin: 5px;
+    grid-template-columns: auto;
+    gap: 2px;
+  }
+
+  canvas {
+    margin-top: 3px;
+    border-radius: 3px;
+    width: 100%;
   }
 </style>

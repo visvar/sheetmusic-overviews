@@ -33,6 +33,7 @@
 
   // Data
   let musicxml = null;
+  let alphaTabScore = null;
   let musicpiece = null;
   $: console.log('app: musicpiece', musicpiece);
   let trackIndex = 0;
@@ -52,6 +53,8 @@
 
   // Bars
   $: measures = track ? track.getMeasures(Note.startPitchComparator) : [];
+  $: console.log(measures);
+
   $: measureDists = metric ? getDistanceMatrix(measures, metric.value) : [];
   let measureColors;
   $: {
@@ -251,6 +254,7 @@
         <div class="sideBar">
           <Menu
             bind:musicxml="{musicxml}"
+            bind:alphaTabScore="{alphaTabScore}"
             bind:musicpiece="{musicpiece}"
             bind:selectedTrack="{trackIndex}"
             bind:selectedSection="{selectedSection}"
@@ -321,12 +325,13 @@
           {/if}
         </div>
         <div class="scoreContainer">
-          {#if currentViews.has('Tab')}
+          {#if currentViews.has('Tab') && alphaTabScore}
             <Tab
               width="{viewWidth}"
               height="{contentHeight}"
               musicpiece="{musicpiece}"
               musicxml="{musicxml}"
+              alphaTabScore="{alphaTabScore}"
               trackIndex="{trackIndex}"
               colorMode="{colorMode}"
               measures="{measures}"
@@ -407,6 +412,7 @@
     padding: 5px;
     display: grid;
     grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, min-content);
     gap: 20px;
     justify-items: start;
   }

@@ -3,7 +3,7 @@
   import * as d3 from 'd3';
   import { Utils } from 'musicvis-lib';
   import { removeXmlElements } from '../lib/lib.js';
-  import { createPng } from '../lib/expo../lib/export.js
+  import { createPng } from '../lib/export.js';
 
   export let width;
   export let height;

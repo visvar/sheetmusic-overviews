@@ -1,6 +1,5 @@
 <script>
   import { afterUpdate } from 'svelte';
-  import Select, { Option } from '@smui/select';
   import * as d3 from 'd3';
   import { drawColorRamp } from '../lib/lib.js';
   import BarRenderer from '../lib/BarRenderer.js';
@@ -26,7 +25,7 @@
    * @type {'default'|'identical'|'distance'}
    */
   let selectedColoring = 'default';
-  let compactRepeatedNotes = true;
+  let compactRepeatedNotes = false;
 
   let canvas;
   $: canvasHeight = height - 60;
@@ -151,17 +150,17 @@
 <main>
   <div class="overviewTitle">Compact</div>
   <div class="control">
-    <Select bind:value="{selectedColoring}" label="Coloring when selected">
-      <Option value="default" title="Draw as if nothing was selected">
+    <select bind:value="{selectedColoring}" title="Coloring when selected">
+      <option value="default" title="Draw as if nothing was selected">
         Default
-      </Option>
-      <Option value="identical" title="Highlight identical bars">
+      </option>
+      <option value="identical" title="Highlight identical bars">
         Identical
-      </Option>
-      <Option value="distance" title="Distance to selected bar">
+      </option>
+      <option value="distance" title="Distance to selected bar">
         Distance
-      </Option>
-    </Select>
+      </option>
+    </select>
     <div
       class="legend"
       style="visibility: {selectedColoring === 'distance'
@@ -176,26 +175,24 @@
         style="border-radius: 3px"></canvas>
       <div>Different</div>
     </div>
-    <label>
+    <!-- <label>
       Compact repeated notes
       <input type="checkbox" bind:checked="{compactRepeatedNotes}" />
     </label>
     <label>
       Leading/trailing rests
       <input type="checkbox" bind:checked="{displayLeadingRests}" />
+    </label> -->
+    <label>
+      <span>Bars per row</span>
+      <input
+        type="range"
+        bind:value="{mPerRow}"
+        min="{1}"
+        max="{100}"
+        step="{1}"
+      />
     </label>
-    <div>
-      <label>
-        Bars per row
-        <input
-          type="range"
-          bind:value="{mPerRow}"
-          min="{1}"
-          max="{100}"
-          step="{1}"
-        />
-      </label>
-    </div>
   </div>
   <canvas width="{width}" height="{canvasHeight}" bind:this="{canvas}"></canvas>
 </main>
@@ -210,7 +207,8 @@
   .control {
     margin-bottom: 4px;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, auto);
+    gap: 5px;
     justify-items: center;
     align-items: center;
   }
@@ -219,6 +217,13 @@
     display: grid;
     grid-template-columns: repeat(3, auto);
     gap: 10px;
+    align-items: center;
+  }
+
+  label {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 5px;
     align-items: center;
   }
 </style>

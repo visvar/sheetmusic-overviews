@@ -26,6 +26,8 @@
 
 ## Color Mapping
 
+- [feature] color each bar/chord by scale
+  - key detection: https://tonaljs.github.io/tonal/module-Detect.html#~scale
 - [performance] make clustering more performant by not reclustering on threshold change
   - or at least debounce
 - [performance] only remap colors when changing scale, do not recompute DR etc!

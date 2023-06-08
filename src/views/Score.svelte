@@ -28,9 +28,7 @@
 
   // layout
   let pageFormat = 'endless';
-
-  // TODO: zoom does not work
-  let zoom = 1.0;
+  let zoom = 0.8;
   const osmdScalingFactor = 10;
   const noteStaffHeight = 4;
   const tabStaffHeight = 6.6;
@@ -94,15 +92,12 @@
       drawPartNames: false,
       drawPartAbbreviations: false,
       // renderSingleHorizontalStaffline: true,
-      stretchLastSystemLine: true,
+      stretchLastSystemLine: false,
       autoGenerateMutipleRestMeasuresFromRestMeasures: false,
       pageFormat, // 'A4_P', 'endless'
       pageBackgroundColor: 'white',
       onXMLRead: cleanXml,
     });
-    // Set zoom
-    // osmd.zoom = zoom;
-    osmd.Zoom = zoom;
     // Load
     console.log('osmd loading');
     try {
@@ -121,6 +116,7 @@
    * @returns {object[]} with {x, y, width, height}
    */
   const getMeasureInfo = (osmd) => {
+    console.log('getting bar boxes');
     return osmd.graphic.measureList
       .map((measure) => {
         if (measure[0] === undefined) {
@@ -138,6 +134,9 @@
       .map((d) => d[0]);
   };
 
+  /**
+   * Renders the current OSMD configuration
+   */
   const renderOSMD = async () => {
     if (!osmd) {
       return;
@@ -149,6 +148,8 @@
       const isVisible = index === trackIndex;
       osmd.sheet.Instruments[index].Visible = isVisible;
     }
+    // Set zoom
+    osmd.Zoom = zoom;
     // Render
     await osmd.render();
     measureInfo = getMeasureInfo(osmd);
@@ -269,6 +270,22 @@
   };
 
   /**
+   * Updates fixed bar width
+   *
+   * @see https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/pull/1368
+   */
+  const fixedWidth = (fixed = true) => {
+    console.log(fixed);
+
+    window.setTimeout(() => {
+      osmd.EngravingRules.FixedMeasureWidth = fixed;
+      osmd.EngravingRules.FixedMeasureWidthFixedValue = 40;
+      osmd.EngravingRules.LastSystemMaxScalingFactor = 1;
+      osmd.render();
+    }, 0);
+  };
+
+  /**
    * Scrolls the view such that the selected measure is at the top.
    * Only scrolls when measure is not already in view.
    *
@@ -343,7 +360,7 @@
       />
     </label>
     <label>
-      Zoom
+      <span>Zoom</span>
       <select
         bind:value="{zoom}"
         on:change="{(e) => {
@@ -355,6 +372,15 @@
           <option value="{zoomLevel}">{zoomLevel * 100} %</option>
         {/each}
       </select>
+    </label>
+    <label>
+      <input
+        type="checkbox"
+        on:change="{(e) => {
+          fixedWidth(e.target.checked);
+        }}"
+      />
+      <span>Fixed width</span>
     </label>
     <button on:click="{() => createPng(osmd, musicpiece.name)}">export</button>
     <!-- <button
@@ -376,8 +402,9 @@
   }
 
   .control {
+    width: 90%;
     height: 30px;
-    margin: 5px;
+    margin: 5px 5%;
     display: grid;
     grid-template-columns: repeat(4, min-content);
     gap: 20px;
@@ -388,5 +415,9 @@
     grid-template-columns: max-content min-content;
     align-items: center;
     gap: 10px;
+  }
+
+  label span {
+    width: max-content;
   }
 </style>

@@ -35,8 +35,7 @@
 - [feature] clustering with brightness for within-cluster similarity
   - colors for each cluster
   - for bars within each cluster, assign brightness by leaf ordering
-- [feature] segment into motifs, riffs
-   - most common ngrams, largest first
+
 
 
 ## UI
@@ -127,9 +126,7 @@
   - comparison of two selections
 - allow to see multiple instruments at same time
 - allow to manually assign colors to selections to overwrite coloring
-- MoshViz:
-  - support same simplified encoding: each bar, display pitch range and mean (mean weighted by note duration)
-  - include metrics as coloring source
+- include metrics as coloring source
 - try to add section labels to compressed as well
 - get colors from compressed blocks: each block that is repeated or in between reps gets its own color
 - new note encodings
@@ -143,3 +140,5 @@
   - fix drum sound map
   - allow to use custom map from pitch to sound
 - allow printing colored sheet music
+- [feature] segment into motifs, riffs
+   - most common ngrams, largest first

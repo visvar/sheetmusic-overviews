@@ -142,30 +142,32 @@
   afterUpdate(() => drawTreeGraph(hierarchy, blockWidth, measureColors));
 </script>
 
-<main style={`height: ${height}px`}>
+<main style="{`height: ${height}px`}">
   <div class="overviewTitle">Compressed</div>
   <div class="control">
     <label>
       Zoom
-      <input type="range" bind:value={zoom} min={1} max={20} step={1} />
-      {zoom}x
+      <input type="range" bind:value="{zoom}" min="{1}" max="{20}" step="{1}" />
+      <span style="width: 30px">{zoom}x</span>
     </label>
     <label
-      title="Index of the first occurrence of each bar in the track. Only shown when enough space (zoom in when not visible).">
+      title="Index of the first occurrence of each bar in the track. Only shown when enough space (zoom in when not visible)."
+    >
       Bar indices
-      <input type="checkbox" bind:checked={showBarIndices} />
+      <input type="checkbox" bind:checked="{showBarIndices}" />
     </label>
   </div>
   <div
     class="canvasContainer"
-    style={`max-width: ${width}px`}
-    bind:this={container}>
+    style="{`max-width: ${width}px`}"
+    bind:this="{container}"
+  >
     <canvas
-      width={width * zoom}
-      height={canvasHeight}
-      bind:this={canvas}
-      on:click={onClick}
-      on:mousewheel={onMouseWheel} />
+      width="{width * zoom}"
+      height="{canvasHeight}"
+      bind:this="{canvas}"
+      on:click="{onClick}"
+      on:mousewheel="{onMouseWheel}"></canvas>
   </div>
 </main>
 
@@ -177,7 +179,8 @@
   }
 
   .control {
-    margin-bottom: 4px;
+    height: 26px;
+    /* margin-bottom: 4px; */
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     justify-items: center;
@@ -186,5 +189,12 @@
 
   .canvasContainer {
     overflow-x: scroll;
+  }
+
+  label {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 5px;
+    align-items: center;
   }
 </style>

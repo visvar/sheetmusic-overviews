@@ -205,6 +205,7 @@
   }
 
   .control {
+    height: 28px;
     margin-bottom: 4px;
     display: grid;
     grid-template-columns: repeat(5, auto);

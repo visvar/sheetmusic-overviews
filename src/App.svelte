@@ -27,7 +27,8 @@
   import Tab from './views/Tab.svelte';
 
   // View
-  let views = ['Tracks', 'Tree', 'Compressed', 'Compact', 'Score', 'Tab'];
+  // let views = ['Tracks', 'Tree', 'Compressed', 'Compact', 'Score', 'Tab'];
+  let views = ['Tracks', 'Tree', 'Compressed', 'Compact', 'Score'];
   let currentViews = new Set([...views]);
   // let currentViews = new Set(['Tracks', 'Compact', 'Tab']);
 
@@ -128,7 +129,7 @@
     currentViews.has('Score') && currentViews.size > 1
       ? (windowWidth - 340) / 2
       : windowWidth - 320;
-  $: contentHeight = windowHeight - 125;
+  $: contentHeight = Math.max(windowHeight - 125, 800);
   $: tracksHeight = (musicpiece?.tracks.length ?? 0.1) * 14 + 40;
   const treeHeight = 400;
   const compressedHeight = 200;

@@ -194,7 +194,7 @@ class Player {
    *
    * @param {string} sound instrument name
    */
-  async preloadInstrument(sound) {
+  async preloadInstrument (sound) {
     const file = `soundfonts/${sound}-mp3.js`
     if (this.#log) {
       console.log(`[Player] Pre-loading sound font from ${file}`)
@@ -249,9 +249,11 @@ class Player {
   /**
    * Plays a single note
    *
+   * @todo add velocity to mvlib player
    * @private
    * @param {Note} note note object
    * @param {number} time time in milliseconds
+   * @see https://github.com/danigb/soundfont-player/issues/79#issuecomment-1122062302 for how to play a note with dynamics/velocity
    */
   _playNote = (note, time) => {
     const duration = note.getDuration()
@@ -259,7 +261,11 @@ class Player {
       console.log(`[Player] Playing ${note.getName()} for ${duration}s`)
     }
     try {
-      this.#instrument.play(note.pitch, time, { duration })
+      this.#instrument.play(note.pitch, time, {
+        duration,
+        gain: note.velocity,
+        // sustain: 3.5,
+      })
     } catch (error) {
       console.error('[Player] Error for note', note, error)
     }

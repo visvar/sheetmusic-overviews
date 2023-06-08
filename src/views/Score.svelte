@@ -275,8 +275,6 @@
    * @see https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/pull/1368
    */
   const fixedWidth = (fixed = true) => {
-    console.log(fixed);
-
     window.setTimeout(() => {
       osmd.EngravingRules.FixedMeasureWidth = fixed;
       osmd.EngravingRules.FixedMeasureWidthFixedValue = 40;
@@ -402,12 +400,13 @@
   }
 
   .control {
-    width: 90%;
+    width: 96%;
     height: 30px;
-    margin: 5px 5%;
-    display: grid;
-    grid-template-columns: repeat(4, min-content);
-    gap: 20px;
+    margin: 0 2% 5px 2%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    /* align-content: space-between; */
   }
 
   label {

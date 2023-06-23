@@ -4,10 +4,11 @@
    1. [Parsing](#parsing)
    2. [Distance Metrics](#distance-metrics)
    3. [Color Mapping](#color-mapping)
-   4. [UI](#ui)
-   5. [Views](#views)
-   6. [Publication](#publication)
-   7. [Future work](#future-work)
+   4. [Color Scales](#color-scales)
+   5. [UI](#ui)
+   6. [Views](#views)
+   7. [Publication](#publication)
+   8. [Future work](#future-work)
 
 ## Parsing
 
@@ -36,6 +37,9 @@
   - colors for each cluster
   - for bars within each cluster, assign brightness by leaf ordering
 
+## Color Scales
+
+- try more color scales, eg from https://github.com/mtennekes/cols4all
 
 
 ## UI
@@ -106,6 +110,7 @@
     - [ ] colorize bars
     - [ ] highlighting and interaction
     - [x] allow to toggle notes (to only show tab)
+    - [ ] allow to make bars same width https://github.com/CoderLine/alphaTab/discussions/1183#discussioncomment-6206027
 
 
 ## Publication

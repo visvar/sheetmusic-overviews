@@ -278,6 +278,7 @@
     window.setTimeout(() => {
       osmd.EngravingRules.FixedMeasureWidth = fixed;
       osmd.EngravingRules.FixedMeasureWidthFixedValue = 40;
+      osmd.EngravingRules.FixedMeasureWidthUseForPickupMeasures = true;
       osmd.EngravingRules.LastSystemMaxScalingFactor = 1;
       osmd.render();
     }, 0);

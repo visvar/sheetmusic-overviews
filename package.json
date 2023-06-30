@@ -70,7 +70,6 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
-    "@coderline/alphatab": "^1.2.3",
     "@saehrimnir/druidjs": "^0.6.3",
     "@types/d3": "^7.4.0",
     "canvg": "^4.0.1",

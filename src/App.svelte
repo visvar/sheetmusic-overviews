@@ -24,7 +24,6 @@
   import Help from './modals/Help.svelte';
   import About from './modals/About.svelte';
   import Player from './Player.svelte';
-  import Tab from './views/Tab.svelte';
 
   // View
   // let views = ['Tracks', 'Tree', 'Compressed', 'Compact', 'Score', 'Tab'];
@@ -326,22 +325,6 @@
           {/if}
         </div>
         <div class="scoreContainer">
-          {#if currentViews.has('Tab') && alphaTabScore}
-            <Tab
-              width="{viewWidth}"
-              height="{contentHeight}"
-              musicpiece="{musicpiece}"
-              musicxml="{musicxml}"
-              alphaTabScore="{alphaTabScore}"
-              trackIndex="{trackIndex}"
-              colorMode="{colorMode}"
-              measures="{measures}"
-              measureColors="{measureColors}"
-              sectionInfo="{sectionInfo}"
-              sectionColors="{sectionColors}"
-              bind:selectedMeasure="{selectedMeasure}"
-            />
-          {/if}
           {#if currentViews.has('Score') && musicxml && musicpiece && track && measureColors.length > 0}
             <Score
               width="{viewWidth}"

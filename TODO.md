@@ -1,18 +1,17 @@
 # TODO
 
-1. [TODO](#todo)
-   1. [Parsing](#parsing)
-   2. [Distance Metrics](#distance-metrics)
-   3. [Color Mapping](#color-mapping)
-   4. [Color Scales](#color-scales)
-   5. [UI](#ui)
-   6. [Views](#views)
-   7. [Publication](#publication)
-   8. [Future work](#future-work)
+- [TODO](#todo)
+  - [Parsing](#parsing)
+  - [Distance Metrics](#distance-metrics)
+  - [Color Mapping](#color-mapping)
+  - [UI](#ui)
+  - [Views](#views)
+  - [Publication](#publication)
+  - [Future work](#future-work)
 
 ## Parsing
 
-- [feature] parse .gp files with alphatab into a MusicPiece
+- [feature] parse .gp files with alphatab into a ~~MusicPiece~~ new data structure
   - [x] basic parsing
   - [ ] note timing
   - [ ] fix duplicate notes
@@ -21,9 +20,8 @@
 
 ## Distance Metrics
 
-- metric that takes rhythm into account, maybe like simeon's ie levenshtein of both pitch and start, maybe also duration, differently weighted
+- metric that takes rhythm into account, levenshtein of both pitch and start, maybe also duration, differently weighted
 - levenshtein on only rhythm, not pitch
-
 
 ## Color Mapping
 
@@ -36,11 +34,6 @@
 - [feature] clustering with brightness for within-cluster similarity
   - colors for each cluster
   - for bars within each cluster, assign brightness by leaf ordering
-
-## Color Scales
-
-- try more color scales, eg from https://github.com/mtennekes/cols4all
-
 
 ## UI
 
@@ -55,7 +48,6 @@
 - metronome, mute player (or just gain slider)
   - easy with alphatab
 
-- [usability] allow to jump between sections when pressing pgup pgdown
 - [style] replace inputs with custom ones
 
 - tuning pitches parsed incorrectly when showing staff and tab
@@ -68,6 +60,7 @@
 - [cleanup] remove smui
   - view menu
   - player
+  - keep for modals
 
 ## Views
 
@@ -112,16 +105,15 @@
     - [x] allow to toggle notes (to only show tab)
     - [ ] allow to make bars same width https://github.com/CoderLine/alphaTab/discussions/1183#discussioncomment-6206027
 
+- [documentation] to showcase, visualize 1D positions or clustering tree with bars as glyphs
 
 ## Publication
 
-- [documentation] to showcase, visualize 1D positions or clustering tree with bars as glyphs
 - add about modal
 - update help model, explain every button and interaction
 - github pages: https://hrishikeshpathak.com/blog/svelte-gh-pages
 - publish https://observablehq.com/@fheyen/sequence-immediate-repetition-hierarchies
   - link to it from mvlib code
-
 
 ## Future work
 

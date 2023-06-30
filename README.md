@@ -1,31 +1,15 @@
-# sheetmusic-overviews
+# Visual Overviews for Sheet Music Structure
 
-Different visual overviews for sheet music.
+Live web app at [https://visvar.github.io/sheetmusic-overviews].
 
-Live web app at [TODO].
+See our ISMIR 2023 paper and [supplemental material](./supplemental.pdf) for more.
 
-See our paper for more.
 
 ## Running Locally
 
 You need to have NodeJS and npm or pnpm installed.
 
-- `cd sheetmusic-overviews`
-- `npm i`
-- `npm run serve`
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Developing
-
-You need to have NodeJS and npm or pnpm installed.
-
-- `cd sheetmusic-overviews`
 - `npm i`
 - `npm start`
 
 Open the URL written in the console in your browser.
-
-## Contributing
-
-TODO

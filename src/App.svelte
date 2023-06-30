@@ -235,17 +235,17 @@
 
         <!-- Info and help modal butons -->
         <Section align="end" toolbar>
-          <!-- <IconButton
-            on:click={() => (showAbout = true)}
-            class="material-icons"
-          >
-            info
-          </IconButton> -->
           <IconButton
             on:click="{() => (showHelp = true)}"
             class="material-icons"
           >
             help
+          </IconButton>
+          <IconButton
+            on:click="{() => (showAbout = true)}"
+            class="material-icons"
+          >
+            info
           </IconButton>
         </Section>
       </Row>

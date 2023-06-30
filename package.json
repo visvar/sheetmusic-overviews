@@ -1,7 +1,7 @@
 {
-  "name": "vite-test",
-  "private": true,
-  "version": "0.0.0",
+  "name": "sheetmusic-overviews",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "start": "vite",
@@ -13,7 +13,9 @@
     "smui-theme-light": "smui-theme compile public/build/smui.css -i src/theme",
     "smui-theme-dark": "smui-theme compile public/build/smui-dark.css -i src/theme/dark",
     "upd": "npm-check-updates -u",
-    "upd:i": "npm-check-updates -u && npm i && npm audit fix"
+    "upd:i": "npm-check-updates -u && npm i && npm audit fix",
+    "predeploy": "npm run build",
+    "deploy": "npx gh-pages -d dist"
   },
   "devDependencies": {
     "@material/animation": "^14.0.0",
@@ -57,6 +59,7 @@
     "@smui/tooltip": "^6.1.4",
     "@smui/top-app-bar": "^6.1.4",
     "@sveltejs/vite-plugin-svelte": "^2.4.1",
+    "gh-pages": "^5.0.0",
     "npm-check-updates": "^16.10.12",
     "serve": "^14.2.0",
     "smui-theme": "^6.2.0",

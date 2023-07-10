@@ -6,7 +6,6 @@
   - [Color Mapping](#color-mapping)
   - [UI](#ui)
   - [Views](#views)
-  - [Publication](#publication)
   - [Future work](#future-work)
 
 ## Parsing
@@ -21,7 +20,6 @@
 ## Distance Metrics
 
 - metric that takes rhythm into account, levenshtein of both pitch and start, maybe also duration, differently weighted
-- levenshtein on only rhythm, not pitch
 
 ## Color Mapping
 
@@ -39,7 +37,7 @@
 
 - show note color legend in tree when notes are shown
 - player
-  - [bug] seems one bar ahead for muse - hysteria
+  - [bug] seems one bar ahead for some pieces
 - make showTrailingRests global
 - show meter and tempo changes in tracks view
     - also draw ticks for bars numbers
@@ -48,10 +46,8 @@
 - metronome, mute player (or just gain slider)
   - easy with alphatab
 
-- [style] replace inputs with custom ones
-
 - tuning pitches parsed incorrectly when showing staff and tab
-- keyboard left and right arrows allow to select non-existent bars when there are repetitions
+- expand repetitions in XML for consistent display over all views
 
 - [feature] PDF export of colored sheet music (lib/pdf.js)
   - allow paged mode (currently messes up coloring)
@@ -64,25 +60,13 @@
 
 ## Views
 
-- when only score/tab is shown, make it full width
-
 - [readability] make borders around highlighted things thicker, eg in tree view
-
-- tree
-  - [feature] allow to compress only 1, 2, ... levels, has to be done in mvlib
 
 - score
   - bounding boxes are wrong sometimes
   - OSMD does not work when tab has notes removed
   - does not work for some musicxml files
-    - because of OSMD
-      - fafners gold
-      - master of puppets
-      - iron man
-  - show guitar capo, ...
-  - [readability] make bars same width in score: https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1314
   - [feature] animate scrolling a bit, maybe ease-in
-  - [feature] highlight individual chords and notes? https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/wiki/Exploring-the-Demo#drawing-overlay-lines-over-the-score-and-getting-a-notes-position
 
 - compressed
   - should scroll to show current bar in center or left
@@ -90,14 +74,11 @@
 - compact
   - [bug] compact view does not work when another than the first track selected
     - leading rests causes it, probably wrong measure times
-    - bar background overdraws notes??
-    - is switching the bug? try hardcoding track 2
   - [readability] repeated notes should also work for repeated chords
-    - requires rendering chord for chord
   - colored line above section/motif, to better see when the same color comes twice in a row, where the new part starts
 
 - tab view
-  - [feature] render with alphatab
+  - [feature] render guitar tabs with alphatab
     - [x] integrate alphatab and render an example
     - [ ] render musicxml or .gp
     - [ ] colorize bars
@@ -105,32 +86,22 @@
     - [x] allow to toggle notes (to only show tab)
     - [ ] allow to make bars same width https://github.com/CoderLine/alphaTab/discussions/1183#discussioncomment-6206027
 
-- [documentation] to showcase, visualize 1D positions or clustering tree with bars as glyphs
-
-## Publication
-
-- add about modal
-- update help model, explain every button and interaction
-- github pages: https://hrishikeshpathak.com/blog/svelte-gh-pages
-- publish https://observablehq.com/@fheyen/sequence-immediate-repetition-hierarchies
-  - link to it from mvlib code
-
 ## Future work
 
 - allow to select multiple consecutive bars
-- allow playing only curent selection / loop it
-- selection of two consecute sequences of bars
+- allow playing only current selection/loop it
+- selection of two consecutive sequences of bars
   - comparison of two selections
-- allow to see multiple instruments at same time
-- allow to manually assign colors to selections to overwrite coloring
-- include metrics as coloring source
+- allow to see multiple instruments at the same time
+- allow to manually assign colors to selections to overwrite coloring, apply to other occurrences automatically
+- include metrics as a coloring source
 - try to add section labels to compressed as well
 - get colors from compressed blocks: each block that is repeated or in between reps gets its own color
-- new note encodings
+- new note encoding
   - drums
   - staff
-- support 7 string guitar, 4 string bass etc
-  - check tuning pitches to get number of strings, then compute bbox of measures from that?
+- support 7-string guitar, 4-string bass, etc
+  - check tuning pitches to get the number of strings, then compute bbox of measures from that?
   - sheet
   - score
 - drum playback

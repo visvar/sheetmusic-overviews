@@ -4,7 +4,7 @@
   import JSZip from 'jszip';
   import { createEventDispatcher } from 'svelte';
   import { drawColorRamp } from './lib/lib.js';
-  import * as alphaTab from '@coderline/alphatab';
+  // import * as alphaTab from '@coderline/alphatab';
   import { fromAlphaTab } from './lib/MusicPieceGp.js';
 
   const dispatch = createEventDispatcher();
@@ -24,17 +24,17 @@
   let fileInput;
   let colorRampCanvas;
 
-  const musicXMlToAlphaTab = async (musicxml) => {
-    // convert to binary first for alphatab
-    const binary = new Blob([musicxml]);
-    const data = new Uint8Array(await binary.arrayBuffer());
-    const settings = new alphaTab.Settings();
-    const score = alphaTab.importer.ScoreLoader.loadScoreFromBytes(
-      data,
-      settings
-    );
-    return score;
-  };
+  // const musicXMlToAlphaTab = async (musicxml) => {
+  //   // convert to binary first for alphatab
+  //   const binary = new Blob([musicxml]);
+  //   const data = new Uint8Array(await binary.arrayBuffer());
+  //   const settings = new alphaTab.Settings();
+  //   const score = alphaTab.importer.ScoreLoader.loadScoreFromBytes(
+  //     data,
+  //     settings
+  //   );
+  //   return score;
+  // };
 
   // Parse MusicXML into a MusicPiece
   const handleFileInput = async (event) => {
@@ -68,15 +68,15 @@
       )[0];
       musicxml = await extracted.file(scoreFile).async('string');
       musicpiece = MusicPiece.fromMusicXml(n, musicxml);
-    } else if (n.endsWith('.gp')) {
-      // guitar pro
-      const data = new Uint8Array(await file.arrayBuffer());
-      const settings = new alphaTab.Settings();
-      alphaTabScore = alphaTab.importer.ScoreLoader.loadScoreFromBytes(
-        data,
-        settings
-      );
-      musicpiece = fromAlphaTab(n, alphaTabScore);
+      // } else if (n.endsWith('.gp')) {
+      //   // guitar pro
+      //   const data = new Uint8Array(await file.arrayBuffer());
+      //   const settings = new alphaTab.Settings();
+      //   alphaTabScore = alphaTab.importer.ScoreLoader.loadScoreFromBytes(
+      //     data,
+      //     settings
+      //   );
+      //   musicpiece = fromAlphaTab(n, alphaTabScore);
     } else {
       alert('Invalid file');
       return;

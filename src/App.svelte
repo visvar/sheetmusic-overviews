@@ -24,7 +24,7 @@
   import Help from './modals/Help.svelte';
   import About from './modals/About.svelte';
   import Player from './Player.svelte';
-  import Tab from './views/Tab.svelte';
+  // import Tab from './views/Tab.svelte';
 
   // View
   // let views = ['Tracks', 'Tree', 'Compressed', 'Compact', 'Score', 'Tab'];

@@ -194,7 +194,7 @@
     <select bind:value="{selectedTrack}" disabled="{!musicpiece}">
       {#each tracks as track, i}
         <option value="{i}" title="{`${i} ${track.name}`}">
-          {i}
+          {i + 1}
           {track.name.slice(0, 20)}
         </option>
       {/each}

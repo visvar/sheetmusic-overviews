@@ -16,7 +16,7 @@
   let showBarIndices = true;
   let container;
   let canvas;
-  let canvasHeight = height - 35;
+  let canvasHeight = height - 40;
   const barHeight = 80;
 
   $: repeatedIndices = Utils.findRepeatedIndices(
@@ -180,7 +180,7 @@
 
   .control {
     height: 26px;
-    /* margin-bottom: 4px; */
+    margin-bottom: 4px;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     justify-items: center;

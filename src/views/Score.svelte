@@ -206,7 +206,7 @@
     }
     console.log('osmd colorizing SVG');
     const svg = d3.select(container.getElementsByTagName('svg')[0]);
-    // TODO: remove old rects or better: add when rendered and then only change later
+    // remove old rects
     svg.selectAll('.coloredMeasure').remove();
 
     // console.log("measureInfo", measureInfo);
@@ -230,7 +230,10 @@
         staffType === 'tab' ? tabStaffHeight : noteStaffHeight;
 
       let h = staffHeight1;
-      if (m.length > 1) {
+      if (
+        m.length > 1 &&
+        (staffType === 'notes-tab' || staffType === 'notes-notes')
+      ) {
         const y2 = m[1].boundingBox.absolutePosition.y;
         const staffHeight2 =
           staffType === 'notes-tab' ? tabStaffHeight : noteStaffHeight;
@@ -329,12 +332,21 @@
     }
   };
 
+  const reactToDataOrSizeChange = async () => {
+    await renderOSMD();
+    await Utils.delay(0.2);
+    await osmd.render();
+    await Utils.delay(0.2);
+    measureInfo = getMeasureInfo(osmd);
+    colorizeSvg();
+  };
+
   // Update depending on prop change
   $: if (true || musicxml || container || trackIndex) {
     loadOSMD();
   }
   $: if (true || width || osmd) {
-    renderOSMD().then(() => Utils.delay(0.2).then(colorizeSvg));
+    reactToDataOrSizeChange();
   }
   $: if (true || colors) {
     colorizeSvg();
@@ -381,7 +393,8 @@
       />
       <span>Fixed width</span>
     </label>
-    <button on:click="{() => createPng(osmd, musicpiece.name)}">export</button>
+    <!-- TODO: export is broken -->
+    <!-- <button on:click="{() => createPng(osmd, musicpiece.name)}">export</button> -->
     <!-- <button
       on:click="{() => {
         pageFormat = pageFormat === 'A4_P' ? 'endless' : 'A4_P';

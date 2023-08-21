@@ -1,12 +1,13 @@
 # TODO
 
-- [TODO](#todo)
-  - [Parsing](#parsing)
-  - [Distance Metrics](#distance-metrics)
-  - [Color Mapping](#color-mapping)
-  - [UI](#ui)
-  - [Views](#views)
-  - [Future work](#future-work)
+1. [TODO](#todo)
+   1. [Parsing](#parsing)
+   2. [Distance Metrics](#distance-metrics)
+   3. [Color Mapping](#color-mapping)
+   4. [UI](#ui)
+   5. [Note Rendering](#note-rendering)
+   6. [Views](#views)
+   7. [Future work](#future-work)
 
 ## Parsing
 
@@ -23,6 +24,12 @@
 
 ## Color Mapping
 
+- [feature] color each bar by metrics
+  - note density
+  - note count
+  - variance of pitch, duration, ...
+  - ratio of pauses to notes
+  - ...
 - [feature] color each bar/chord by scale
   - key detection: https://tonaljs.github.io/tonal/module-Detect.html#~scale
 - [performance] make clustering more performant by not reclustering on threshold change
@@ -50,6 +57,7 @@
 - expand repetitions in XML for consistent display over all views
 
 - [feature] PDF export of colored sheet music (lib/pdf.js)
+  - [bug] export currently sometimes only exports part of the score, cutting of at some width and height
   - allow paged mode (currently messes up coloring)
   - fix tab notes not being exported correctly, see https://github.com/opensheetmusicdisplay/opensheetmusicdisplay/issues/1371
 
@@ -58,13 +66,18 @@
   - player
   - keep for modals
 
+## Note Rendering
+
+- detect instrument and select note rendering automatically? or suggest and let user apply/cancel
+- [feature] drum note encoding
+
 ## Views
 
 - [readability] make borders around highlighted things thicker, eg in tree view
 
 - score
+  - [bug] avoid colored rects overlapping the ones in the next bar row by finding the next larger y and taking the min(yBottomCurrentRow, yTopNextRow-10)
   - bounding boxes are wrong sometimes
-  - OSMD does not work when tab has notes removed
   - does not work for some musicxml files
   - [feature] animate scrolling a bit, maybe ease-in
 

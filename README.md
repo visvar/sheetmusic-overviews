@@ -4,6 +4,7 @@ Live web app at [visvar.github.io/sheetmusic-overviews](https://visvar.github.io
 Try out one of the example files in [examples/](./examples/).
 
 See our ISMIR 2023 paper and [supplemental material](./supplemental.pdf) for more.
+See also [this notebook](https://observablehq.com/@fheyen/colored-tablature) and this [example for lyrics](https://observablehq.com/@fheyen/colored-lyrics)!
 
 More research on our website [visvar.github.io](https://visvar.github.io/).
 

@@ -101,11 +101,11 @@
 
 ## Future work
 
-- allow to select multiple consecutive bars
-- allow playing only current selection/loop it
-- selection of two consecutive sequences of bars
-  - comparison of two selections
-- allow to see multiple instruments at the same time
+- [concept] two-dimensional color map for two metrics at once, e.g., rhythmic and melodic similarity
+- [feature] allow playing only current selection/loop it
+- [feature] allow to select multiple consecutive bars
+   - selection of two consecutive sequences of bars, comparison of two selections
+- allow to see multiple instruments at the same time and compare them
 - allow to manually assign colors to selections to overwrite coloring, apply to other occurrences automatically
 - include metrics as a coloring source
 - try to add section labels to compressed as well

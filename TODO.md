@@ -24,6 +24,7 @@
 
 ## Color Mapping
 
+- [feature] use double barlines to split into finer sub-sections
 - [feature] color each bar by metrics
   - note density
   - note count

@@ -3,7 +3,7 @@
 Live web app at [visvar.github.io/sheetmusic-overviews](https://visvar.github.io/sheetmusic-overviews/).
 Try out one of the example files in [examples/](./examples/).
 
-See our ISMIR 2023 paper and [supplemental material](./supplemental.pdf) for more.
+Please read our [ISMIR 2023 paper](./paper.df) and [supplemental material](./supplemental.pdf) for more details.
 See also [this notebook](https://observablehq.com/@fheyen/colored-tablature) and this [example for lyrics](https://observablehq.com/@fheyen/colored-lyrics)!
 
 More research on our website [visvar.github.io](https://visvar.github.io/).
@@ -15,4 +15,4 @@ You need to have NodeJS and npm or pnpm installed.
 - `npm i`
 - `npm start`
 
-Open the URL written in the console in your browser.
+Open the URL shown in the console in your browser.

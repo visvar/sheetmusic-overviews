@@ -326,7 +326,7 @@
           {/if}
         </div>
         <div class="scoreContainer">
-          {#if currentViews.has('Tab') && alphaTabScore}
+          <!-- {#if currentViews.has('Tab') && alphaTabScore}
             <Tab
               width="{viewWidth}"
               height="{contentHeight}"
@@ -341,7 +341,7 @@
               sectionColors="{sectionColors}"
               bind:selectedMeasure="{selectedMeasure}"
             />
-          {/if}
+          {/if} -->
           {#if currentViews.has('Score') && musicxml && musicpiece && track && measureColors.length > 0}
             <Score
               width="{viewWidth}"

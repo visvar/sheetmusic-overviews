@@ -19,7 +19,7 @@
     <h3>Code and More</h3>
 
     <a
-      href="https://visvar.github.io/sheetmusic-overviews"
+      href="https://github.com/visvar/sheetmusic-overviews"
       target="_blank"
       rel="noreferrer"
     >

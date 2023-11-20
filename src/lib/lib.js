@@ -3,7 +3,7 @@ import { Chords, StringBased, Utils, Note, GuitarNote } from 'musicvis-lib'
 import * as druid from '@saehrimnir/druidjs'
 import * as d3 from 'd3'
 
-function mod12(p) { return p % 12 }
+function mod12 (p) { return p % 12 }
 
 /**
  * Calculates the pairwise distances between all elements of noteCollections
@@ -11,7 +11,7 @@ function mod12(p) { return p % 12 }
  * @param {'levenshteinPitchStart'|'levenshteinPitch'|'gotohPitch'|'levenshteinStringFret'|'jaccardPitch'|'chordJaccard'} distanceMetric distance metric
  * @returns {number[][]} distance matrix
  */
-export function getDistanceMatrix(noteCollections, distanceMetric) {
+export function getDistanceMatrix (noteCollections, distanceMetric) {
   // Preprocess only once for better performance
   let prepr
   let prepr2
@@ -99,7 +99,7 @@ export function getDistanceMatrix(noteCollections, distanceMetric) {
  * @param {Array} array2 another array
  * @returns {boolean} true if euqal
  */
-export function flattenedArrayEquals(array1, array2) {
+export function flattenedArrayEquals (array1, array2) {
   const flat1 = array1.flat(Infinity)
   const flat2 = array2.flat(Infinity)
   if (flat1.length !== flat2.length) {
@@ -119,7 +119,7 @@ export function flattenedArrayEquals(array1, array2) {
  * @param {function} colormap colormap [0,1]=>string
  * @returns {string[]} colors
  */
-export function getColorsViaMDSFromDistances(distMatrix, colormap) {
+export function getColorsViaMDSFromDistances (distMatrix, colormap) {
   if (distMatrix.length === 0) { return [] }
   // DR
   const DR = new druid.MDS(distMatrix)
@@ -144,7 +144,7 @@ export function getColorsViaMDSFromDistances(distMatrix, colormap) {
  * cut-off
  * @returns {string[]} colors
  */
-export function getColorsViaClusteringFromDistances(
+export function getColorsViaClusteringFromDistances (
   distMatrix,
   colormap,
   clusterThreshold = 0,
@@ -166,7 +166,7 @@ export function getColorsViaClusteringFromDistances(
    * @param {object} node tree node
    * @returns {object[]} nodes
    */
-  function preOrderTraverse(node) {
+  function preOrderTraverse (node) {
     const nodes = []
     // Next node always at last position
     const todo = [node]
@@ -215,10 +215,10 @@ export function getColorsViaClusteringFromDistances(
     .map((d) => d.cIndex)
   const scaleColor = d3
     .scaleLinear()
-    .domain([0, clusters.length])
+    .domain([0, clusters.length - 1])
     .range([0, 1])
   const measureColors = measureClusters.map((d) =>
-    colormap(scaleColor(d + 0.5))
+    colormap(scaleColor(d))
   )
   // measureClusters is an array with array[measureIndex] = clusterId
   // return { measureClusters, measureColors, nClusters: clusters.length };
@@ -232,7 +232,7 @@ export function getColorsViaClusteringFromDistances(
  * @param {function} colormap colormap [0,1]=>string
  * @param {number} [depth=2] determines the depth where to cut the hierachy
  */
-export function getColorsViaCompression(distMatrix, colormap, depth = 2) {
+export function getColorsViaCompression (distMatrix, colormap, depth = 2) {
   if (distMatrix.length === 0) { return [] }
   const repeatedIndices = Utils.findRepeatedIndices(
     d3.range(0, distMatrix.length),
@@ -346,7 +346,7 @@ export function getColorsViaCompression(distMatrix, colormap, depth = 2) {
  * @param {number[][]} distMatrix distance matrix
  * @param {function} colormap colormap [0,1]=>string
  */
-export function getColorsViaOccurence(distMatrix, colormap) {
+export function getColorsViaOccurence (distMatrix, colormap) {
   const occurences = distMatrix.map((row, i) => [i, count(row, 0)])
   occurences.sort((a, b) => a[1] - b[1])
   const scale = d3.scaleLinear().domain([0, occurences.length])
@@ -366,7 +366,7 @@ export function getColorsViaOccurence(distMatrix, colormap) {
  * use ===. Comparator has to return true when values are regarded as equal
  * @returns {number} count
  */
-function count(array, value, comparator) {
+function count (array, value, comparator) {
   let count = 0
   if (!comparator) {
     // Use ===
@@ -394,7 +394,7 @@ function count(array, value, comparator) {
  * @param {string[]} selectors e.g., ['mytag', '.myclass', '#myid']
  * @returns {XMLDocument} the changed input document
  */
-export function removeXmlElements(parsedXml, selectors) {
+export function removeXmlElements (parsedXml, selectors) {
   for (const selector of selectors) {
     const elements = parsedXml.querySelectorAll(selector)
     for (const element of elements) {
@@ -413,7 +413,7 @@ export function removeXmlElements(parsedXml, selectors) {
  * @param height
  * @param colorMap
  */
-export function drawColorRamp(canvas, width, height, colorMap) {
+export function drawColorRamp (canvas, width, height, colorMap) {
   if (!canvas || !colorMap) {
     return
   }
@@ -432,7 +432,7 @@ export function drawColorRamp(canvas, width, height, colorMap) {
  * Used for AlphaTab time display
  * @param {number} milliseconds time in milliseconds
  */
-export function formatDuration(milliseconds) {
+export function formatDuration (milliseconds) {
   let seconds = milliseconds / 1000
   const minutes = (seconds / 60) | 0
   seconds = (seconds - minutes * 60) | 0

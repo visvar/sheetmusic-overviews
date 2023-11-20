@@ -80,7 +80,7 @@
       for (const currentBarIndex of tree) {
         if (showBarIndices && blockWidth > 20) {
           // Bar index, where this bar first appeared in the track
-          context.fillText(currentBarIndex, x + offset, y - 1);
+          context.fillText(currentBarIndex + 1, x + offset, y - 1);
         }
         const notes = measures[currentBarIndex];
         // To know if highlighted, we have to check if any identical is selected
